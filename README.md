@@ -37,21 +37,14 @@ The code to run simulations is organized as follows:
 
 Detailed installation and execution instructions can be found in the [Komondor User's Guide](https://github.com/wn-upf/Komondor/blob/master/Documentation/User%20guide/LaTeX%20files/komondor_user_guide.pdf).
 
-In short, to run Komondor, just build the project by using the "build_local" script and then execute it by following the next steps:
-
-STEP 0: Set permissions to the folder
+In short, to run Komondor, just build the project by using the Makefile:
 
 ```
-$ chmod -R 777 <dirname>
+$ cd Komondor/Code/main
+$ make
 ```
 
-STEP 1: Build the project
-
-```
-$ ./build_local
-```
-
-STEP 2: Run Komondor simulator for the given input information (basic simulation)
+Now you should be able to run the Komondor simulator for the given input information (basic simulation)
 
 ```
 $ ./komondor_main INPUT_FILE_SYSTEM_CONFIGURATION INPUT_FILE_NODES OUTPUT_FILE_LOGS FLAG_SAVE_SYSTEM_LOGS FLAG_SAVE_NODE_LOGS FLAG_PRINT_SYSTEM_LOGS FLAG_PRINT_NODE_LOGS SIM_TIME SEED
