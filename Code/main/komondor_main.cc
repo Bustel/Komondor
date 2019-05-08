@@ -68,6 +68,9 @@
 #include "agent.h"
 #include "central_controller.h"
 
+#include <glib.h>
+#include <glib/gprintf.h>
+
 int total_nodes_number;         // Total number of nodes
 char* tmp_nodes;
 
@@ -852,118 +855,154 @@ void Komondor :: SetupEnvironmentByReadingInputFile(const char *system_filename)
     if (print_system_logs) printf("%s Reading system configuration file '%s'...\n", LOG_LVL1, system_filename);
     fprintf(simulation_output_file, "%s KOMONDOR SIMULATION '%s' (seed %d)", LOG_LVL1, simulation_code.c_str(), seed);
 
-    FILE* stream_system = fopen(system_filename, "r");
-    if (!stream_system){
-        printf("%s Komondor system file '%s' not found!\n", LOG_LVL3, system_filename);
-        fprintf(simulation_output_file, "%s Komondor system file '%s' not found!\n", LOG_LVL3, system_filename);
+    GError* error = NULL;
+    GKeyFile* key_file = g_key_file_new();
+
+    if (!g_key_file_load_from_file(key_file, system_filename, G_KEY_FILE_NONE, &error)){
+        printf("Error loading configuration file\n");
         exit(-1);
     }
 
-    char line_system[CHAR_BUFFER_SIZE];
-    int first_line_skiped_flag (0); // Flag for skipping first informative line of input file
-
-    while (fgets(line_system, CHAR_BUFFER_SIZE, stream_system)){
-
-        if(!first_line_skiped_flag){
-
-            first_line_skiped_flag = 1;
-
-        } else {
-
-            char* tmp = strdup(line_system);
-
-            // Number of channels
-            tmp = strdup(line_system);
-            const char* num_channels_char (GetField(tmp, IX_NUM_CHANNELS));
-            num_channels_komondor = atoi(num_channels_char);
-
-            // Basic channel bandwidth
-            tmp = strdup(line_system);
-            const char* basic_channel_bandwidth_char (GetField(tmp, IX_BASIC_CH_BW));
-            basic_channel_bandwidth = atoi(basic_channel_bandwidth_char);
-
-            // Prob. distribution of backoff duration
-            tmp = strdup(line_system);
-            const char* pdf_backoff_char (GetField(tmp, IX_PDF_BACKOFF));
-            pdf_backoff = atoi(pdf_backoff_char);
-
-            // Prob. distribution of transmission duration
-            tmp = strdup(line_system);
-            const char* pdf_tx_time_char (GetField(tmp, IX_PDF_TX_TIME));
-            pdf_tx_time = atoi(pdf_tx_time_char);
-
-            // Data packet length
-            tmp = strdup(line_system);
-            const char* packet_length_char (GetField(tmp, IX_PACKET_LENGTH));
-            frame_length = atoi(packet_length_char);
-
-            // Number of packets aggregated in one transmission
-            tmp = strdup(line_system);
-            const char* num_packets_aggregated_char (GetField(tmp, IX_NUM_PACKETS_AGGREGATED));
-            max_num_packets_aggregated = atoi(num_packets_aggregated_char);
-
-            // Path loss model
-            tmp = strdup(line_system);
-            const char* path_loss_model_char (GetField(tmp, IX_PATH_LOSS));
-            path_loss_model = atoi(path_loss_model_char);
-
-            // capture_effect
-            tmp = strdup(line_system);
-            const char* capture_effect_char (GetField(tmp, IX_CAPTURE_EFFECT));
-            double capture_effect_db (atof(capture_effect_char));
-            capture_effect = ConvertPower(DB_TO_LINEAR, capture_effect_db);
-
-            // Noise level
-            tmp = strdup(line_system);
-            const char* noise_level_char (GetField(tmp, IX_NOISE_LEVEL));
-            double noise_level_dbm (atof(noise_level_char));
-            noise_level = ConvertPower(DBM_TO_PW, noise_level_dbm);
-
-            // Co-channel model
-            tmp = strdup(line_system);
-            const char* adjacent_channel_model_char (GetField(tmp, IX_COCHANNEL_MODEL));
-            adjacent_channel_model = atof(adjacent_channel_model_char);
-
-            // Collisions model
-            tmp = strdup(line_system);
-            const char* collisions_model_char (GetField(tmp, IX_COLLISIONS_MODEL));
-            collisions_model = atof(collisions_model_char);
-
-            // Constant PER for successful transmissions
-            tmp = strdup(line_system);
-            const char* constant_PER_char (GetField(tmp, IX_CONSTANT_PER));
-            constant_per = atof(constant_PER_char);
-
-            // Traffic model
-            tmp = strdup(line_system);
-            const char* traffic_model_char (GetField(tmp, IX_TRAFFIC_MODEL));
-            traffic_model = atoi(traffic_model_char);
-
-            // Backoff type
-            tmp = strdup(line_system);
-            const char* backoff_type_char (GetField(tmp, IX_BO_TYPE));
-            backoff_type = atoi(backoff_type_char);
-
-            // Contention window adaptation
-            tmp = strdup(line_system);
-            const char* cw_adaptation_char (GetField(tmp, IX_CW_ADAPTATION));
-            cw_adaptation = atoi(cw_adaptation_char);
-
-            // PIFS mechanism activation
-            tmp = strdup(line_system);
-            const char* pifs_activated_char (GetField(tmp, IX_PIFS_ACTIVATION));
-            pifs_activated = atoi(pifs_activated_char);
-
-            // PIFS mechanism activation
-            tmp = strdup(line_system);
-            const char* capture_effect_model_char (GetField(tmp, IX_CAPTURE_EFFECT_MODEL));
-            capture_effect_model = atoi(capture_effect_model_char);
-
-            free(tmp);
-        }
+    gint val_int = 0;
+    const gchar* key = "num_channels"; 
+    val_int = g_key_file_get_integer(key_file, "System", key, &error);
+    if (error != NULL){
+        printf("Unable to parse %s parameter in config file!\n",key);
+        exit(-1);
     }
+    num_channels_komondor = val_int;
 
-    fclose(stream_system);
+    key = "basic_channel_bandwidth";
+    val_int = g_key_file_get_integer(key_file, "System",key, &error);
+    if (error != NULL){
+        printf("Unable to parse %s parameter in config file!\n", key);
+        exit(-1);
+    }
+    basic_channel_bandwidth = val_int;
+
+    key = "pdf_backoff";
+    val_int = g_key_file_get_integer(key_file, "System",key, &error);
+    if (error != NULL){
+        printf("Unable to parse %s parameter in config file!\n", key);
+        exit(-1);
+    }
+    pdf_backoff = val_int;
+
+    key = "pdf_tx_time";
+    val_int = g_key_file_get_integer(key_file, "System",key, &error);
+    if (error != NULL){
+        printf("Unable to parse %s parameter in config file!\n", key);
+        exit(-1);
+    }
+    pdf_tx_time = val_int;
+
+    key = "packet_length";
+    val_int = g_key_file_get_integer(key_file, "System",key, &error);
+    if (error != NULL){
+        printf("Unable to parse %s parameter in config file!\n", key);
+        exit(-1);
+    }
+    frame_length = val_int; //WHY THE HELL IS A PACKET NOW A FRAME??
+
+    key = "num_packets_aggregated";
+    val_int = g_key_file_get_integer(key_file, "System",key, &error);
+    if (error != NULL){
+        printf("Unable to parse %s parameter in config file!\n", key);
+        exit(-1);
+    }
+    max_num_packets_aggregated = val_int;
+
+    key = "path_loss_model";
+    val_int = g_key_file_get_integer(key_file, "System",key, &error);
+    if (error != NULL){
+        printf("Unable to parse %s parameter in config file!\n", key);
+        exit(-1);
+    }
+    path_loss_model = val_int;
+
+    key = "capture_effect";
+    val_int = g_key_file_get_integer(key_file, "System",key, &error);
+    if (error != NULL){
+        printf("Unable to parse %s parameter in config file!\n", key);
+        exit(-1);
+    }
+    capture_effect = ConvertPower(DB_TO_LINEAR, val_int);
+
+    key = "noise_level";
+    val_int = g_key_file_get_integer(key_file, "System",key, &error);
+    if (error != NULL){
+        printf("Unable to parse %s parameter in config file!\n", key);
+        exit(-1);
+    }
+    noise_level = ConvertPower(DBM_TO_PW, val_int);
+
+    key = "adjacent_channel_model";
+    val_int = g_key_file_get_integer(key_file, "System",key, &error);
+    if (error != NULL){
+        printf("Unable to parse %s parameter in config file!\n", key);
+        exit(-1);
+    }
+    adjacent_channel_model = val_int;
+
+    key = "collisions_model";
+    val_int = g_key_file_get_integer(key_file, "System",key, &error);
+    if (error != NULL){
+        printf("Unable to parse %s parameter in config file!\n", key);
+        exit(-1);
+    }
+    collisions_model = val_int;
+
+    key = "constant_PER";
+    val_int = g_key_file_get_integer(key_file, "System",key, &error);
+    if (error != NULL){
+        printf("Unable to parse %s parameter in config file!\n", key);
+        exit(-1);
+    }
+    constant_per = val_int;
+
+    key = "traffic_model";
+    val_int = g_key_file_get_integer(key_file, "System",key, &error);
+    if (error != NULL){
+        printf("Unable to parse %s parameter in config file!\n", key);
+        exit(-1);
+    }
+    traffic_model = val_int;
+
+    key = "backoff_type";
+    val_int = g_key_file_get_integer(key_file, "System",key, &error);
+    if (error != NULL){
+        printf("Unable to parse %s parameter in config file!\n", key);
+        exit(-1);
+    }
+    backoff_type = val_int;
+
+    key = "capture_effect_model";
+    val_int = g_key_file_get_integer(key_file, "System",key, &error);
+    if (error != NULL){
+        printf("Unable to parse %s parameter in config file!\n", key);
+        exit(-1);
+    }
+    capture_effect_model = val_int;
+
+    gboolean val_bool = FALSE; 
+    key = "cw_adaptation";
+    val_bool = g_key_file_get_boolean(key_file, "System", key, &error);
+    if (error != NULL){
+        printf("Unable to parse %s parameter in config file!\n", key);
+        exit(-1);
+    }
+    cw_adaptation = val_bool ? 1 : 0; //Backwards compatability in the code...
+
+    key = "pifs_activated";
+    val_bool = g_key_file_get_boolean(key_file, "System", key, &error);
+    if (error != NULL){
+        printf("Unable to parse %s parameter in config file!\n", key);
+        exit(-1);
+    }
+    pifs_activated = val_bool ? 1 : 0; //Backwards compatability in the code...
+
+    g_key_file_free(key_file);
+
 }
 
 /* *******************
@@ -1939,7 +1978,7 @@ int main(int argc, char *argv[]){
         return(-1);
     }
 
-    if (print_system_logs) {
+    if (print_system_logs){
         printf("%s Komondor input configuration:\n", LOG_LVL1);
         printf("%s system_input_filename: %s\n", LOG_LVL2, system_input_filename);
         printf("%s nodes_input_filename: %s\n", LOG_LVL2, nodes_input_filename);

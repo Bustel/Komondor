@@ -2,6 +2,8 @@ COST = ../COST/cxx
 MAIN = komondor_main  
 CC = g++
 FLAGS = -Wall -Werror
+INCLUDE = -I/usr/include/glib-2.0  -I/usr/lib/glib-2.0/include
+LIB = -lglib-2.0
 
 DEPS = ../COST/cost.h
 DEPS += ../list_of_macros.h
@@ -19,7 +21,7 @@ DEPS += $(shell find ../learning_modules -type f)
 	$(COST) $<
 
 $(MAIN): $(MAIN:=.cxx)
-	$(CC) $(FLAGS) -g -o $(MAIN) $(MAIN:=.cxx)
+	$(CC) $(FLAGS) $(INCLUDE) $(LIB) -g -o $(MAIN) $(MAIN:=.cxx)
 
 all: $(MAIN)
 
