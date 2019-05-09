@@ -1773,6 +1773,11 @@ void Komondor :: ParseNodes(const char* nodes_filename){
         //Because the original authors do not understand the concept of pointers we have to this:
         //Otherwise the the APs doesnt know which stations he has...
         node_container[wlan_container[i].ap_id].wlan = wlan_container[i];
+        gint st; 
+        for (st=0; st<wlan_container[i].num_stas; st++){
+            gint sta_id = wlan_container[i].list_sta_id[st];
+            node_container[sta_id].wlan = wlan_container[i];
+        }
 
     }
 
