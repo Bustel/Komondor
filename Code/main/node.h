@@ -52,6 +52,7 @@
 #include <stddef.h>
 #include <iostream>
 #include <stdlib.h>
+#include <glib.h>
 
 #include "../list_of_macros.h"
 #include "../methods/auxiliary_methods.h"
@@ -68,13 +69,42 @@
 #include "../structures/node_configuration.h"
 #include "../structures/performance_metrics.h"
 
-//#define __SAVELOGS__
+#define __SAVELOGS__
 
 #ifdef __SAVELOGS__
     #define    LOGS(f,...)    fprintf(f, ##__VA_ARGS__)
 #else
     #define    LOGS(f,...)
 #endif
+
+struct NodeConfig {
+        gchar* code;
+        gint type;
+        gchar* wlan;
+        gint destination_id;
+        gdouble x;
+        gdouble y;
+        gdouble z;
+        gint primary_channel;
+        gint min_channel_allowed;
+        gint max_channel_allowed;
+        gint cw;
+        gint cw_stage;
+        gdouble tpc_min;
+        gdouble tpc_default;
+        gdouble tpc_max;
+        gdouble cca_min;
+        gdouble cca_default;
+        gdouble cca_max;
+        gint tx_antenna_gain;
+        gint rx_antenna_gain; 
+        gint channel_bonding_model;
+        gint modulation_default;
+        gdouble central_frequency;
+        gdouble lambda;
+        gint ieee_protocol;
+        gdouble traffic_load;
+}
 
 // Node component: "TypeII" represents components that are aware of the existence of the simulated time.
 component Node : public TypeII{
@@ -2921,8 +2951,8 @@ void Node :: SelectDestination(){
 	if(node_type == NODE_TYPE_OTHER) {
 		current_destination_id = default_destination_id;
 	}
-
 	current_destination_id = PickRandomElementFromArray(wlan.list_sta_id, wlan.num_stas);
+
 
 	// LOGS(node_logger.file, "%.15f;N%d;S%d;%s;%s SelectDestination() END\n", SimTime(), node_id, node_state, LOG_G00, LOG_LVL1);
 }

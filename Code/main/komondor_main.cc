@@ -92,6 +92,8 @@ component Komondor : public CostSimEng {
         void GenerateNodes(const char *nodes_filename);
         void GenerateNodesByReadingNodesInputFile(const char *nodes_filename);
 
+        void ParseNodes(const char* nodes_filename);
+
         void GenerateAgents(const char *agents_filename);
         void GenerateCentralController(const char *agents_filename);
 
@@ -1023,7 +1025,8 @@ void Komondor :: GenerateNodes(const char *nodes_filename) {
     //if(strstr(nodes_filename, FILE_NAME_CODE_NODES) != NULL)
     if (print_system_logs) printf("%s Generating nodes DETERMINISTICALLY through NODES input file...\n", LOG_LVL2);
     if (save_system_logs) fprintf(simulation_output_file, "%s Generating nodes DETERMINISTICALLY...\n", LOG_LVL2);
-    GenerateNodesByReadingNodesInputFile(nodes_filename);
+    //GenerateNodesByReadingNodesInputFile(nodes_filename);
+    ParseNodes(nodes_filename);
 
 }
 
@@ -1374,6 +1377,407 @@ void Komondor :: GenerateCentralController(const char *agents_filename) {
     } else {
         printf("%s WARNING: THE CENTRAL CONTROLLER DOES NOT HAVE ANY ATTACHED AGENT! CHECK YOUR AGENTS' INPUT FILE\n", LOG_LVL2);
     }
+
+}
+
+void Komondor :: ParseNodes(const char* nodes_filename){
+    GKeyFile* keyfile = g_key_file_new();
+    GError* error = NULL;
+
+    if (!g_key_file_load_from_file(keyfile, nodes_filename, G_KEY_FILE_NONE, &error)){
+        printf("Error loading configuration file %s \n", nodes_filename);
+        exit(-1);
+    }
+
+
+    gchar** groups = g_key_file_get_groups(keyfile, NULL); 
+    gchar** g_ptr;
+
+
+    gint num_nodes = 0;
+    gint num_aps = 0;
+    GSList* nodes = NULL;
+
+    for (g_ptr=groups; *g_ptr != NULL; g_ptr++){
+        gchar* g = *g_ptr;
+        if (!g_str_has_prefix(g,"Node_")){
+            continue;
+        }
+
+        printf("Parsing %s\n", g);
+       
+        gchar** split_strings; 
+        gchar* node_name; 
+        split_strings = g_strsplit(g, "Node_", 2);
+        node_name = g_strdup(split_strings[1]);
+        g_strfreev(split_strings);
+
+        const gchar* key;
+
+        key = "wlan_code";
+        gchar* wlan_code = g_key_file_get_string(keyfile, g, key, &error);
+        if (wlan_code == NULL){
+            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            exit(-1); 
+        }
+
+        key = "type";
+        gint node_type = g_key_file_get_integer(keyfile, g, key, &error);
+        if (error != NULL){
+            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            exit(-1); 
+        }
+
+        key = "destination_id";
+        gint destination_id = g_key_file_get_integer(keyfile, g, key, &error);
+        if (error != NULL){
+            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            exit(-1); 
+        }
+
+        key = "x";
+        gdouble pos_x = g_key_file_get_double(keyfile, g, key, &error);
+        if (error != NULL){
+            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            exit(-1); 
+        }
+
+        key = "y";
+        gdouble pos_y = g_key_file_get_double(keyfile, g, key, &error);
+        if (error != NULL){
+            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            exit(-1); 
+        }
+
+        key = "z";
+        gdouble pos_z = g_key_file_get_double(keyfile, g, key, &error);
+        if (error != NULL){
+            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            exit(-1); 
+        }
+
+        key = "primary_channel";
+        gint primary_channel = g_key_file_get_integer(keyfile, g, key, &error);
+        if (error != NULL){
+            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            exit(-1); 
+        }
+
+        key = "min_channel_allowed";
+        gint min_channel_allowed = g_key_file_get_integer(keyfile, g, key, &error);
+        if (error != NULL){
+            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            exit(-1); 
+        }
+           
+        key = "max_channel_allowed";
+        gint max_channel_allowed = g_key_file_get_integer(keyfile, g, key, &error);
+        if (error != NULL){
+            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            exit(-1); 
+        }
+
+        key = "cw";
+        gint cw = g_key_file_get_integer(keyfile, g, key, &error);
+        if (error != NULL){
+            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            exit(-1); 
+        }
+
+        key = "cw_stage";
+        gint cw_stage = g_key_file_get_integer(keyfile, g, key, &error);
+        if (error != NULL){
+            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            exit(-1); 
+        }
+
+        key = "tpc_min";
+        gdouble tpc_min_dbm = g_key_file_get_double(keyfile, g, key, &error);
+        if (error != NULL){
+            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            exit(-1); 
+        }
+
+        key = "tpc_default";
+        gdouble tpc_default_dbm = g_key_file_get_double(keyfile, g, key, &error);
+        if (error != NULL){
+            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            exit(-1); 
+        }
+
+        key = "tpc_max";
+        gdouble tpc_max_dbm = g_key_file_get_double(keyfile, g, key, &error);
+        if (error != NULL){
+            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            exit(-1); 
+        }
+
+        key = "cca_min";
+        gdouble cca_min_dbm = g_key_file_get_double(keyfile, g, key, &error);
+        if (error != NULL){
+            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            exit(-1); 
+        }
+
+        key = "cca_default";
+        gdouble cca_default_dbm = g_key_file_get_double(keyfile, g, key, &error);
+        if (error != NULL){
+            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            exit(-1); 
+        }
+
+        key = "cca_max";
+        gdouble cca_max_dbm = g_key_file_get_integer(keyfile, g, key, &error);
+        if (error != NULL){
+            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            exit(-1); 
+        }
+
+        key = "tx_antenna_gain";
+        gint tx_gain_db = g_key_file_get_integer(keyfile, g, key, &error);
+        if (error != NULL){
+            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            exit(-1); 
+        }
+
+        key = "rx_antenna_gain";
+        gint rx_gain_db = g_key_file_get_integer(keyfile, g, key, &error);
+        if (error != NULL){
+            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            exit(-1); 
+        }
+
+        key = "channel_bonding_model";
+        gint channel_bonding_model = g_key_file_get_integer(keyfile, g, key, &error);
+        if (error != NULL){
+            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            exit(-1); 
+        }
+
+        key = "modulation_default";
+        gint modulation_default = g_key_file_get_integer(keyfile, g, key, &error);
+        if (error != NULL){
+            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            exit(-1); 
+        }
+
+        key = "central_freq";
+        gdouble central_frequency = g_key_file_get_double(keyfile, g, key, &error);
+        if (error != NULL){
+            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            exit(-1); 
+        }
+
+        key = "lambda";
+        gdouble lambda = g_key_file_get_double(keyfile, g, key, &error);
+        if (error != NULL){
+            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            exit(-1); 
+        }
+
+        key = "ieee_protocol";
+        gint ieee_protocol = g_key_file_get_integer(keyfile, g, key, &error);
+        if (error != NULL){
+            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            exit(-1); 
+        }
+
+        key = "traffic_load";
+        gdouble traffic_load = g_key_file_get_double(keyfile, g, key, &error);
+        if (error != NULL){
+            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            exit(-1); 
+        }
+
+
+
+        struct NodeConfig* n = (struct NodeConfig*) g_malloc(sizeof(struct NodeConfig));
+        n->code = node_name;
+        n->type = node_type;
+
+        if (node_type == NODE_TYPE_AP){
+            num_aps++;
+        }
+
+        n->wlan = wlan_code; 
+        n->destination_id = destination_id;
+        n->x = pos_x;
+        n->y = pos_y;
+        n->z = pos_z;
+        n->primary_channel = primary_channel;
+        n->min_channel_allowed = min_channel_allowed;
+        n->max_channel_allowed = max_channel_allowed;
+        n->cw = cw;
+        n->cw_stage = cw_stage;
+        n->tpc_min = ConvertPower(DBM_TO_PW, tpc_min_dbm);
+        n->tpc_default = ConvertPower(DBM_TO_PW, tpc_default_dbm);
+        n->tpc_max = ConvertPower(DBM_TO_PW, tpc_max_dbm);
+        n->cca_min = ConvertPower(DBM_TO_PW, cca_min_dbm);
+        n->cca_default = ConvertPower(DBM_TO_PW, cca_default_dbm);
+        n->cca_max = ConvertPower(DBM_TO_PW, cca_max_dbm);
+        n->tx_antenna_gain = ConvertPower(DB_TO_LINEAR, tx_gain_db);
+        n->rx_antenna_gain = ConvertPower(DB_TO_LINEAR, rx_gain_db);
+        n->channel_bonding_model =  channel_bonding_model;
+        n->modulation_default = modulation_default;
+        n->central_frequency = central_frequency;
+        n->lambda = lambda;
+        n->ieee_protocol = ieee_protocol;
+        n->traffic_load = traffic_load;
+
+        nodes = g_slist_append(nodes, n);
+        num_nodes++;
+
+
+    }
+
+    if (num_nodes == 0){
+        printf("No nodes found in configuration file!\n");
+        exit(-1);
+    }
+
+
+
+    node_container.SetSize(num_nodes);
+    traffic_generator_container.SetSize(num_nodes);
+
+    wlan_container = new Wlan[num_aps];
+
+    GSList* cur;
+    gint i;
+    gint wlan_index = 0;
+    for (cur=nodes, i=0; cur!=NULL; cur=cur->next,i++){
+        struct NodeConfig* n = (struct NodeConfig*) cur->data;
+        node_container[i].node_id = i;
+        node_container[i].node_type = n->type;
+
+        node_container[i].node_code = ToString(n->code);
+        node_container[i].wlan_code = ToString(n->wlan); 
+        node_container[i].destination_id = n->destination_id; 
+
+        node_container[i].x = n->x;
+        node_container[i].y = n->y;
+        node_container[i].z = n->z;
+
+        node_container[i].current_primary_channel = n->primary_channel; 
+        node_container[i].min_channel_allowed = n->min_channel_allowed; 
+        node_container[i].max_channel_allowed = n->max_channel_allowed; 
+
+        node_container[i].cw_min = n->cw; 
+        node_container[i].cw_stage_max = n->cw_stage; 
+
+        node_container[i].tpc_min = n->tpc_min; 
+        node_container[i].tpc_default = n->tpc_default; 
+        node_container[i].tpc_max = n->tpc_max; 
+
+        node_container[i].cca_min = n->cca_min; 
+        node_container[i].cca_default = n->cca_default; 
+        node_container[i].cca_max = n->cca_max; 
+
+        node_container[i].tx_gain = n->tx_antenna_gain; 
+        node_container[i].rx_gain = n->rx_antenna_gain; 
+        
+        node_container[i].current_dcb_policy = n->channel_bonding_model; 
+        node_container[i].modulation_default = n->modulation_default; 
+        node_container[i].central_frequency = n->central_frequency; 
+        
+        node_container[i].central_frequency = n->central_frequency * pow(10,9);  //WHY???
+        node_container[i].ieee_protocol = n->ieee_protocol; 
+
+        traffic_generator_container[i].node_type = n->type;
+        traffic_generator_container[i].node_id = i;
+        traffic_generator_container[i].traffic_model = traffic_model;
+        traffic_generator_container[i].traffic_load = n->traffic_load;
+        traffic_generator_container[i].lambda = n->lambda; //FIXME Why do we need this twice??
+        traffic_generator_container[i].burst_rate = n->lambda;
+
+        
+        if (n->type == NODE_TYPE_AP){
+            wlan_container[wlan_index].ap_id = i;
+            wlan_container[wlan_index].wlan_id = wlan_index;
+            wlan_container[wlan_index].wlan_code = n->wlan;
+        }
+
+        // System
+        node_container[i].simulation_time_komondor = simulation_time_komondor;
+        node_container[i].total_wlans_number = total_wlans_number;
+        node_container[i].total_nodes_number = total_nodes_number;
+        node_container[i].collisions_model = collisions_model;
+        node_container[i].capture_effect = capture_effect;
+        node_container[i].save_node_logs = save_node_logs;
+        node_container[i].print_node_logs = print_node_logs;
+        node_container[i].basic_channel_bandwidth = basic_channel_bandwidth;
+        node_container[i].num_channels_komondor = num_channels_komondor;
+        node_container[i].adjacent_channel_model = adjacent_channel_model;
+        node_container[i].default_destination_id = NODE_ID_NONE;
+        node_container[i].noise_level = noise_level;
+        node_container[i].constant_per = constant_per;
+        node_container[i].pdf_backoff = pdf_backoff;
+        node_container[i].path_loss_model = path_loss_model;
+        node_container[i].pdf_tx_time = pdf_tx_time;
+        node_container[i].frame_length = frame_length;
+        node_container[i].max_num_packets_aggregated = max_num_packets_aggregated;
+        node_container[i].ack_length = ack_length;
+        node_container[i].rts_length = rts_length;
+        node_container[i].cts_length = cts_length;
+        node_container[i].traffic_model = traffic_model;
+        node_container[i].backoff_type = backoff_type;
+        node_container[i].cw_adaptation = cw_adaptation;
+        node_container[i].pifs_activated = pifs_activated;
+        node_container[i].capture_effect_model = capture_effect_model;
+        node_container[i].simulation_code = simulation_code;
+
+        g_free(n->code);
+        g_free(n->wlan);
+        g_free(n);
+
+    }
+    g_slist_free(nodes);
+
+    //Obscure global vars ftw!        
+    total_wlans_number = num_aps;
+    total_nodes_number = num_nodes;
+
+
+    // I hate this stupid code so much...
+    gint n;
+    for (i=0; i<num_aps; i++){
+        gint sta_cnt = 0;
+
+        for(n=0; n<num_nodes; n++){
+            if (node_container[n].node_type != NODE_TYPE_STA ||
+                g_strcmp0(node_container[n].wlan_code.c_str(), wlan_container[i].wlan_code.c_str()) != 0){
+                continue;
+            }
+
+            sta_cnt++;
+        } 
+
+        wlan_container[i].SetSizeOfSTAsArray(sta_cnt); //Seriously, who names your functions??
+        wlan_container[i].num_stas = sta_cnt; //Another obscure unnecessary variable
+        //Now we have to do this stupid shit again...
+        //
+        gint sta_index = 0;
+        for(n=0; n<num_nodes; n++){
+
+            if (node_container[n].node_type != NODE_TYPE_STA ||
+                g_strcmp0(node_container[n].wlan_code.c_str(), wlan_container[i].wlan_code.c_str()) != 0){
+                continue;
+            }
+            printf("Added Station %s to WLAN %s\n", node_container[n].node_code.c_str(), wlan_container[i].wlan_code.c_str());
+            wlan_container[i].list_sta_id[sta_index] = node_container[n].node_id;
+            node_container[n].wlan = wlan_container[i];
+            sta_index++;
+
+        }
+
+        //Because the original authors do not understand the concept of pointers we have to this:
+        //Otherwise the the APs doesnt know which stations he has...
+        node_container[wlan_container[i].ap_id].wlan = wlan_container[i];
+
+    }
+
+    g_strfreev(groups);
+    g_key_file_free(keyfile);
 
 }
 
