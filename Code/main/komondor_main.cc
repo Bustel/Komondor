@@ -2024,8 +2024,33 @@ int main(int argc, char *argv[]){
     int print_node_logs;
     int print_agent_logs;
     double sim_time;
-    int seed;
+    //int seed;
     int agents_enabled;
+
+
+    gchar** config = NULL;
+    gchar* agents = NULL;
+    gint  seed = -1; 
+    static GOptionEntry options[] = 
+    {
+        {"agents" , 'a', 0, G_OPTION_ARG_FILENAME, &agents, "Path to agent configuration", "agent_path"},
+        {"seed", 's', 0 , G_OPTION_ARG_INT, &seed, "Seed for pseudo-random number generators", "S"},
+        {G_OPTION_REMAINING, 0, 0,G_OPTION_ARG_FILENAME_ARRAY,&config, "Path to system and node configuration", "config_path"},
+        { NULL } 
+        
+    };
+
+    GError* error = NULL;
+    GOptionContext* context;
+    context = g_option_context_new(NULL);
+    g_option_context_add_main_entries(context, options, NULL);
+
+    if (!g_option_context_parse(context, &argc, &argv, &error)){
+        printf("option parsing failed: %s\n", error->message);
+        exit(1);
+    }
+
+
 
     total_nodes_number = 0;
 
