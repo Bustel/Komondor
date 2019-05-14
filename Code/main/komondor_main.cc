@@ -1038,10 +1038,8 @@ void Komondor :: GenerateNodes(const char *nodes_filename) {
     if (print_system_logs) printf("%s Generating nodes...\n", LOG_LVL1);
     fprintf(simulation_output_file, "%s Generating nodes...\n", LOG_LVL1);
 
-    //if(strstr(nodes_filename, FILE_NAME_CODE_NODES) != NULL)
     if (print_system_logs) printf("%s Generating nodes DETERMINISTICALLY through NODES input file...\n", LOG_LVL2);
     if (save_system_logs) fprintf(simulation_output_file, "%s Generating nodes DETERMINISTICALLY...\n", LOG_LVL2);
-    //GenerateNodesByReadingNodesInputFile(nodes_filename);
     ParseNodes(nodes_filename);
 
 }
@@ -1786,7 +1784,7 @@ void Komondor :: ParseNodes(const char* nodes_filename){
 
         }
 
-        //Because the original authors do not understand the concept of pointers we have to this:
+        //Because the original authors do not understand the concept of pointers we have to do this:
         //Otherwise the the APs doesnt know which stations he has...
         node_container[wlan_container[i].ap_id].wlan = wlan_container[i];
         gint st; 
@@ -1962,6 +1960,7 @@ void show_usage(GOptionContext* context){
 
 int main(int argc, char *argv[]){
 
+    //TODO These options should be adjustable via args but are kind of dumb anyways...
     const gchar* script_output_filename = DEFAULT_SCRIPT_FILENAME; 
     const gchar* simulation_code = DEFAULT_SIMULATION_CODE;
     int save_system_logs = 1;
