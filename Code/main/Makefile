@@ -1,7 +1,7 @@
 COST = ../COST/cxx
 MAIN = komondor_main  
 CC = g++
-FLAGS = -Wall -Werror
+FLAGS = -Wall -Werror -g
 INCLUDE = -I/usr/include/glib-2.0  -I/usr/lib/glib-2.0/include
 LIB = -lglib-2.0
 
