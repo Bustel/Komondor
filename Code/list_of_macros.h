@@ -309,23 +309,6 @@
  * ************************************************
  */
 
-// CONSOLE ARGUMENTS
-#define NUM_FULL_ARGUMENTS_CONSOLE				14		// Number of arguments entered per console corresponding to full config
-#define NUM_FULL_ARGUMENTS_CONSOLE_NO_AGENTS	11		// Number of arguments entered per console corresponding to full config (NO AGENTS)
-#define NUM_PARTIAL_ARGUMENTS_CONSOLE			5		// Number of arguments entered per console corresponding to partial config
-#define NUM_PARTIAL_ARGUMENTS_SCRIPT			6		// Number of arguments entered per script corresponding to partial config
-
-#define IX_SYSTEM_INPUT_FILE		1
-#define IX_NODES_INPUT_FILE			2
-#define IX_SCRIPT_OUTPUT_FILENAME	3
-#define IX_SIMULATION_CODE			4
-#define IX_WRITE_SYSTEM_LOGS		5
-#define IX_WRITE_NODE_LOGS			6
-#define IX_PRINT_SYSTEM_LOGS		7
-#define IX_PRINT_NODE_LOGS			8
-#define IX_SIMULATION_TIME			9
-#define IX_RANDOM_SEED				10
-
 #define DEFAULT_SCRIPT_FILENAME		"../output/script_output.txt"
 #define DEFAULT_SIMULATION_CODE		"DEFAULT_SIM"
 #define DEFAULT_WRITE_SYSTEM_LOGS	0
@@ -339,85 +322,6 @@
 #define FILE_TYPE_NODES			1
 #define FILE_NAME_CODE_APS		"aps"
 #define FILE_NAME_CODE_NODES	"nodes"
-
-// System file
-#define IX_NUM_CHANNELS				1
-#define IX_BASIC_CH_BW				2
-#define IX_PDF_BACKOFF				3
-#define IX_PDF_TX_TIME				4
-#define IX_PACKET_LENGTH			5
-//#define IX_ACK_LENGTH				6
-#define IX_NUM_PACKETS_AGGREGATED	6
-#define IX_PATH_LOSS				7
-#define IX_CAPTURE_EFFECT			8
-#define IX_NOISE_LEVEL				9
-#define IX_COCHANNEL_MODEL			10
-#define IX_COLLISIONS_MODEL			11
-//#define IX_SIFS						12
-#define IX_CONSTANT_PER				12
-#define IX_TRAFFIC_MODEL			13
-#define IX_BO_TYPE					14
-//#define IX_RTS_LENGTH				17
-//#define IX_CTS_LENGTH				18
-#define IX_CW_ADAPTATION			15
-#define IX_PIFS_ACTIVATION			16
-#define IX_CAPTURE_EFFECT_MODEL		17
-
-// Nodes file
-#define IX_NODE_CODE				1
-#define IX_NODE_TYPE				2
-#define IX_WLAN_CODE				3
-#define IX_DESTINATION_ID			4
-#define IX_POSITION_X				5
-#define IX_POSITION_Y				6
-#define IX_POSITION_Z				7
-#define IX_PRIMARY_CHANNEL			8
-#define IX_MIN_CH_ALLOWED			9
-#define IX_MAX_CH_ALLOWED			10
-#define IX_CW_MIN					11
-#define IX_CW_STAGE_MAX				12
-#define IX_TPC_MIN					13
-#define IX_TPC_DEFAULT				14
-#define IX_TPC_MAX					15
-#define IX_CCA_MIN					16
-#define IX_CCA_DEFAULT				17
-#define IX_CCA_MAX					18
-#define IX_TX_GAIN					19
-#define IX_RX_GAIN					20
-#define IX_CHANNEL_BONDING_MODEL	21
-#define IX_MODULATION_DEFAULT		22
-#define IX_CENTRAL_FREQ				23
-#define IX_LAMBDA					24
-#define IX_IEEE_PROTOCOL_TYPE		25
-#define IX_TRAFFIC_LOAD				26
-
-// APs file
-#define IX_AP_WLAN_CODE					1
-#define IX_AP_POSITION_X				2
-#define IX_AP_POSITION_Y				3
-#define IX_AP_POSITION_Z				4
-#define IX_AP_MIN_NUM_OF_STAS			5
-#define IX_AP_MAX_NUM_OF_STAS			6
-#define IX_AP_MAX_DISTANCE_AP_STA		7
-#define IX_AP_PRIMARY_CHANNEL			8
-#define IX_AP_MIN_CH_ALLOWED			9
-#define IX_AP_MAX_CH_ALLOWED			10
-#define IX_AP_CW_MIN					11
-#define IX_AP_CW_STAGE_MAX				12
-#define IX_AP_TPC_MIN					13
-#define IX_AP_TPC_DEFAULT				14
-#define IX_AP_TPC_MAX					15
-#define IX_AP_CCA_MIN					16
-#define IX_AP_CCA_DEFAULT				17
-#define IX_AP_CCA_MAX					18
-#define IX_AP_TX_GAIN					19
-#define IX_AP_RX_GAIN					20
-#define IX_AP_CHANNEL_BONDING_MODEL		21
-#define IX_AP_MODULATION_DEFAULT		22
-#define IX_AP_CENTRAL_FREQ				23
-#define IX_AP_LAMBDA					24
-#define IX_AP_IEEE_PROTOCOL_TYPE		25
-#define IX_AP_TRAFFIC_LOAD				26
 
 // Agents file
 #define IX_AGENT_WLAN_CODE				1

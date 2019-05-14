@@ -261,11 +261,12 @@ void Komondor :: Setup(double sim_time_console, int save_system_logs_console, in
     logger_script.file = script_output_file;
 
     std::string script_output_csv_filename;
-    char *script_output_filename_root = (char *) script_output_filename;
+    gchar *script_output_filename_root = g_strdup(script_output_filename);
     script_output_filename_root[strlen(script_output_filename_root)-4] = 0;
     std::string script_output_filename_root_str(script_output_filename_root);
     script_output_csv_filename.append(script_output_filename_root_str).append("_csv.csv");
 
+    g_free(script_output_filename_root);
     printf("%s\n", script_output_csv_filename.c_str());
 
     // Script output (CSV format)
@@ -1953,65 +1954,6 @@ int Komondor :: GetNumOfLines(const char *filename){
     return num_lines;
 }
 
-/*
- * GetNumOfNodes(): returns the number of nodes of a given type (0: AP, 1: STA, 2: Free Node)
- * Input arguments:
- * - nodes_filename: nodes configuration filename
- * - node_type: type of node to consider in the counting
- * - wlan_id: wlan to consider in the counting
- */
-int Komondor :: GetNumOfNodes(const char *nodes_filename, int node_type, std::string wlan_code){
-
-    int num_nodes(0);
-    char line_nodes[CHAR_BUFFER_SIZE];
-    first_line_skiped_flag = 0;
-    int type_found;
-    std::string wlan_code_found;
-
-    FILE* stream_nodes = fopen(nodes_filename, "r");
-
-    if (!stream_nodes){
-        printf("ERROR: Nodes configuration file %s not found!\n", nodes_filename);
-        exit(-1);
-    }
-
-    if(node_type == NODE_TYPE_UNKWNOW){ // Count all type of nodes
-
-        num_nodes = GetNumOfLines(nodes_filename);
-
-    } else {    // Count specific nodes
-
-        while (fgets(line_nodes, CHAR_BUFFER_SIZE, stream_nodes)){
-
-            if(!first_line_skiped_flag){
-
-                first_line_skiped_flag = 1;
-
-            } else{
-
-                // Node type
-                tmp_nodes = strdup(line_nodes);
-                type_found = atof(GetField(tmp_nodes, IX_NODE_TYPE));
-                free(tmp_nodes);
-
-                // WLAN code
-                tmp_nodes = strdup(line_nodes);
-                wlan_code_found = ToString(GetField(tmp_nodes, IX_WLAN_CODE));
-                free(tmp_nodes);
-
-                if(wlan_code.compare(ToString("")) > 0){
-                    if(type_found == node_type && strcmp(wlan_code_found.c_str(), wlan_code.c_str()) == 0) ++num_nodes;
-                } else {
-                    if(type_found == node_type) ++num_nodes;
-                }
-            }
-        }
-    }
-
-    fclose(stream_nodes);
-    return num_nodes;
-}
-
 void show_usage(GOptionContext* context){
     gchar* help = g_option_context_get_help(context, TRUE, NULL);
     printf(help);
@@ -2019,11 +1961,9 @@ void show_usage(GOptionContext* context){
 }
 
 int main(int argc, char *argv[]){
-    std::string script_output_filename;
-    std::string simulation_code;
 
-    script_output_filename.append(ToString(DEFAULT_SCRIPT_FILENAME));
-    simulation_code.append(ToString(DEFAULT_SIMULATION_CODE));
+    const gchar* script_output_filename = DEFAULT_SCRIPT_FILENAME; 
+    const gchar* simulation_code = DEFAULT_SIMULATION_CODE;
     int save_system_logs = 1;
     int save_node_logs = 1;
     int save_agent_logs = 1;
@@ -2035,12 +1975,12 @@ int main(int argc, char *argv[]){
     gchar** config = NULL;
     gchar* agents = NULL;
     gint  seed = -1; 
-    gdouble sim_time = 10.0;
+    gdouble sim_time = 60.0;
     static GOptionEntry options[] = 
     {
         {"agents" , 'a', 0, G_OPTION_ARG_FILENAME, &agents, "Path to agent configuration", "agent_path"},
         {"seed", 's', 0 , G_OPTION_ARG_INT, &seed, "Seed for pseudo-random number generators", "S"},
-        {"time", 't', 0 , G_OPTION_ARG_INT, &sim_time, "Simulation Time", "T"},
+        {"time", 't', 0 , G_OPTION_ARG_DOUBLE, &sim_time, "Simulation Time", "T"},
         {G_OPTION_REMAINING, 0, 0,G_OPTION_ARG_FILENAME_ARRAY,&config, "Path to system and node configuration", "config_path"},
         { NULL } 
         
@@ -2080,11 +2020,11 @@ int main(int argc, char *argv[]){
     srand(seed); // Needed for ensuring randomness dependency on seed
     test.StopTime(sim_time);
     test.Setup(sim_time, save_system_logs, save_node_logs, save_agent_logs, print_system_logs, print_node_logs, print_agent_logs,
-        config[0], script_output_filename.c_str(), simulation_code.c_str(), seed,
+        config[0], script_output_filename, simulation_code, seed,
         agents_enabled, agents);
 
     printf("------------------------------------------\n");
-    printf("%s SIMULATION '%s' STARTED\n", LOG_LVL1, simulation_code.c_str());
+    printf("%s SIMULATION '%s' STARTED\n", LOG_LVL1, simulation_code);
 
     test.Run();
 
