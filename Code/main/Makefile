@@ -2,8 +2,8 @@ COST = ../COST/cxx
 MAIN = komondor_main  
 CC = g++
 FLAGS = -Wall -Werror -g
-INCLUDE = -I/usr/include/glib-2.0  -I/usr/lib/glib-2.0/include -I/usr/lib/x86_64-linux-gnu/glib-2.0/include
-LIB = -lglib-2.0
+INCLUDE = `pkg-config --cflags glib-2.0`
+LIB = `pkg-config --libs glib-2.0`
 
 DEPS = ../COST/cost.h
 DEPS += ../list_of_macros.h

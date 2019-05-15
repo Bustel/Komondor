@@ -1954,7 +1954,7 @@ int Komondor :: GetNumOfLines(const char *filename){
 
 void show_usage(GOptionContext* context){
     gchar* help = g_option_context_get_help(context, TRUE, NULL);
-    //printf(help);
+    printf("%s", help);
     g_free(help);
 }
 
