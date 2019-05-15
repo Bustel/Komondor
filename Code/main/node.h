@@ -162,6 +162,11 @@ component Node : public TypeII{
         void IncreaseCounterInt(gint inc, const gchar* format_key,...);
         void IncreaseCounterDouble(gdouble inc, const gchar* format_key,...);
 
+        gint GetCounterInt(const gchar* format_key,...);
+        gdouble GetCounterDouble(const gchar* format_key,...);
+
+
+
     // Public items (entered by nodes constructor in komondor_main)
     public:
 
@@ -528,6 +533,36 @@ void Node::IncreaseCounterDouble(gdouble inc, const gchar* format_key, ...){
     }
     g_free(key);
 } 
+
+
+gint Node::GetCounterInt(const gchar* format_key,...){
+    va_list args;
+    va_start(args, format_key);
+    gchar* key = g_strdup_vprintf(format_key, args);
+
+    gint* counter = (gint*) g_hash_table_lookup(custom_counters_int, key);
+    g_free(key);
+    if (counter == NULL){
+        return 0;
+   } else {
+        return *counter;
+   }
+
+}
+
+gdouble Node::GetCounterDouble(const gchar* format_key,...){
+    va_list args;
+    va_start(args, format_key);
+    gchar* key = g_strdup_vprintf(format_key, args);
+
+    gdouble* counter = (gdouble*) g_hash_table_lookup(custom_counters_double, key);
+    g_free(key);
+    if (counter == NULL){
+        return 0.0; 
+    } else {
+        return *counter;
+    }
+}
 
 /*
  * Setup()
@@ -2025,7 +2060,7 @@ void Node :: InportSomeNodeFinishTX(Notification &notification){
                             ++num_delay_measurements;
 
                             IncreaseCounterInt(1, "data_frames_acked/N%d", notification.source_id); 
-                            IncreaseCounterInt(1, "delay_measurements/N%d", notification.source_id); 
+                            IncreaseCounterInt(1, "num_delay_measurements/N%d", notification.source_id); 
                             
                             IncreaseCounterDouble(SimTime() - buffer.GetFirstPacket().timestamp_generated, "accumulated_delay/N%d", notification.source_id);
                             sum_delays = sum_delays + (SimTime() - buffer.GetFirstPacket().timestamp_generated);
@@ -4200,11 +4235,22 @@ void Node :: PrintOrWriteNodeStatistics(int write_or_print){
                 printf("%s Expected BO = %f (%f slots)\n",
                     LOG_LVL2, expected_backoff, expected_backoff / SLOT_TIME);
 
+                
+                printf("\n%s Per Station Statistics:\n", LOG_LVL2);
+                for (int i = 0; i < wlan.num_stas; i++){
+                    int id = wlan.list_sta_id[i];
+                    printf("%s -- Link to N%d --\n",LOG_LVL2, id); 
+                    printf("%s data_packets_acked: %d\n", LOG_LVL2, GetCounterInt("data_packets_acked/N%d", id));
+                    printf("%s data_frames_acked: %d\n", LOG_LVL2, GetCounterInt("data_frames_acked/N%d", id));
 
-                printf("%s Custom Counters:\n", LOG_LVL2);
-                g_hash_table_foreach(custom_counters_int, print_entry_int, NULL);
-                g_hash_table_foreach(custom_counters_double, print_entry_double, NULL);
+                    double tp = ((double) GetCounterInt("data_frames_acked/N%d", id)* frame_length) / SimTime();
+                    printf("%s Avg. throughput: %.3f Mbps\n", LOG_LVL2, tp * pow(10,-6));
 
+                    double delay = GetCounterDouble("accumulated_delay/N%d", id) / (double) GetCounterInt("num_delay_measurements/N%d", id);
+                    printf("%s Avg. delay: %.3f ms\n", LOG_LVL2, delay * 1000.0);
+
+                    printf("\n");
+                }
 
                 printf("\n\n");
 
