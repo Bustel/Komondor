@@ -159,6 +159,9 @@ component Node : public TypeII{
         void BroadcastNewConfigurationToStas(Configuration &received_configuration);
         void UpdatePerformanceMeasurements();
 
+        void IncreaseCounterInt(gint inc, const gchar* format_key,...);
+        void IncreaseCounterDouble(gdouble inc, const gchar* format_key,...);
+
     // Public items (entered by nodes constructor in komondor_main)
     public:
 
@@ -273,6 +276,11 @@ component Node : public TypeII{
         double prob_slotted_bo_collision;                   // Probability of slotted BO collision
         double average_waiting_time;                        // Average time between two channel accesses
         double bandwidth_used_txing;                        // Average bandiwdth used for transmitting (RTS, CTS, ACK and DATA packets considered).
+
+
+	    GHashTable* custom_counters_int;
+	    GHashTable* custom_counters_double;
+
                                                             // - Part of the available bandwidth used in average
                                                             // - e.g., 135 MHz used in average from the 160 MHz (8 channels) available
         int num_delay_measurements;                         // Number of delay measurements for averaging
@@ -483,6 +491,43 @@ component Node : public TypeII{
             connect trigger_rho_measurement.to_component,MeasureRho;
         }
 };
+
+void Node::IncreaseCounterInt(gint inc, const gchar* format_key, ...){
+    va_list args;
+    va_start(args, format_key);
+    gchar* key = g_strdup_vprintf(format_key, args);
+
+    gint* counter = (gint*) g_hash_table_lookup(custom_counters_int, key);
+    if (counter == NULL){
+        counter = (gint*) g_malloc(sizeof(gint));
+        *counter = inc;
+
+        const gchar* new_key = g_strdup(key);
+        g_hash_table_insert(custom_counters_int, (void*) new_key, counter);
+    } else {
+        *counter = *counter + inc;
+    }
+    g_free(key);
+} 
+
+
+void Node::IncreaseCounterDouble(gdouble inc, const gchar* format_key, ...){
+    va_list args;
+    va_start(args, format_key);
+    gchar* key = g_strdup_vprintf(format_key, args);
+
+    gdouble* counter = (gdouble*) g_hash_table_lookup(custom_counters_double, key);
+    if (counter == NULL){
+        counter = (gdouble*) g_malloc(sizeof(gdouble));
+        *counter = inc;
+
+        const gchar* new_key = g_strdup(key);
+        g_hash_table_insert(custom_counters_double, (void*) new_key, counter);
+    } else {
+        *counter = *counter + inc;
+    }
+    g_free(key);
+} 
 
 /*
  * Setup()
@@ -1965,6 +2010,9 @@ void Node :: InportSomeNodeFinishTX(Notification &notification){
 
                         // Whole data packet ACKed
                         ++data_packets_acked;
+                       
+                        IncreaseCounterInt(1, "data_packets_acked/N%d", notification.source_id); 
+
 
                         current_tx_duration = current_tx_duration + (notification.tx_duration + SIFS);  // Add ACK time to tx_duration
 
@@ -1975,6 +2023,11 @@ void Node :: InportSomeNodeFinishTX(Notification &notification){
 
                             ++data_frames_acked;
                             ++num_delay_measurements;
+
+                            IncreaseCounterInt(1, "data_frames_acked/N%d", notification.source_id); 
+                            IncreaseCounterInt(1, "delay_measurements/N%d", notification.source_id); 
+                            
+                            IncreaseCounterDouble(SimTime() - buffer.GetFirstPacket().timestamp_generated, "accumulated_delay/N%d", notification.source_id);
                             sum_delays = sum_delays + (SimTime() - buffer.GetFirstPacket().timestamp_generated);
                             LOGS(node_logger.file,
                                 "%.15f;N%d;S%d;%s;%s Packet delay: %f us (generated at %f).\n",
@@ -3935,6 +3988,14 @@ void Node :: PrintProgressBar(trigger_t &){
     ++progress_bar_counter;
 }
 
+void print_entry_int(gpointer key, gpointer value, gpointer user_data){
+    printf("%s %s: %d\n",LOG_LVL2, (gchar*) key, * (gint*) value);
+}
+
+void print_entry_double(gpointer key, gpointer value, gpointer user_data){
+    printf("%s %s: %f\n",LOG_LVL2, (gchar*) key, * (gdouble*) value);
+}
+
 /*
  * PrintOrWriteNodeStatistics(): prints (or writes) final statistics at the given node
  */
@@ -4022,6 +4083,7 @@ void Node :: PrintOrWriteNodeStatistics(int write_or_print){
                 // Data packets sent and lost
                 printf("%s Data packets sent = %d - ACKed = %d -  Lost = %d  (%f %% lost)\n",
                     LOG_LVL2, data_packets_sent, data_packets_acked, data_packets_lost, data_packets_lost_percentage);
+
 
                 printf("%s Frames ACKed = %d, Av. frames sent per packet = %.2f\n",
                     LOG_LVL2, data_frames_acked, (double) data_frames_acked/data_packets_acked);
@@ -4138,6 +4200,12 @@ void Node :: PrintOrWriteNodeStatistics(int write_or_print){
                 printf("%s Expected BO = %f (%f slots)\n",
                     LOG_LVL2, expected_backoff, expected_backoff / SLOT_TIME);
 
+
+                printf("%s Custom Counters:\n", LOG_LVL2);
+                g_hash_table_foreach(custom_counters_int, print_entry_int, NULL);
+                g_hash_table_foreach(custom_counters_double, print_entry_double, NULL);
+
+
                 printf("\n\n");
 
             }
@@ -4219,6 +4287,7 @@ void Node :: PrintOrWriteNodeStatistics(int write_or_print){
 
                     fprintf(node_logger.file,"\n");
 
+
                 }
 
 //              // Hidden nodes
@@ -4269,6 +4338,9 @@ void Node :: InitializeVariables() {
 //      printf(" %f,", ConvertPower(PW_TO_DBM,received_power_array[i]));
 //  }
 //  printf("\n\n");
+
+    custom_counters_int = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
+    custom_counters_double = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
 
     current_sinr = 0;
     max_pw_interference = 0;
