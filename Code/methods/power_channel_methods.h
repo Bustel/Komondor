@@ -260,18 +260,41 @@ double ComputePowerReceived(double distance, double tx_power, double tx_gain, do
 	// Outdoor large BSS scenario + Residential
 	// Retrieved from: https://mentor.ieee.org/802.11/dcn/14/11-14-0882-04-00ax-tgax-channel-model-document.docx
 	case PATH_LOSS_SCENARIO_4a_TGax: {
-	//      double h_AP = 10;    // Height of the AP in m
-	//      double h_STA = 1.5;   // Height of the STA in m
-	  if (distance < 2000 && distance >= 10) {
-		loss = 36.7 * log10(distance) + 22.7 + 26  * log10(central_frequency * pow(10,-9));
+	  double h_AP (10);    // Height of the AP in m
+	  double h_STA (1.5);   // Height of the STA in m
+      bool isLOS = true;
+
+      if (isLOS) {
+		  double d_BP ((4 * (h_AP - 1) * (h_STA - 1) * central_frequency) / SPEED_LIGHT);
+		  if (distance < d_BP && distance >= 10) {
+			loss = 22 * log10(distance) + 28 + 20  *log10(central_frequency * pow(10,-9));
+		  } else if (distance >= d_BP && distance < 5000) {
+			loss = 40 * log10(distance) + 7.8 + 18 * log10(h_AP - 1) -
+				18 * log10(h_STA - 1)  + 20 * log10(central_frequency * pow(10,-9));
+		  } else if (distance < 10) {
+		  		printf("The selected distance of %f m is too short!\n", distance);
+		  		assert(FALSE);
+		  }
+      } else {
+		  if (distance < 2000 && distance >= 10) {
+			loss = 36.7 * log10(distance) + 22.7 + 26  * log10(central_frequency * pow(10,-9));
+		  } else if (distance < 10) {
+	  		printf("The selected distance of %f m is too short!\n", distance);
+		  	assert(FALSE);
+		  }
 	  }
+
 	  // Outdoor-to-Indoor building penetration loss
 	  // TODO: important to consider specifying d_outdoor and d_indoor
-	  double d_outdoor (0);
-	  double d_indoor (0);
-	  loss = loss * (d_outdoor + d_indoor) + 20 + 0.5 * d_indoor;
+	  double d_indoor (2);
+	  // AZU: corrected formula
+	  // building penetration loss in dB
+	  double building_loss_db = 12;
+	  loss = loss + building_loss_db + 0.5 * d_indoor;
+
 	  pw_received_dbm = tx_power_dbm + tx_gain_db - loss; // Power in dBm
 	  pw_received = ConvertPower(DBM_TO_PW, pw_received_dbm);
+	  
 	  break;
 	}
 
