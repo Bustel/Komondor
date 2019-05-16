@@ -46,7 +46,6 @@
  * - This file defines a NOTIFICATION and provides basic displaying methods
  */
 
-
 #ifndef _AUX_NOTIFICATION_
 #define _AUX_NOTIFICATION_
 
@@ -132,6 +131,8 @@ struct Notification
 
 	// Specific transmission info (may not be checked by the others nodes)
 	TxInfo tx_info;
+
+    int src_node_env; 
 
 	void PrintNotification(void){
 		printf("source_id = %d - packet_type = %d - left_channel = %d - right_channel = %d - pkt_length = %d -",
