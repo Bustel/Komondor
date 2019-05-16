@@ -3041,6 +3041,11 @@ void Node :: SelectDestination(){
     }
     current_destination_id = PickRandomElementFromArray(wlan.list_sta_id, wlan.num_stas);
 
+    if (current_destination_id == NODE_ID_NONE){
+        printf("There are no stations associated with this AP. This is probably an error! Exiting\n");
+        exit(1);
+    }
+
 
     // LOGS(node_logger.file, "%.15f;N%d;S%d;%s;%s SelectDestination() END\n", SimTime(), node_id, node_state, LOG_G00, LOG_LVL1);
 }
