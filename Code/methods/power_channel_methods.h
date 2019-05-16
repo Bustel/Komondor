@@ -127,6 +127,8 @@ double ComputePowerReceived(double distance, double tx_power, double tx_gain, do
 
 	double pw_received;	// Power received [pW]
 
+	printf("ComputePowerReceived: %d\n", path_loss_model);
+
 	switch(path_loss_model){
 	// Free space - Calculator: https://www.pasternack.com/t-calculator-fspl.aspx (UNITS ARE NOT IN SI!)
 	case PATH_LOSS_LFS:{
@@ -246,18 +248,37 @@ double ComputePowerReceived(double distance, double tx_power, double tx_gain, do
 	  double h_AP (10);    // Height of the AP in m
 	  double h_STA (1.5);   // Height of the STA in m
 	  double d_BP ((4 * (h_AP - 1) * (h_STA - 1) * central_frequency) / SPEED_LIGHT);
-	  if (distance < d_BP && distance >= 10) {
-		loss = 22 * log10(distance) + 28 + 20  *log10(central_frequency * pow(10,-9));
-	  } else if (distance >= d_BP && distance < 5000) {
-		loss = 40 * log10(distance) + 7.8 + 18 * log10(h_AP - 1) -
-			18 * log10(h_STA - 1)  + 20 * log10(central_frequency * pow(10,-9));
+
+	  /*
+	  * TODO: calculate the proability for LOS and NLOS
+	  */
+      bool isLOS = true;
+
+      if (isLOS) {
+		  if (distance < d_BP && distance >= 10) {
+			loss = 22 * log10(distance) + 28 + 20  *log10(central_frequency * pow(10,-9));
+		  } else if (distance >= d_BP && distance < 5000) {
+			loss = 40 * log10(distance) + 7.8 + 18 * log10(h_AP - 1) -
+				18 * log10(h_STA - 1)  + 20 * log10(central_frequency * pow(10,-9));
+		  } else if (distance < 10) {
+		  		printf("The selected distance of %f m is too short; pathloss model not defined in that range!\n", distance);
+		  		assert(FALSE);
+		  }
+      } else {
+		  if (distance < 2000 && distance >= 10) {
+			loss = 36.7 * log10(distance) + 22.7 + 26  * log10(central_frequency * pow(10,-9));
+		  } else if (distance < 10) {
+	  		printf("The selected distance of %f m is too short; pathloss model not defined in that range!\n", distance);
+		  	assert(FALSE);
+		  }
 	  }
+
 	  pw_received_dbm = tx_power_dbm + tx_gain_db - loss; // Power in dBm
 	  pw_received = ConvertPower(DBM_TO_PW, pw_received_dbm);
 	  break;
 	}
 
-	// Outdoor large BSS scenario + Residential
+	// Outdoor large BSS scenario + Residential with outdoor to indoor propagation
 	// Retrieved from: https://mentor.ieee.org/802.11/dcn/14/11-14-0882-04-00ax-tgax-channel-model-document.docx
 	// AZU: changes
 	case PATH_LOSS_SCENARIO_4a_TGax: {
