@@ -89,8 +89,6 @@ component Komondor : public CostSimEng {
 
         void SetupEnvironmentByReadingInputFile(const char *system_filename);
         void GenerateNodes(const char *nodes_filename);
-        void GenerateNodesByReadingNodesInputFile(const char *nodes_filename);
-
         void ParseNodes(const char* nodes_filename);
 
         void GenerateAgents(const char *agents_filename);
@@ -136,7 +134,12 @@ component Komondor : public CostSimEng {
         int rts_length;                 // RTS length [bits]
         int cts_length;                 // CTS length [bits]
         int max_num_packets_aggregated; // Number of packets aggregated in one transmission
-        int path_loss_model;            // Path loss model (0: free-space, 1: Okumura-Hata model - Uban areas)
+
+        int path_loss_model_default;            // Path loss model (0: free-space, 1: Okumura-Hata model - Uban areas)
+        int path_loss_model_indoor_indoor;
+        int path_loss_model_indoor_outdoor;
+        int path_loss_model_outdoor_outdoor; //TODO We assume that path loss is symmetric in both directions
+
         double capture_effect;          // Capture effect threshold [linear ratio]
         double noise_level;             // Environment noise [pW]
         int adjacent_channel_model;     // Co-channel interference model
@@ -301,11 +304,15 @@ void Komondor :: Setup(double sim_time_console, int save_system_logs_console, in
             // Compute and assign the received power from each other node
             if(i == j) {
                 node_container[i].received_power_array[j] = 0;
-            } else {
-                node_container[i].received_power_array[j] = ComputePowerReceived(node_container[i].distances_array[j],
-                    node_container[i].tpc_default, node_container[i].tx_gain, node_container[i].rx_gain,
-                    node_container[i].central_frequency, path_loss_model);
-            }
+                continue;
+            } 
+            
+            node_container[i].received_power_array[j] = ComputePowerReceived(node_container[i].distances_array[j],
+                                                                             node_container[i].tpc_default, 
+                                                                             node_container[i].tx_gain, 
+                                                                             node_container[i].rx_gain,
+                                                                             node_container[i].central_frequency, 
+                                                                             path_loss_model_default);
         }
     }
 
@@ -930,13 +937,37 @@ void Komondor :: SetupEnvironmentByReadingInputFile(const char *system_filename)
     }
     max_num_packets_aggregated = val_int;
 
-    key = "path_loss_model";
+    key = "path_loss_model_default";
     val_int = g_key_file_get_integer(key_file, "System",key, &error);
     if (error != NULL){
         printf("Unable to parse %s parameter in config file!\n", key);
         exit(-1);
     }
-    path_loss_model = val_int;
+    path_loss_model_default = val_int;
+
+    key = "path_loss_model_indoor_indoor";
+    val_int = g_key_file_get_integer(key_file, "System",key, &error);
+    if (error != NULL){
+        val_int = path_loss_model_default;
+        error = NULL;
+    }
+    path_loss_model_indoor_indoor = val_int;
+
+    key = "path_loss_model_outdoor_outdoor";
+    val_int = g_key_file_get_integer(key_file, "System",key, &error);
+    if (error != NULL){
+        val_int = path_loss_model_default;
+        error = NULL;
+    }
+    path_loss_model_outdoor_outdoor = val_int;
+
+    key = "path_loss_model_indoor_outdoor";
+    val_int = g_key_file_get_integer(key_file, "System",key, &error);
+    if (error != NULL){
+        val_int = path_loss_model_default;
+        error = NULL;
+    }
+    path_loss_model_indoor_outdoor = val_int;
 
     key = "capture_effect";
     val_int = g_key_file_get_integer(key_file, "System",key, &error);
@@ -1603,7 +1634,22 @@ void Komondor :: ParseNodes(const char* nodes_filename){
             exit(-1); 
         }
 
-
+        key = "node_env";
+        gchar* node_env_char = g_key_file_get_string(keyfile, g, key, &error);
+        node_env_type node_env = NODE_ENV_INDOOR;
+        if (node_env_char == NULL){
+            printf("No node environment specified. Assuming indoor node\n");
+            error = NULL;
+        } else if (g_strcmp0(node_env_char, "indoor") == 0){
+            node_env = NODE_ENV_INDOOR; 
+        } else if (g_strcmp0(node_env_char, "outdoor") == 0){
+            node_env = NODE_ENV_OUTDOOR; 
+        } else {
+            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            exit(-1); 
+        }
+        g_free(node_env_char);
+        
 
         struct NodeConfig* n = (struct NodeConfig*) g_malloc(sizeof(struct NodeConfig));
         n->code = node_name;
@@ -1637,6 +1683,7 @@ void Komondor :: ParseNodes(const char* nodes_filename){
         n->lambda = lambda;
         n->ieee_protocol = ieee_protocol;
         n->traffic_load = traffic_load;
+        n->node_env = node_env;
 
         nodes = g_slist_append(nodes, n);
         num_nodes++;
@@ -1697,6 +1744,8 @@ void Komondor :: ParseNodes(const char* nodes_filename){
         node_container[i].central_frequency = n->central_frequency * pow(10,9);  //WHY???
         node_container[i].ieee_protocol = n->ieee_protocol; 
 
+        node_container[i].node_env = n->node_env;
+
         traffic_generator_container[i].node_type = n->type;
         traffic_generator_container[i].node_id = i;
         traffic_generator_container[i].traffic_model = traffic_model;
@@ -1727,7 +1776,9 @@ void Komondor :: ParseNodes(const char* nodes_filename){
         node_container[i].noise_level = noise_level;
         node_container[i].constant_per = constant_per;
         node_container[i].pdf_backoff = pdf_backoff;
-        node_container[i].path_loss_model = path_loss_model;
+        node_container[i].path_loss_model_indoor_indoor = path_loss_model_indoor_indoor;
+        node_container[i].path_loss_model_outdoor_outdoor = path_loss_model_outdoor_outdoor;
+        node_container[i].path_loss_model_indoor_outdoor = path_loss_model_indoor_outdoor;
         node_container[i].pdf_tx_time = pdf_tx_time;
         node_container[i].frame_length = frame_length;
         node_container[i].max_num_packets_aggregated = max_num_packets_aggregated;
@@ -1823,7 +1874,7 @@ void Komondor :: printSystemInfo(){
         printf("%s pifs_activated = %d\n", LOG_LVL3, pifs_activated);
         printf("%s capture_effect_model = %d\n", LOG_LVL3, capture_effect_model);
         printf("%s max_num_packets_aggregated = %d\n", LOG_LVL3, max_num_packets_aggregated);
-        printf("%s path_loss_model = %d\n", LOG_LVL3, path_loss_model);
+        //printf("%s path_loss_model_de = %d\n", LOG_LVL3, path_loss_model);
         printf("%s capture_effect = %f [linear] (%f dB)\n", LOG_LVL3, capture_effect, ConvertPower(LINEAR_TO_DB, capture_effect));
         printf("%s noise_level = %f pW (%f dBm)\n",
                 LOG_LVL3, noise_level, ConvertPower(PW_TO_DBM, noise_level));
@@ -1849,7 +1900,7 @@ void Komondor :: WriteSystemInfo(Logger logger){
     fprintf(logger.file, "%s frame_length = %d bits\n", LOG_LVL3, frame_length);
     fprintf(logger.file, "%s ack_length = %d bits\n", LOG_LVL3, ack_length);
     fprintf(logger.file, "%s max_num_packets_aggregated = %d\n", LOG_LVL3, max_num_packets_aggregated);
-    fprintf(logger.file, "%s path_loss_model = %d\n", LOG_LVL3, path_loss_model);
+    //fprintf(logger.file, "%s path_loss_model = %d\n", LOG_LVL3, path_loss_model);
     fprintf(logger.file, "%s capture_effect = %f\n", LOG_LVL3, capture_effect);
     fprintf(logger.file, "%s noise_level = %f dBm\n", LOG_LVL3, noise_level);
     fprintf(logger.file, "%s adjacent_channel_model = %d\n", LOG_LVL3, adjacent_channel_model);

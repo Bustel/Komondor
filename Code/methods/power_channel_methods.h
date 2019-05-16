@@ -571,6 +571,7 @@ void UpdateChannelsPower(double **channel_power, Notification notification,
 //		total_power[i] = 0;
 //	}
 
+
 	double total_power[num_channels_komondor];
 	memset(total_power, 0, num_channels_komondor * sizeof(double));
 
