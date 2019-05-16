@@ -293,6 +293,10 @@ void Komondor :: Setup(double sim_time_console, int save_system_logs_console, in
     // Generate nodes
     GenerateNodes(nodes_input_filename);
 
+
+    
+
+
     // Compute distance of each pair of nodes
     for(int i = 0; i < total_nodes_number; ++i) {
         node_container[i].distances_array = new double[total_nodes_number];
@@ -306,13 +310,24 @@ void Komondor :: Setup(double sim_time_console, int save_system_logs_console, in
                 node_container[i].received_power_array[j] = 0;
                 continue;
             } 
-            
+
+            int path_loss_model = -1; 
+            node_env_type node_env_src = node_container[i].node_env;
+            node_env_type node_env_other = node_container[j].node_env;
+            if (node_env_src == node_env_other && node_env_other ==NODE_ENV_INDOOR){
+                path_loss_model = path_loss_model_indoor_indoor;   
+            } else if (node_env_src == node_env_other && node_env_other ==NODE_ENV_OUTDOOR){
+                path_loss_model = path_loss_model_outdoor_outdoor;
+            } else if (node_env_src != node_env_other){
+                path_loss_model = path_loss_model_indoor_outdoor;
+            }
+                
             node_container[i].received_power_array[j] = ComputePowerReceived(node_container[i].distances_array[j],
                                                                              node_container[i].tpc_default, 
                                                                              node_container[i].tx_gain, 
                                                                              node_container[i].rx_gain,
                                                                              node_container[i].central_frequency, 
-                                                                             path_loss_model_default);
+                                                                             path_loss_model);
         }
     }
 
