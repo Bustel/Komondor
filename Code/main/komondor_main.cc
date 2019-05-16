@@ -1709,6 +1709,7 @@ void Komondor :: ParseNodes(const char* nodes_filename){
             wlan_container[wlan_index].ap_id = i;
             wlan_container[wlan_index].wlan_id = wlan_index;
             wlan_container[wlan_index].wlan_code = n->wlan;
+            wlan_index++;
         }
 
         // System
