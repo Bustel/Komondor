@@ -4249,10 +4249,10 @@ void Node :: PrintOrWriteNodeStatistics(int write_or_print){
                     printf("%s data_frames_acked: %d\n", LOG_LVL2, GetCounterInt("data_frames_acked/N%d", id));
 
                     double tp = ((double) GetCounterInt("data_frames_acked/N%d", id)* frame_length) / SimTime();
-                    printf("%s Avg. throughput: %.3f Mbps\n", LOG_LVL2, tp * pow(10,-6));
+                    printf("N%d:: %s Avg. throughput: %.3f Mbps\n", id, LOG_LVL2, tp * pow(10,-6));
 
                     double delay = GetCounterDouble("accumulated_delay/N%d", id) / (double) GetCounterInt("num_delay_measurements/N%d", id);
-                    printf("%s Avg. delay: %.3f ms\n", LOG_LVL2, delay * 1000.0);
+                    printf("N%d:: %s Avg. delay: %.3f ms\n", id, LOG_LVL2, delay * 1000.0);
 
                     printf("\n");
                 }
