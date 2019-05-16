@@ -303,8 +303,12 @@ void Komondor :: Setup(double sim_time_console, int save_system_logs_console, in
         node_container[i].received_power_array = new double[total_nodes_number];
         for(int j = 0; j < total_nodes_number; ++j) {
             // Compute and assign distances for each other node
-            node_container[i].distances_array[j] = ComputeDistance(node_container[i].x,node_container[i].y,
-                node_container[i].z,node_container[j].x,node_container[j].y,node_container[j].z);
+            node_container[i].distances_array[j] = ComputeDistance(node_container[i].x,
+                                                                   node_container[i].y,
+                                                                   node_container[i].z,
+                                                                   node_container[j].x,
+                                                                   node_container[j].y,
+                                                                   node_container[j].z);
             // Compute and assign the received power from each other node
             if(i == j) {
                 node_container[i].received_power_array[j] = 0;
@@ -340,19 +344,24 @@ void Komondor :: Setup(double sim_time_console, int save_system_logs_console, in
                 if (strcmp(node_container[i].wlan_code.c_str(),wlan_container[j].wlan_code.c_str()) == 0) {
                     // Same WLAN
                     node_container[i].max_received_power_in_ap_per_wlan[j] = 0;
-                } else {
-                    // Different WLAN
-                    max_power_received_per_wlan = -1000;
-                    for (int k = 0; k < total_nodes_number; ++k) {
-                        // Check only nodes in WLAN "j"
-                        if(strcmp(node_container[k].wlan_code.c_str(),wlan_container[j].wlan_code.c_str()) == 0) {
-                            if (node_container[i].received_power_array[k] > max_power_received_per_wlan) {
-                                max_power_received_per_wlan = node_container[i].received_power_array[k];
-                            }
-                        }
-                    }
-                    node_container[i].max_received_power_in_ap_per_wlan[j] = max_power_received_per_wlan;
+                    continue;
                 }
+
+                // Different WLAN
+                max_power_received_per_wlan = -1000;
+                for (int k = 0; k < total_nodes_number; ++k) {
+                    // Check only nodes in WLAN "j"
+                    if(strcmp(node_container[k].wlan_code.c_str(),wlan_container[j].wlan_code.c_str()) != 0) {
+                        continue;
+                    }
+
+                    if (node_container[i].received_power_array[k] > max_power_received_per_wlan) {
+                        max_power_received_per_wlan = node_container[i].received_power_array[k];
+                    }
+ 
+                }
+
+                node_container[i].max_received_power_in_ap_per_wlan[j] = max_power_received_per_wlan;
             }
         }
     }
