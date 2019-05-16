@@ -309,7 +309,7 @@
  * ************************************************
  */
 
-#define DEFAULT_SCRIPT_FILENAME		"../output/script_output.txt"
+#define DEFAULT_SCRIPT_FILENAME		"output/script_output.txt"
 #define DEFAULT_SIMULATION_CODE		"DEFAULT_SIM"
 #define DEFAULT_WRITE_SYSTEM_LOGS	0
 #define DEFAULT_WRITE_NODE_LOGS		0

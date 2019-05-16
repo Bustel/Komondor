@@ -1,0 +1,80 @@
+ KOMONDOR SIMULATION 'DEFAULT_SIM' (seed 112)  - System configuration: 
+    · total_nodes_number = 6
+    · num_channels_komondor = 8
+    · basic_channel_bandwidth = 20.000000
+    · pdf_backoff = 0
+    · pdf_tx_time = 1
+    · frame_length = 12000 bits
+    · ack_length = 0 bits
+    · max_num_packets_aggregated = 64
+    · capture_effect = 100.000000
+    · noise_level = 0.316228 dBm
+    · adjacent_channel_model = 0
+    · collisions_model = 0
+  - Wlans generated!
+    · WLAN A:
+    · - wlan_id: 0
+    · - num_stas: 3
+    · - ap_id: 0
+    · - list of STAs IDs: 1  2  3  
+    · WLAN B:
+    · - wlan_id: 1
+    · - num_stas: 1
+    · - ap_id: 4
+    · - list of STAs IDs: 5  
+  - Nodes generated!
+    · Node AP_A info:
+    · - node_id = 0
+    · - node_type = 0
+    · - position = (0.00, 0.00, 0.00)
+    · - current_primary_channel = 0
+    · - min_channel_allowed = 0
+    · - max_channel_allowed = 7
+    · - current_dcb_policy = 3
+    · Node STA_A1 info:
+    · - node_id = 1
+    · - node_type = 1
+    · - position = (11.00, 0.00, 0.00)
+    · - current_primary_channel = 0
+    · - min_channel_allowed = 0
+    · - max_channel_allowed = 7
+    · - current_dcb_policy = 3
+    · Node STA_A2 info:
+    · - node_id = 2
+    · - node_type = 1
+    · - position = (22.00, 0.00, 0.00)
+    · - current_primary_channel = 0
+    · - min_channel_allowed = 0
+    · - max_channel_allowed = 7
+    · - current_dcb_policy = 3
+    · Node STA_A3 info:
+    · - node_id = 3
+    · - node_type = 1
+    · - position = (33.00, 0.00, 0.00)
+    · - current_primary_channel = 0
+    · - min_channel_allowed = 0
+    · - max_channel_allowed = 7
+    · - current_dcb_policy = 3
+    · Node AP_B info:
+    · - node_id = 4
+    · - node_type = 0
+    · - position = (11.00, 10.00, 0.00)
+    · - current_primary_channel = 0
+    · - min_channel_allowed = 0
+    · - max_channel_allowed = 7
+    · - current_dcb_policy = 3
+    · Node STA_B1 info:
+    · - node_id = 5
+    · - node_type = 1
+    · - position = (22.00, 10.00, 0.00)
+    · - current_primary_channel = 0
+    · - min_channel_allowed = 0
+    · - max_channel_allowed = 7
+    · - current_dcb_policy = 3
+  - Node #0 (AP_A) Throughput = 239232000.000000
+  - Node #1 (STA_A1) Throughput = 0.000000
+  - Node #2 (STA_A2) Throughput = 0.000000
+  - Node #3 (STA_A3) Throughput = 0.000000
+  - Node #4 (AP_B) Throughput = 239308800.000000
+  - Node #5 (STA_B1) Throughput = 0.000000
+;239.27;16.76;0.666667;239.23;0;140.44
