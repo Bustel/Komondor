@@ -30,6 +30,7 @@
 
 # Komondor
 *.cxx
+Code/build/*
 *.txt~
 *.csv~
 
