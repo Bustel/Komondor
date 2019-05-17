@@ -5,21 +5,25 @@ from simresult import SimResult
 from topogenerator import TopoGenerator
 from visualize import Visualizer
 import time
+import sys
 
 if __name__ == "__main__":
+
+    num_channels = int(sys.argv[1])
+    print('Running w/ %d channels' % num_channels)
+
     # create topo
     tg = TopoGenerator()
+    # create sim params
+    d11p = Dot80211Params(num_channels=num_channels)
     # visualize results
-    vis = Visualizer()
+    vis = Visualizer(d11p)
 
     # for different distances
-    sta_ap_distances = range(10, 100, 2)
+    sta_ap_distances = range(10, 100, 20)
     all_res = {}
     for sta_ap_distance in sta_ap_distances:
         tg.gen_fixed_placement(sta_ap_distance)
-
-        # create sim params
-        d11p = Dot80211Params()
 
         # show node placement
         #vis.show_node_placement(tg)
