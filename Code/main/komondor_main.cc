@@ -600,6 +600,10 @@ void Komondor :: Stop(){
                                             "data_packets_sent;data_packets_lost;rts_cts_sent;rts_cts_lost\n");
         }
 
+        GKeyFile* kf = g_key_file_new();
+        GError* error = NULL;
+
+    
         for(int m=0; m < total_nodes_number; ++m){
             fprintf(logger_script.file, "%s Node #%d (%s) Throughput = %f\n", LOG_LVL2, m,
                 node_container[m].node_code.c_str(), node_container[m].throughput);
@@ -618,8 +622,34 @@ void Komondor :: Stop(){
                 fprintf(logger_script_csv.file, "%d;", node_container[m].rts_cts_sent);     // RTS packets sent
                 fprintf(logger_script_csv.file, "%d", node_container[m].rts_cts_lost);      // RTS packets lost
                 fprintf(logger_script_csv.file, "\n");                                      // End of line
+
+                
+                       
+                for (int i = 0; i < node_container[m].wlan.num_stas; i++){
+                    int id = node_container[m].wlan.list_sta_id[i];
+                    double tp = ((double) node_container[m].GetCounterInt("data_frames_acked/N%d", id)* frame_length) / SimTime();
+                    double delay = node_container[m].GetCounterDouble("accumulated_delay/N%d", id) / (double) node_container[m].GetCounterInt("num_delay_measurements/N%d", id);
+                    
+                    gchar* group_name = g_strdup_printf("Node_%s", node_container[id].node_code.c_str());
+
+                    g_key_file_set_double(kf, group_name, "throughput", tp);   
+                    g_key_file_set_double(kf, group_name, "delay", delay);   
+                    g_key_file_set_string(kf, group_name, "wlan", node_container[m].wlan.wlan_code.c_str());   
+
+                }
+
+
             }
         }
+
+        g_key_file_save_to_file(kf, "statistics.cfg", &error); 
+
+        if (error != NULL){
+            printf("Error loading key file! %s\n", error->message);
+            exit(1);
+        }
+
+
     }
 
     int simulation_index (1);
