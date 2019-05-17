@@ -4282,47 +4282,7 @@ void Node :: PrintOrWriteNodeStatistics(int write_or_print){
                 fprintf(stderr, "%s Expected BO = %f (%f slots)\n",
                     LOG_LVL2, expected_backoff, expected_backoff / SLOT_TIME);
 
-                
-                fprintf(stderr, "\n%s Per Station Statistics:\n", LOG_LVL2);
-                for (int i = 0; i < wlan.num_stas; i++){
-                    int id = wlan.list_sta_id[i];
-                    fprintf(stderr, "%s -- Link to N%d --\n",LOG_LVL2, id); 
-                    fprintf(stderr, "%s data_packets_acked: %d\n", LOG_LVL2, GetCounterInt("data_packets_acked/N%d", id));
-                    fprintf(stderr, "%s data_frames_acked: %d\n", LOG_LVL2, GetCounterInt("data_frames_acked/N%d", id));
-
-                    double tp = ((double) GetCounterInt("data_frames_acked/N%d", id)* frame_length) / SimTime();
-                    fprintf(stderr, "N%d:: %s Avg. throughput: %.3f Mbps\n", id, LOG_LVL2, tp * pow(10,-6));
-
-                    double delay = GetCounterDouble("accumulated_delay/N%d", id) / (double) GetCounterInt("num_delay_measurements/N%d", id);
-                    fprintf(stderr, "N%d:: %s Avg. delay: %.3f ms\n", id, LOG_LVL2, delay * 1000.0);
-
-                    fprintf(stderr, "\n");
-
-                    
-                    gchar* group_name = g_strdup_printf("STA%d", (gint) id );
-                    GError* error = NULL;
-                    GKeyFile* kf = g_key_file_new();
-                    g_key_file_load_from_file(kf, "statistics.cfg", G_KEY_FILE_NONE, &error);
-        
-                    if (error != NULL){
-                        error = NULL;
-                    }
-
-
-                    g_key_file_set_double(kf, group_name, "throughput", tp);   
-                    g_key_file_set_string(kf, group_name, "wlan", wlan.wlan_code.c_str());   
-                    g_key_file_save_to_file(kf, "statistics.cfg", &error); 
-
-                    if (error != NULL){
-                        printf("Error loading key file! %s\n", error->message);
-                        exit(1);
-                    }
-
-                    //TODO 
-                
-                
-
-                }
+               
 
                 fprintf(stderr, "\n\n");
 
