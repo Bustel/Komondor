@@ -13,7 +13,7 @@ if __name__ == "__main__":
     vis = Visualizer()
 
     # for different distances
-    sta_ap_distances = range(10, 50, 10)
+    sta_ap_distances = range(10, 100, 2)
     all_res = {}
     for sta_ap_distance in sta_ap_distances:
         tg.gen_fixed_placement(sta_ap_distance)
@@ -22,7 +22,7 @@ if __name__ == "__main__":
         d11p = Dot80211Params()
 
         # show node placement
-        vis.show_node_placement(tg)
+        #vis.show_node_placement(tg)
 
         # export as cfg file
         out_fname = 'cfg/telegraph_gen_network.cfg'
@@ -30,6 +30,7 @@ if __name__ == "__main__":
         sc.create(d11p, tg)
 
         # execute komondor simulator
+        print('Simulate for d=%f' % sta_ap_distance)
         if True:
             sim = Komondor()
             sim.run()
@@ -38,7 +39,7 @@ if __name__ == "__main__":
             time.sleep(1)
 
         # parse results
-        res_fname = 'res/telegraph_gen_network_res.cfg'
+        res_fname = 'statistics.cfg'
         sr = SimResult(res_fname)
         sim_res = sr.parse_results()
         all_res[sta_ap_distance] = sim_res
