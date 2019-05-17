@@ -227,7 +227,7 @@ void CostSimEng::Run()
       if( nextTime == stopTime)
 	break;
       // otherwise, nextTime == clearStatsTime
-      printf( "Clearing statistics @ %f\n", nextTime);
+      fprintf(stderr, "Clearing statistics @ %f\n", nextTime);
       nextTime = stopTime;
       ClearStats();
     }
@@ -252,9 +252,9 @@ void CostSimEng::Run()
   eventRate = eventsProcessed/runningTime;
   
   //#ifndef VIZ
-  printf("# -------------------------------------------------------------------------\n");	
-  printf("# CostSimEng with %s, stopped at %f\n", m_queue.GetName(), stopTime);	
-  printf("# %ld events processed in %.3f seconds, event processing rate: %.0f\n",	
+  fprintf(stderr, "# -------------------------------------------------------------------------\n");	
+  fprintf(stderr, "# CostSimEng with %s, stopped at %f\n", m_queue.GetName(), stopTime);	
+  fprintf(stderr, "# %ld events processed in %.3f seconds, event processing rate: %.0f\n",	
   eventsProcessed, runningTime, eventRate);
   //#endif //VIZ
 }

@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 2.6)
 project(Komondor)
-
+set(CMAKE_BUILD_TYPE Debug)
 
 set(COST_PATH ${PROJECT_SOURCE_DIR}/COST/cxx)
 
