@@ -15,28 +15,16 @@ class SimResult:
 
         print('Loaded results file: %s' % self.res_fname)
 
-        # TBD
-        # JUST MOCKUP
         res = {}
-        res['FLOW1'] = {
-            'src': 'Node_AP_A',
-            'dst': 'Node_STA_A1',
-            'throughput': random.randint(1e6,5e6),
-            'delay': 0.01
-        }
-
-        res['FLOW2'] = {
-            'src': 'Node_AP_A',
-            'dst': 'Node_STA_A2',
-            'throughput': random.randint(1e6,5e6),
-            'delay': 0.01
-        }
-
-        res['FLOW3'] = {
-            'src': 'Node_AP_B',
-            'dst': 'Node_STA_B1',
-            'throughput': random.randint(1e6,5e6),
-            'delay': 0.01
-        }
+        flow_id = 1
+        for sta_id in self.config.sections():
+            thr_sta = float(self.config[sta_id]['throughput'])
+            res['FLOW' + str(flow_id)] = {
+            'src': 'TBD',
+            'dst': 'TBD',
+            'throughput': thr_sta,
+            'delay': -42
+            }
+            flow_id = flow_id + 1
 
         return res

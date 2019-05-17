@@ -1,5 +1,6 @@
 import subprocess
 import sys
+import os
 
 '''
     Wrapper for Komondor simulator
@@ -11,6 +12,11 @@ class Komondor:
 
     def run(self):
         try:
+            try:
+                os.remove("statistics.cfg")
+            except:
+                pass
+
             p = subprocess.Popen(
                 '../Code/build/komondor_main -t 10 -s 112 cfg/telegraph_gen_network.cfg',
                 shell=True,
