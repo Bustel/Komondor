@@ -4,10 +4,13 @@ from simconfig import SimConfig
 from simresult import SimResult
 from topogenerator import TopoGenerator
 from visualize import Visualizer
+import time
 
 if __name__ == "__main__":
     # create topo
     tg = TopoGenerator()
+    # visualize results
+    vis = Visualizer()
 
     # for different distances
     sta_ap_distances = range(10, 50, 10)
@@ -18,14 +21,21 @@ if __name__ == "__main__":
         # create sim params
         d11p = Dot80211Params()
 
+        # show node placement
+        vis.show_node_placement(tg)
+
         # export as cfg file
         out_fname = 'cfg/telegraph_gen_network.cfg'
         sc = SimConfig(out_fname)
         sc.create(d11p, tg)
 
         # execute komondor simulator
-        sim = Komondor()
-        sim.run()
+        if True:
+            sim = Komondor()
+            sim.run()
+        else:
+            print('Simulator mockup')
+            time.sleep(1)
 
         # parse results
         res_fname = 'res/telegraph_gen_network_res.cfg'
@@ -33,6 +43,6 @@ if __name__ == "__main__":
         sim_res = sr.parse_results()
         all_res[sta_ap_distance] = sim_res
 
-    # visualize results
-    vis = Visualizer(sta_ap_distances, all_res)
-    vis.plot_thr_vs_distance_bar_chart()
+    # show final res
+    vis.plot_thr_vs_distance_bar_chart(sta_ap_distances, all_res)
+
