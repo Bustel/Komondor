@@ -1,5 +1,0 @@
-filename;sim_code;wlan_id;wlan_code;node_id;node_code;throughput[Mbps];data_packets_sent;data_packets_lost;rts_cts_sent;rts_cts_lost
-telegraph_simple_network.cfg;;0;A;0;AP_A;239.232000;3116;0;3116;0
-telegraph_simple_network.cfg;;1;B;4;AP_B;239.308800;3116;0;3116;0
-telegraph_simple_network.cfg;;0;A;0;AP_A;239.232000;3116;0;3116;0
-telegraph_simple_network.cfg;;1;B;4;AP_B;239.308800;3116;0;3116;0

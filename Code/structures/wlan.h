@@ -81,9 +81,9 @@ struct Wlan
 	 */
 	void PrintStaIds(){
 		for(int s = 0; s < num_stas; s++){
-			printf("%d  ", list_sta_id[s]);
+			fprintf(stderr, "%d  ", list_sta_id[s]);
 		}
-		printf("\n");
+		fprintf(stderr, "\n");
 	}
 
 	/*
@@ -103,11 +103,11 @@ struct Wlan
 	 * PrintWlanInfo(): prints general WLAN info
 	 */
 	void PrintWlanInfo(){
-		printf("%s WLAN %s:\n", LOG_LVL3, wlan_code.c_str());
-		printf("%s wlan_id: %d\n", LOG_LVL4, wlan_id);
-		printf("%s num_stas: %d\n", LOG_LVL4, num_stas);
-		printf("%s ap_id: %d\n", LOG_LVL4, ap_id);
-		printf("%s list of STAs IDs: ", LOG_LVL4);
+		fprintf(stderr, "%s WLAN %s:\n", LOG_LVL3, wlan_code.c_str());
+		fprintf(stderr, "%s wlan_id: %d\n", LOG_LVL4, wlan_id);
+		fprintf(stderr, "%s num_stas: %d\n", LOG_LVL4, num_stas);
+		fprintf(stderr, "%s ap_id: %d\n", LOG_LVL4, ap_id);
+		fprintf(stderr, "%s list of STAs IDs: ", LOG_LVL4);
 		PrintStaIds();
 	}
 

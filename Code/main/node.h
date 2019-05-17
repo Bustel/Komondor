@@ -644,7 +644,7 @@ void Node :: Start(){
     // Progress bar (trick: it is only printed by node with id 0)
     if(PROGRESS_BAR_DISPLAY){
         if(node_id == 0){
-            if(print_node_logs) printf("%s PROGRESS BAR:\n", LOG_LVL1);
+            if(print_node_logs) fprintf(stderr, "%s PROGRESS BAR:\n", LOG_LVL1);
             trigger_sim_time.Set(SimTime() + PICO_VALUE);
         }
     }
@@ -1087,7 +1087,7 @@ void Node :: InportSomeNodeStartTX(Notification &notification){
 
                                 } else {
 
-                                    printf("ALARM! Should not happen in downlink traffic\n");
+                                    fprintf(stderr, "ALARM! Should not happen in downlink traffic\n");
 
                                 }
                                 // EOF HandleSlottedBackoffCollision();
@@ -1361,7 +1361,7 @@ void Node :: InportSomeNodeStartTX(Notification &notification){
                                             time_to_trigger = SimTime() + MAX_DIFFERENCE_SAME_TIME;
                                             trigger_NAV_timeout.Set(fix_time_offset(time_to_trigger,13,12));
                                         } else {
-                                            printf("ALARM! Should not happen in downlink traffic\n");
+                                            fprintf(stderr, "ALARM! Should not happen in downlink traffic\n");
                                         }
                                     }
                                     if(nack_activated) {
@@ -1428,7 +1428,7 @@ void Node :: InportSomeNodeStartTX(Notification &notification){
                                             time_to_trigger = SimTime() + MAX_DIFFERENCE_SAME_TIME;
                                             trigger_NAV_timeout.Set(fix_time_offset(time_to_trigger,13,12));
                                         } else {
-                                            printf("ALARM! Should not happen in downlink traffic\n");
+                                            fprintf(stderr, "ALARM! Should not happen in downlink traffic\n");
                                         }
                                     }
                                     if(nack_activated){
@@ -1519,11 +1519,11 @@ void Node :: InportSomeNodeStartTX(Notification &notification){
                                     power_received_per_node[receiving_from_node_id] + capture_effect;
                                 if (capture_effect_condition) {
                                     loss_reason = PACKET_LOST_CAPTURE_EFFECT;
-                                    printf("Node %d was in state RX (from %d), and a new notification arrived from %d:\n", node_id, receiving_from_node_id, notification.source_id);
-                                    printf("    * New RSSI: %f\n", power_received_per_node[notification.source_id]);
-                                    printf("    * Old RSSI: %f:\n", power_received_per_node[receiving_from_node_id]);
-                                    printf("    * CE: %f:\n", capture_effect);
-                                    printf("    * loss_reason: %d:\n", loss_reason);
+                                    fprintf(stderr, "Node %d was in state RX (from %d), and a new notification arrived from %d:\n", node_id, receiving_from_node_id, notification.source_id);
+                                    fprintf(stderr, "    * New RSSI: %f\n", power_received_per_node[notification.source_id]);
+                                    fprintf(stderr, "    * Old RSSI: %f:\n", power_received_per_node[receiving_from_node_id]);
+                                    fprintf(stderr, "    * CE: %f:\n", capture_effect);
+                                    fprintf(stderr, "    * loss_reason: %d:\n", loss_reason);
                                     if(nack_activated){
                                     // Send NACK to both ongoing transmitter and incoming interferer nodes
                                     logical_nack = GenerateLogicalNack(notification.packet_type, nav_notification.packet_id,
@@ -1821,7 +1821,7 @@ void Node :: InportSomeNodeStartTX(Notification &notification){
             }
 
             default:{
-                printf("ERROR: %d is not a correct state\n", node_state);
+                fprintf(stderr, "ERROR: %d is not a correct state\n", node_state);
                 exit(EXIT_FAILURE);
                 break;
             }
@@ -2378,7 +2378,7 @@ void Node :: InportSomeNodeFinishTX(Notification &notification){
             }
 
             default:{
-                printf("ERROR: %d is not a correct state\n", node_state);
+                fprintf(stderr, "ERROR: %d is not a correct state\n", node_state);
                 exit(EXIT_FAILURE);
                 break;
             }
@@ -3084,7 +3084,7 @@ void Node :: SelectDestination(){
     current_destination_id = PickRandomElementFromArray(wlan.list_sta_id, wlan.num_stas);
 
     if (current_destination_id == NODE_ID_NONE){
-        printf("There are no stations associated with this AP. This is probably an error! Exiting\n");
+        fprintf(stderr, "There are no stations associated with this AP. This is probably an error! Exiting\n");
         exit(1);
     }
 
@@ -3172,7 +3172,7 @@ Notification Node :: GenerateNotification(int packet_type, int destination_id, i
         }
 
         default:{
-            printf("ERROR: Packet type unknown\n");
+            fprintf(stderr, "ERROR: Packet type unknown\n");
             exit(EXIT_FAILURE);
             break;
         }
@@ -3629,7 +3629,7 @@ void Node :: InportReceiveConfigurationFromAgent(Configuration &received_configu
         }
 
     } else {
-        printf("Received a new configuration before applying the last one!\n");
+        fprintf(stderr, "Received a new configuration before applying the last one!\n");
     }
 
 }
@@ -3714,7 +3714,7 @@ void Node :: InportNewWlanConfigurationReceived(Configuration &received_configur
         RestartNode(FALSE);
 
     } else {
-        printf("ERROR: the broadcast of a new configuration cannot be received at APs\n");
+        fprintf(stderr, "ERROR: the broadcast of a new configuration cannot be received at APs\n");
     }
 
 }
@@ -3928,41 +3928,41 @@ void Node:: MeasureRho(trigger_t &){
  */
 void Node :: PrintNodeInfo(int info_detail_level){
 
-    printf("%s Node %s info:\n", LOG_LVL3, node_code.c_str());
-    printf("%s node_id = %d\n", LOG_LVL4, node_id);
-    printf("%s node_type = %d\n", LOG_LVL4, node_type);
-    printf("%s position = (%.2f, %.2f, %.2f)\n", LOG_LVL4, x, y, z);
-    printf("%s current_primary_channel = %d\n", LOG_LVL4, current_primary_channel);
-    printf("%s min_channel_allowed = %d\n", LOG_LVL4, min_channel_allowed);
-    printf("%s max_channel_allowed = %d\n", LOG_LVL4, max_channel_allowed);
-    printf("%s current_dcb_policy = %d\n", LOG_LVL4, current_dcb_policy);
-    printf("%s cw_min = %d\n", LOG_LVL4, cw_min);
+    fprintf(stderr,"%s Node %s info:\n", LOG_LVL3, node_code.c_str());
+    fprintf(stderr, "%s node_id = %d\n", LOG_LVL4, node_id);
+    fprintf(stderr, "%s node_type = %d\n", LOG_LVL4, node_type);
+    fprintf(stderr, "%s position = (%.2f, %.2f, %.2f)\n", LOG_LVL4, x, y, z);
+    fprintf(stderr, "%s current_primary_channel = %d\n", LOG_LVL4, current_primary_channel);
+    fprintf(stderr, "%s min_channel_allowed = %d\n", LOG_LVL4, min_channel_allowed);
+    fprintf(stderr, "%s max_channel_allowed = %d\n", LOG_LVL4, max_channel_allowed);
+    fprintf(stderr, "%s current_dcb_policy = %d\n", LOG_LVL4, current_dcb_policy);
+    fprintf(stderr, "%s cw_min = %d\n", LOG_LVL4, cw_min);
 
     if(info_detail_level > INFO_DETAIL_LEVEL_0){
-        printf("%s wlan:\n", LOG_LVL4);
-        printf("%s wlan code = %s\n", LOG_LVL5, wlan.wlan_code.c_str());
-        printf("%s wlan id = %d\n", LOG_LVL5, wlan.wlan_id);
-        printf("%s wlan AP id = %d\n", LOG_LVL5, wlan.ap_id);
-        printf("%s STAs in WLAN (%d): ", LOG_LVL5, wlan.num_stas);
+        fprintf(stderr, "%s wlan:\n", LOG_LVL4);
+        fprintf(stderr, "%s wlan code = %s\n", LOG_LVL5, wlan.wlan_code.c_str());
+        fprintf(stderr, "%s wlan id = %d\n", LOG_LVL5, wlan.wlan_id);
+        fprintf(stderr, "%s wlan AP id = %d\n", LOG_LVL5, wlan.ap_id);
+        fprintf(stderr, "%s STAs in WLAN (%d): ", LOG_LVL5, wlan.num_stas);
         wlan.PrintStaIds();
     }
 
     if(info_detail_level > INFO_DETAIL_LEVEL_1){
-        printf("%s cw_min = %d\n", LOG_LVL4, cw_min);
-        printf("%s cw_stage_max = %d\n", LOG_LVL4, cw_stage_max);
-        printf("%s destination_id = %d\n", LOG_LVL4, destination_id);
-        printf("%s tpc_min = %f pW (%f dBm)\n", LOG_LVL4, tpc_min, ConvertPower(PW_TO_DBM, tpc_min));
-        printf("%s tpc_default = %f pW (%f dBm)\n", LOG_LVL4, tpc_default, ConvertPower(PW_TO_DBM, tpc_default));
-        printf("%s tpc_max = %f pW (%f dBm)\n", LOG_LVL4, tpc_max, ConvertPower(PW_TO_DBM, tpc_max));
-        printf("%s cca_min = %f pW (%f dBm)\n", LOG_LVL4, cca_min, ConvertPower(PW_TO_DBM, cca_min));
-        printf("%s cca_default = %f pW (%f dBm)\n", LOG_LVL4, cca_default, ConvertPower(PW_TO_DBM, cca_default));
-        printf("%s cca_max = %f pW (%f dBm)\n", LOG_LVL4, cca_max, ConvertPower(PW_TO_DBM, cca_max));
-        printf("%s tx_gain = %f (%f dBi)\n", LOG_LVL4, tx_gain, ConvertPower(LINEAR_TO_DB, tx_gain));
-        printf("%s rx_gain = %f (%f dBi)\n", LOG_LVL4, rx_gain, ConvertPower(LINEAR_TO_DB, rx_gain));
-        printf("%s modulation_default = %d\n", LOG_LVL4, modulation_default);
-        printf("%s central_frequency = %f Hz (%f GHz)\n", LOG_LVL4, central_frequency, central_frequency * pow(10,-9));
+        fprintf(stderr, "%s cw_min = %d\n", LOG_LVL4, cw_min);
+        fprintf(stderr, "%s cw_stage_max = %d\n", LOG_LVL4, cw_stage_max);
+        fprintf(stderr, "%s destination_id = %d\n", LOG_LVL4, destination_id);
+        fprintf(stderr, "%s tpc_min = %f pW (%f dBm)\n", LOG_LVL4, tpc_min, ConvertPower(PW_TO_DBM, tpc_min));
+        fprintf(stderr, "%s tpc_default = %f pW (%f dBm)\n", LOG_LVL4, tpc_default, ConvertPower(PW_TO_DBM, tpc_default));
+        fprintf(stderr, "%s tpc_max = %f pW (%f dBm)\n", LOG_LVL4, tpc_max, ConvertPower(PW_TO_DBM, tpc_max));
+        fprintf(stderr, "%s cca_min = %f pW (%f dBm)\n", LOG_LVL4, cca_min, ConvertPower(PW_TO_DBM, cca_min));
+        fprintf(stderr, "%s cca_default = %f pW (%f dBm)\n", LOG_LVL4, cca_default, ConvertPower(PW_TO_DBM, cca_default));
+        fprintf(stderr, "%s cca_max = %f pW (%f dBm)\n", LOG_LVL4, cca_max, ConvertPower(PW_TO_DBM, cca_max));
+        fprintf(stderr, "%s tx_gain = %f (%f dBi)\n", LOG_LVL4, tx_gain, ConvertPower(LINEAR_TO_DB, tx_gain));
+        fprintf(stderr, "%s rx_gain = %f (%f dBi)\n", LOG_LVL4, rx_gain, ConvertPower(LINEAR_TO_DB, rx_gain));
+        fprintf(stderr, "%s modulation_default = %d\n", LOG_LVL4, modulation_default);
+        fprintf(stderr, "%s central_frequency = %f Hz (%f GHz)\n", LOG_LVL4, central_frequency, central_frequency * pow(10,-9));
     }
-    printf("\n");
+    fprintf(stderr, "\n");
 }
 
 /*
@@ -4049,9 +4049,9 @@ void Node :: WriteReceivedConfiguration(Logger node_logger, std::string header_s
  * WriteNodeConfiguration(): writes Node conf.
  */
 void Node :: PrintNodeConfiguration(){
-    printf("Node%d - Configuration info:\n", node_id);
-    printf(" - current_cca = %f (%f dBm)\n", current_cca, ConvertPower(PW_TO_DBM,current_cca));
-    printf(" - current_tpc = %f (%f dBm)\n", current_tpc, ConvertPower(PW_TO_DBM,current_tpc));
+    fprintf(stderr, "Node%d - Configuration info:\n", node_id);
+    fprintf(stderr, " - current_cca = %f (%f dBm)\n", current_cca, ConvertPower(PW_TO_DBM,current_cca));
+    fprintf(stderr, " - current_tpc = %f (%f dBm)\n", current_tpc, ConvertPower(PW_TO_DBM,current_tpc));
 }
 
 /*
@@ -4061,7 +4061,7 @@ void Node :: PrintNodeConfiguration(){
  */
 void Node :: PrintProgressBar(trigger_t &){
     // if(print_node_logs) printf("* %d %% *\n", progress_bar_counter * PROGRESS_BAR_DELTA);
-    printf("* %d %% *\n", progress_bar_counter * PROGRESS_BAR_DELTA);
+    fprintf(stderr, "* %d %% *\n", progress_bar_counter * PROGRESS_BAR_DELTA);
     trigger_sim_time.Set(round_to_digits(SimTime() + simulation_time_komondor / (100/PROGRESS_BAR_DELTA),15));
     // End progress bar
     if(node_id == 0 && progress_bar_counter == (100/PROGRESS_BAR_DELTA)-1){
@@ -4071,11 +4071,11 @@ void Node :: PrintProgressBar(trigger_t &){
 }
 
 void print_entry_int(gpointer key, gpointer value, gpointer user_data){
-    printf("%s %s: %d\n",LOG_LVL2, (gchar*) key, * (gint*) value);
+    fprintf(stderr, "%s %s: %d\n",LOG_LVL2, (gchar*) key, * (gint*) value);
 }
 
 void print_entry_double(gpointer key, gpointer value, gpointer user_data){
-    printf("%s %s: %f\n",LOG_LVL2, (gchar*) key, * (gdouble*) value);
+    fprintf(stderr, "%s %s: %f\n",LOG_LVL2, (gchar*) key, * (gdouble*) value);
 }
 
 /*
@@ -4129,69 +4129,69 @@ void Node :: PrintOrWriteNodeStatistics(int write_or_print){
         case PRINT_LOG:{
 
             if (node_is_transmitter && print_node_logs) {
-                printf("------- %s (N%d) ------\n", node_code.c_str(), node_id);
+                fprintf(stderr, "------- %s (N%d) ------\n", node_code.c_str(), node_id);
 
                 // Throughput
-                printf("%s Throughput = %f Mbps (%.2f pkt/s)\n", LOG_LVL2,
+                fprintf(stderr, "%s Throughput = %f Mbps (%.2f pkt/s)\n", LOG_LVL2,
                     throughput * pow(10,-6),
                     throughput / (frame_length * limited_num_packets_aggregated));
 
                 // Delay
-                printf("%s Average delay from %d measurements = %f s (%.2f ms)\n", LOG_LVL2,
+                fprintf(stderr, "%s Average delay from %d measurements = %f s (%.2f ms)\n", LOG_LVL2,
                     num_delay_measurements, average_delay, average_delay * 1000);
 
                 // Rho
-                printf("%s Average rho = %f (%.2f %%)\n", LOG_LVL2,
+                fprintf(stderr, "%s Average rho = %f (%.2f %%)\n", LOG_LVL2,
                     average_rho, average_rho * 100);
 
-                printf("%s %d/%d\n", LOG_LVL3,
+                fprintf(stderr, "%s %d/%d\n", LOG_LVL3,
                     num_measures_rho_accomplished, num_measures_rho);
 
                 // Utilization
-                printf("%s Average utilization = %f (%.2f %%)\n", LOG_LVL2,
+                fprintf(stderr, "%s Average utilization = %f (%.2f %%)\n", LOG_LVL2,
                     average_utilization, average_utilization * 100);
 
-                printf("%s %d/%d\n", LOG_LVL3,
+                fprintf(stderr, "%s %d/%d\n", LOG_LVL3,
                     num_measures_buffer_with_packets, num_measures_utilization);
 
                 // RTS/CTS sent and lost
-                printf("%s RTS/CTS sent = %d - RTS/CTS lost = %d  (%.2f %% lost)\n",
+                fprintf(stderr, "%s RTS/CTS sent = %d - RTS/CTS lost = %d  (%.2f %% lost)\n",
                     LOG_LVL2, rts_cts_sent, rts_cts_lost, rts_cts_lost_percentage);
 
                 // RTS/CTS sent and lost
-                printf("%s RTS lost due to slotted BO = %d (%f %%)\n",
+                fprintf(stderr, "%s RTS lost due to slotted BO = %d (%f %%)\n",
                     LOG_LVL3, rts_lost_slotted_bo, rts_lost_bo_percentage);
 
                 // Data packets sent and lost
-                printf("%s Data packets sent = %d - ACKed = %d -  Lost = %d  (%f %% lost)\n",
+                fprintf(stderr, "%s Data packets sent = %d - ACKed = %d -  Lost = %d  (%f %% lost)\n",
                     LOG_LVL2, data_packets_sent, data_packets_acked, data_packets_lost, data_packets_lost_percentage);
 
 
-                printf("%s Frames ACKed = %d, Av. frames sent per packet = %.2f\n",
+                fprintf(stderr, "%s Frames ACKed = %d, Av. frames sent per packet = %.2f\n",
                     LOG_LVL2, data_frames_acked, (double) data_frames_acked/data_packets_acked);
 
                 // Data packets sent and lost
-                printf("%s Buffer: packets generated = %.0f (%.2f pkt/s) - Packets dropped = %.0f  (%f %% drop ratio)\n",
+                fprintf(stderr, "%s Buffer: packets generated = %.0f (%.2f pkt/s) - Packets dropped = %.0f  (%f %% drop ratio)\n",
                     LOG_LVL2,
                     num_packets_generated, num_packets_generated / SimTime(),
                     num_packets_dropped, generation_drop_ratio);
 
                 if(TRAFFIC_POISSON_BURST){
 
-                    printf("%s Buffer: num bursts = %d\n",
+                   fprintf(stderr, "%s Buffer: num bursts = %d\n",
                         LOG_LVL2,
                         num_bursts);
 
                 }
 
                 // Number of trials to transmit
-                printf("%s num_tx_init_tried = %d - num_tx_init_not_possible = %d (%f %% failed)\n",
+                fprintf(stderr, "%s num_tx_init_tried = %d - num_tx_init_not_possible = %d (%f %% failed)\n",
                         LOG_LVL2, num_tx_init_tried, num_tx_init_not_possible, tx_init_failure_percentage);
 
                 // Time EFFECTIVELY transmitting in a given number of channels (no losses)
-                printf("%s Time EFFECTIVELY transmitting in N channels:", LOG_LVL3);
+                fprintf(stderr, "%s Time EFFECTIVELY transmitting in N channels:", LOG_LVL3);
                 for(int n = 0; n < num_channels_allowed; ++n){
-                    printf("\n%s - %d: %f s (%.2f %%)",
+                    fprintf(stderr, "\n%s - %d: %f s (%.2f %%)",
                             LOG_LVL3, (int) pow(2,n),
                             total_time_transmitting_in_num_channels[n] - total_time_lost_in_num_channels[n],
                             ((total_time_transmitting_in_num_channels[n] -
@@ -4199,35 +4199,35 @@ void Node :: PrintOrWriteNodeStatistics(int write_or_print){
 
                     if((int) pow(2,n) == num_channels_komondor) break;
                 }
-                printf("\n");
+                fprintf(stderr, "\n");
 
                 // Time EFFECTIVELY transmitting in each of the channels (no losses)
-                printf("%s Time EFFECTIVELY transmitting in each channel:", LOG_LVL3);
+                fprintf(stderr, "%s Time EFFECTIVELY transmitting in each channel:", LOG_LVL3);
                 double time_effectively_txing;
                 for(int c = 0; c < num_channels_komondor; ++c){
                     time_effectively_txing = total_time_transmitting_per_channel[c] -
                         total_time_lost_per_channel[c];
-                    printf("\n%s - %d = %.2f s (%.2f %%)",
+                    fprintf(stderr, "\n%s - %d = %.2f s (%.2f %%)",
                         LOG_LVL3, c, time_effectively_txing,
                         (time_effectively_txing * 100 /SimTime()));
                 }
-                printf("\n");
+                fprintf(stderr, "\n");
 
                 // Spectrum utilization
-                printf("%s Time occupying the spectrum in each channel:", LOG_LVL3);
+                fprintf(stderr,"%s Time occupying the spectrum in each channel:", LOG_LVL3);
                 for(int c = 0; c < num_channels_komondor; ++c){
-                    printf("\n%s - %d = %.2f s (%.2f %%)",
+                    fprintf(stderr, "\n%s - %d = %.2f s (%.2f %%)",
                         LOG_LVL3, c, total_time_spectrum_per_channel[c],
                         (total_time_spectrum_per_channel[c] * 100 /SimTime()));
                 }
 
-                printf("\n%s - Average bandwidth used for transmitting = %.2f MHz / %d MHz (%.2f %%)\n",
+                fprintf(stderr, "\n%s - Average bandwidth used for transmitting = %.2f MHz / %d MHz (%.2f %%)\n",
                     LOG_LVL4,
                     bandwidth_used_txing,
                     num_channels_allowed * 20,
                     bandwidth_used_txing * 100 / (num_channels_allowed * 20));
 
-                printf("\n");
+                fprintf(stderr, "\n");
 
 //              // Time LOST transmitting in a given number of channels
 //              printf("%s Time LOST transmitting in N channels:", LOG_LVL3);
@@ -4247,21 +4247,21 @@ void Node :: PrintOrWriteNodeStatistics(int write_or_print){
 //              printf("\n");
 
                 // Time tx trials in each number of channels
-                printf("%s Number of tx trials per number of channels:", LOG_LVL3);
+                fprintf(stderr, "%s Number of tx trials per number of channels:", LOG_LVL3);
                 for(int n = 0; n < num_channels_komondor; ++n){
 
-                    printf("\n%s - %d: %d (%.2f %%)",
+                    fprintf(stderr, "\n%s - %d: %d (%.2f %%)",
                         LOG_LVL3, (int) pow(2,n),
                         num_trials_tx_per_num_channels[n],
                         (((double) num_trials_tx_per_num_channels[n] * 100) / (double) (rts_cts_sent)));
 
                     if((int) pow(2,n) == num_channels_komondor) break;
                 }
-                printf("\n");
+                fprintf(stderr, "\n");
 
 
                 // Number of TX initiations that have been not possible due to channel state and DCB model
-                printf("%s num_tx_init_not_possible = %d\n", LOG_LVL2, num_tx_init_not_possible);
+                fprintf(stderr, "%s num_tx_init_not_possible = %d\n", LOG_LVL2, num_tx_init_not_possible);
 
 //              // Hidden nodes
 //              printf("%s Total number of hidden nodes: %d\n", LOG_LVL2, hidden_nodes_number);
@@ -4276,30 +4276,55 @@ void Node :: PrintOrWriteNodeStatistics(int write_or_print){
 //                  printf("%d ", potential_hidden_nodes[i]);
 //              }
 
-                printf("%s average_waiting_time = %f (%f slots)\n",
+                fprintf(stderr, "%s average_waiting_time = %f (%f slots)\n",
                     LOG_LVL2, average_waiting_time, average_waiting_time / SLOT_TIME);
 
-                printf("%s Expected BO = %f (%f slots)\n",
+                fprintf(stderr, "%s Expected BO = %f (%f slots)\n",
                     LOG_LVL2, expected_backoff, expected_backoff / SLOT_TIME);
 
                 
-                printf("\n%s Per Station Statistics:\n", LOG_LVL2);
+                fprintf(stderr, "\n%s Per Station Statistics:\n", LOG_LVL2);
                 for (int i = 0; i < wlan.num_stas; i++){
                     int id = wlan.list_sta_id[i];
-                    printf("%s -- Link to N%d --\n",LOG_LVL2, id); 
-                    printf("%s data_packets_acked: %d\n", LOG_LVL2, GetCounterInt("data_packets_acked/N%d", id));
-                    printf("%s data_frames_acked: %d\n", LOG_LVL2, GetCounterInt("data_frames_acked/N%d", id));
+                    fprintf(stderr, "%s -- Link to N%d --\n",LOG_LVL2, id); 
+                    fprintf(stderr, "%s data_packets_acked: %d\n", LOG_LVL2, GetCounterInt("data_packets_acked/N%d", id));
+                    fprintf(stderr, "%s data_frames_acked: %d\n", LOG_LVL2, GetCounterInt("data_frames_acked/N%d", id));
 
                     double tp = ((double) GetCounterInt("data_frames_acked/N%d", id)* frame_length) / SimTime();
-                    printf("N%d:: %s Avg. throughput: %.3f Mbps\n", id, LOG_LVL2, tp * pow(10,-6));
+                    fprintf(stderr, "N%d:: %s Avg. throughput: %.3f Mbps\n", id, LOG_LVL2, tp * pow(10,-6));
 
                     double delay = GetCounterDouble("accumulated_delay/N%d", id) / (double) GetCounterInt("num_delay_measurements/N%d", id);
-                    printf("N%d:: %s Avg. delay: %.3f ms\n", id, LOG_LVL2, delay * 1000.0);
+                    fprintf(stderr, "N%d:: %s Avg. delay: %.3f ms\n", id, LOG_LVL2, delay * 1000.0);
 
-                    printf("\n");
+                    fprintf(stderr, "\n");
+
+                    
+                    gchar* group_name = g_strdup_printf("STA%d", (gint) id );
+                    GError* error = NULL;
+                    GKeyFile* kf = g_key_file_new();
+                    g_key_file_load_from_file(kf, "statistics.cfg", G_KEY_FILE_NONE, &error);
+        
+                    if (error != NULL){
+                        error = NULL;
+                    }
+
+
+                    g_key_file_set_double(kf, group_name, "throughput", tp);   
+                    g_key_file_set_string(kf, group_name, "wlan", wlan.wlan_code.c_str());   
+                    g_key_file_save_to_file(kf, "statistics.cfg", &error); 
+
+                    if (error != NULL){
+                        printf("Error loading key file! %s\n", error->message);
+                        exit(1);
+                    }
+
+                    //TODO 
+                
+                
+
                 }
 
-                printf("\n\n");
+                fprintf(stderr, "\n\n");
 
             }
             break;

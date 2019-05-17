@@ -227,7 +227,7 @@ void Komondor :: Setup(double sim_time_console, int save_system_logs_console, in
 
     // Generate output files
 
-    if (print_system_logs) printf("%s Creating output files\n", LOG_LVL1);
+    if (print_system_logs) fprintf(stderr, "%s Creating output files\n", LOG_LVL1);
 
     std::string simulation_filename_remove;
     simulation_filename_remove.append("output/simulation_output_").append(simulation_code);
@@ -236,17 +236,17 @@ void Komondor :: Setup(double sim_time_console, int save_system_logs_console, in
     simulation_filename_fopen.append("../").append(simulation_filename_remove);
 
     if(remove(simulation_filename_remove.c_str()) == 0){
-        if (print_system_logs) printf("%s Simulation output file '%s' found and removed. New one created!\n",
+        if (print_system_logs) fprintf(stderr, "%s Simulation output file '%s' found and removed. New one created!\n",
                 LOG_LVL2, simulation_filename_remove.c_str());
     } else {
-        if (print_system_logs) printf("%s Simulation output file '%s' created!\n",
+        if (print_system_logs) fprintf(stderr, "%s Simulation output file '%s' created!\n",
                             LOG_LVL2, simulation_filename_remove.c_str());
     }
 
     // Get loggers to write in output files
     simulation_output_file = fopen(simulation_filename_fopen.c_str(),"at");
     if (simulation_output_file == NULL){
-        printf("Failed to open file: %s\n", simulation_filename_fopen.c_str());
+        fprintf(stderr, "Failed to open file: %s\n", simulation_filename_fopen.c_str());
         exit(1);
     }
     logger_simulation.save_logs = SAVE_LOG;
@@ -256,7 +256,7 @@ void Komondor :: Setup(double sim_time_console, int save_system_logs_console, in
     script_output_file = fopen(script_output_filename,"at");    // Script output is removed when script is executed
 
     if (script_output_file == NULL){
-        printf("Failed to open file: %s\n", script_output_filename);
+        fprintf(stderr, "Failed to open file: %s\n", script_output_filename);
         exit(1);
     }
 
@@ -277,7 +277,7 @@ void Komondor :: Setup(double sim_time_console, int save_system_logs_console, in
 
 
     if (script_output_file_csv == NULL){
-        printf("Failed to open file: %s\n", script_output_csv_filename.c_str());
+        fprintf(stderr, "Failed to open file: %s\n", script_output_csv_filename.c_str());
         exit(1);
     }
 
@@ -373,22 +373,22 @@ void Komondor :: Setup(double sim_time_console, int save_system_logs_console, in
     if (agents_enabled && central_controller_flag) { GenerateCentralController(agents_input_filename); }
 
     if (print_system_logs) {
-        printf("%s System configuration: \n", LOG_LVL2);
+        fprintf(stderr, "%s System configuration: \n", LOG_LVL2);
         printSystemInfo();
-        printf("%s Wlans generated!\n", LOG_LVL2);
+        fprintf(stderr, "%s Wlans generated!\n", LOG_LVL2);
         PrintAllWlansInfo();
         if (print_system_logs) printf("\n");
-        printf("%s Nodes generated!\n", LOG_LVL2);
+        fprintf(stderr, "%s Nodes generated!\n", LOG_LVL2);
         PrintAllNodesInfo(INFO_DETAIL_LEVEL_2);
         if (print_system_logs) printf("\n");
         if (agents_enabled) {
-            printf("%s Agents generated!\n\n", LOG_LVL2);
+            fprintf(stderr, "%s Agents generated!\n\n", LOG_LVL2);
             PrintAllAgentsInfo();
             if (central_controller_flag) {
-                printf("%s Central Controller generated!\n\n", LOG_LVL2);
+                fprintf(stderr, "%s Central Controller generated!\n\n", LOG_LVL2);
                 central_controller[0].PrintCentralControllerInfo();
             }
-            printf("\n");
+            fprintf(stderr, "\n");
         }
     }
 

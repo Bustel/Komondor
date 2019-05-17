@@ -459,7 +459,7 @@ void Agent :: InitializeLearningAlgorithm() {
 
 	if (centralized_flag) { // Learning operation managed by the CC
 
-		printf("%s Agent %d: Learning operation managed by the CC\n", LOG_LVL5, agent_id);
+		fprintf(stderr, "%s Agent %d: Learning operation managed by the CC\n", LOG_LVL5, agent_id);
 
 	} else  { // Learning operation managed by the agent
 
@@ -520,43 +520,43 @@ void Agent :: InitializeLearningAlgorithm() {
  */
 void Agent :: PrintAgentInfo(){
 
-	printf("%s Agent %d info:\n", LOG_LVL3, agent_id);
-	printf("%s wlan_code = %s\n", LOG_LVL4, wlan_code.c_str());
-	printf("%s centralized_flag = %d\n", LOG_LVL4, centralized_flag);
-	printf("%s time_between_requests = %f\n", LOG_LVL4, time_between_requests);
-	printf("%s type_of_reward = %d\n", LOG_LVL4, type_of_reward);
-	printf("%s initial_reward = %f\n", LOG_LVL4, initial_reward);
-	printf("%s list_of_channels: ", LOG_LVL4);
+	fprintf(stderr, "%s Agent %d info:\n", LOG_LVL3, agent_id);
+	fprintf(stderr, "%s wlan_code = %s\n", LOG_LVL4, wlan_code.c_str());
+	fprintf(stderr, "%s centralized_flag = %d\n", LOG_LVL4, centralized_flag);
+	fprintf(stderr, "%s time_between_requests = %f\n", LOG_LVL4, time_between_requests);
+	fprintf(stderr, "%s type_of_reward = %d\n", LOG_LVL4, type_of_reward);
+	fprintf(stderr, "%s initial_reward = %f\n", LOG_LVL4, initial_reward);
+	fprintf(stderr, "%s list_of_channels: ", LOG_LVL4);
 	for (int i = 0; i < num_actions_channel; ++i) {
-		printf("%d  ", list_of_channels[i]);
+		fprintf(stderr, "%d  ", list_of_channels[i]);
 	}
-	printf("\n");
+	fprintf(stderr, "\n");
 
-	printf("%s list_of_cca_values: ", LOG_LVL4);
+	fprintf(stderr, "%s list_of_cca_values: ", LOG_LVL4);
 	for (int i = 0; i < num_actions_cca; ++i) {
-		printf("%f pW (%f dBm)  ", list_of_cca_values[i], ConvertPower(PW_TO_DBM, list_of_cca_values[i]));
+		fprintf(stderr, "%f pW (%f dBm)  ", list_of_cca_values[i], ConvertPower(PW_TO_DBM, list_of_cca_values[i]));
 	}
-	printf("\n");
+	fprintf(stderr, "\n");
 
-	printf("%s list_of_tx_power_values: ", LOG_LVL4);
+	fprintf(stderr, "%s list_of_tx_power_values: ", LOG_LVL4);
 	for (int i = 0; i < num_actions_tx_power; ++i) {
 		printf("%f pW (%f dBm)  ", list_of_tx_power_values[i], ConvertPower(PW_TO_DBM, list_of_tx_power_values[i]));
 	}
-	printf("\n");
+	fprintf(stderr, "\n");
 
-	printf("%s list_of_dcb_policy: ", LOG_LVL4);
+    fprintf(stderr, "%s list_of_dcb_policy: ", LOG_LVL4);
 	for (int i = 0; i < num_actions_dcb_policy; ++i) {
-		printf("%d  ", list_of_dcb_policy[i]);
+		fprintf(stderr, "%d  ", list_of_dcb_policy[i]);
 	}
-	printf("\n");
+	fprintf(stderr, "\n");
 
-	printf("%s learning_mechanism: %d\n", LOG_LVL4, learning_mechanism);
-	printf("%s selected_strategy: %d\n", LOG_LVL4, selected_strategy);
+	fprintf(stderr, "%s learning_mechanism: %d\n", LOG_LVL4, learning_mechanism);
+	fprintf(stderr, "%s selected_strategy: %d\n", LOG_LVL4, selected_strategy);
 
-	printf("%s save_agent_logs: %d\n", LOG_LVL4, save_agent_logs);
-	printf("%s print_agent_logs: %d\n", LOG_LVL4, print_agent_logs);
+	fprintf(stderr, "%s save_agent_logs: %d\n", LOG_LVL4, save_agent_logs);
+	fprintf(stderr, "%s print_agent_logs: %d\n", LOG_LVL4, print_agent_logs);
 
-	printf("\n");
+	fprintf(stderr, "\n");
 
 }
 
