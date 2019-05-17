@@ -7,8 +7,8 @@ import os
 '''
 class Komondor:
 
-    def __init__(self):
-        pass
+    def __init__(self, sim_time=10):
+        self.sim_time = sim_time
 
     def run(self):
         try:
@@ -18,7 +18,7 @@ class Komondor:
                 pass
 
             p = subprocess.Popen(
-                '../Code/build/komondor_main -t 10 -s 112 cfg/telegraph_gen_network.cfg',
+                '../Code/build/komondor_main -t ' + str(self.sim_time) + ' -s 112 cfg/telegraph_gen_network.cfg',
                 shell=True,
                 stdout=subprocess.PIPE,
                 stderr = subprocess.PIPE
@@ -29,9 +29,7 @@ class Komondor:
             print("Unexpected error:", sys.exc_info()[0], file=sys.stderr)
         else:
             stdout = p.stdout.read()
-
             print(stdout)
-
             stderr = p.stderr.read()
-
             print(stderr)
+            pass
