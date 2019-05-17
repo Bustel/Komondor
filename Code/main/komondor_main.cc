@@ -82,7 +82,7 @@ component Komondor : public CostSimEng {
 
         void Setup(double simulation_time_komondor, int save_system_logs, int save_node_logs, int save_agent_logs,
             int print_node_logs, int print_system_logs, int print_agent_logs, const char *config_filename, const char *script_filename, const char *simulation_code, int seed_console,
-            int agents_enabled, const char *agents_filename);
+            int agents_enabled, const char *agents_filename, const char* stats_out);
         void Stop();
         void Start();
         void InputChecker();
@@ -122,6 +122,9 @@ component Komondor : public CostSimEng {
         int print_node_logs;                // Flag for activating the printing of node logs
         int save_agent_logs;                // Flag for activating the log writting of agents
         int print_agent_logs;               // Flag for activating the printing of agent logs
+
+        const char* stats_out;
+
         double simulation_time_komondor;    // Simulation time [s]
 
         // Parameters entered via system file
@@ -206,7 +209,7 @@ void Komondor :: Setup(double sim_time_console, int save_system_logs_console, in
         int save_agent_logs_console, int print_system_logs_console, int print_node_logs_console,
         int print_agent_logs_console, const char *config_filename,
         const char *script_output_filename, const char *simulation_code_console, int seed_console,
-        int agents_enabled_console, const char *agents_input_filename_console){
+        int agents_enabled_console, const char *agents_input_filename_console, const char* stats_out_console){
 
     simulation_time_komondor = sim_time_console;
     save_node_logs = save_node_logs_console;
@@ -217,6 +220,7 @@ void Komondor :: Setup(double sim_time_console, int save_system_logs_console, in
     print_agent_logs = print_agent_logs_console;
     nodes_input_filename = config_filename;
     agents_input_filename = agents_input_filename_console;
+    stats_out = stats_out_console;
 
     std::string simulation_code;
     simulation_code.append(ToString(simulation_code_console));
@@ -642,7 +646,11 @@ void Komondor :: Stop(){
             }
         }
 
-        g_key_file_save_to_file(kf, "statistics.cfg", &error); 
+
+        if (stats_out != NULL){
+            g_key_file_save_to_file(kf, stats_out , &error); 
+        }
+        g_key_file_free(kf);
 
         if (error != NULL){
             printf("Error loading key file! %s\n", error->message);
@@ -2079,6 +2087,7 @@ int main(int argc, char *argv[]){
 
     gchar** config = NULL;
     gchar* agents = NULL;
+    gchar* stats = NULL;
     gint  seed = -1; 
     gdouble sim_time = 60.0;
     static GOptionEntry options[] = 
@@ -2086,6 +2095,7 @@ int main(int argc, char *argv[]){
         {"agents" , 'a', 0, G_OPTION_ARG_FILENAME, &agents, "Path to agent configuration", "agent_path"},
         {"seed", 's', 0 , G_OPTION_ARG_INT, &seed, "Seed for pseudo-random number generators", "S"},
         {"time", 't', 0 , G_OPTION_ARG_DOUBLE, &sim_time, "Simulation Time", "T"},
+        {"stats", 0, 0 , G_OPTION_ARG_FILENAME, &stats, "Output of node statistics in machine-readable format (ini)", ""},
         {G_OPTION_REMAINING, 0, 0,G_OPTION_ARG_FILENAME_ARRAY,&config, "Path to system and node configuration", "config_path"},
         { NULL } 
         
@@ -2126,7 +2136,7 @@ int main(int argc, char *argv[]){
     test.StopTime(sim_time);
     test.Setup(sim_time, save_system_logs, save_node_logs, save_agent_logs, print_system_logs, print_node_logs, print_agent_logs,
         config[0], script_output_filename, simulation_code, seed,
-        agents_enabled, agents);
+        agents_enabled, agents, stats);
 
     printf("------------------------------------------\n");
     printf("%s SIMULATION '%s' STARTED\n", LOG_LVL1, simulation_code);
