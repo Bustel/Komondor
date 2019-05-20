@@ -294,10 +294,6 @@ void Komondor :: Setup(double sim_time_console, int save_system_logs_console, in
     // Generate nodes
     GenerateNodes(nodes_input_filename);
 
-
-    
-
-
     // Compute distance of each pair of nodes
     for(int i = 0; i < total_nodes_number; ++i) {
         node_container[i].distances_array = new double[total_nodes_number];
