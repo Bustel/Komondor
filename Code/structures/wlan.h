@@ -50,6 +50,8 @@
 #ifndef _AUX_WLAN_
 #define _AUX_WLAN_
 
+
+#define    LOGS(f,...)    if (f!=NULL){fprintf(f, ##__VA_ARGS__);}
 #include <stdio.h>
 #include <iostream>
 #include <stdlib.h>
@@ -81,9 +83,9 @@ struct Wlan
 	 */
 	void PrintStaIds(){
 		for(int s = 0; s < num_stas; s++){
-			fprintf(stderr, "%d  ", list_sta_id[s]);
+			LOGS(stderr, "%d  ", list_sta_id[s]);
 		}
-		fprintf(stderr, "\n");
+		LOGS(stderr, "\n");
 	}
 
 	/*
@@ -94,7 +96,7 @@ struct Wlan
 	void WriteStaIds(Logger logger){
 		if (logger.save_logs){
 			for(int s = 0; s < num_stas; s++){
-				fprintf(logger.file, "%d  ", list_sta_id[s]);
+				LOGS(logger.file, "%d  ", list_sta_id[s]);
 			}
 		}
 	}
@@ -103,11 +105,11 @@ struct Wlan
 	 * PrintWlanInfo(): prints general WLAN info
 	 */
 	void PrintWlanInfo(){
-		fprintf(stderr, "%s WLAN %s:\n", LOG_LVL3, wlan_code.c_str());
-		fprintf(stderr, "%s wlan_id: %d\n", LOG_LVL4, wlan_id);
-		fprintf(stderr, "%s num_stas: %d\n", LOG_LVL4, num_stas);
-		fprintf(stderr, "%s ap_id: %d\n", LOG_LVL4, ap_id);
-		fprintf(stderr, "%s list of STAs IDs: ", LOG_LVL4);
+		LOGS(stderr, "%s WLAN %s:\n", LOG_LVL3, wlan_code.c_str());
+		LOGS(stderr, "%s wlan_id: %d\n", LOG_LVL4, wlan_id);
+		LOGS(stderr, "%s num_stas: %d\n", LOG_LVL4, num_stas);
+		LOGS(stderr, "%s ap_id: %d\n", LOG_LVL4, ap_id);
+		LOGS(stderr, "%s list of STAs IDs: ", LOG_LVL4);
 		PrintStaIds();
 	}
 
@@ -119,13 +121,13 @@ struct Wlan
 	 */
 	void WriteWlanInfo(Logger logger, std::string header_str){
 		if (logger.save_logs){
-			fprintf(logger.file, "%s WLAN %s:\n", header_str.c_str(), wlan_code.c_str());
-			fprintf(logger.file, "%s - wlan_id: %d\n", header_str.c_str(), wlan_id);
-			fprintf(logger.file, "%s - num_stas: %d\n", header_str.c_str(), num_stas);
-			fprintf(logger.file, "%s - ap_id: %d\n", header_str.c_str(), ap_id);
-			fprintf(logger.file, "%s - list of STAs IDs: ", header_str.c_str());
+			LOGS(logger.file, "%s WLAN %s:\n", header_str.c_str(), wlan_code.c_str());
+			LOGS(logger.file, "%s - wlan_id: %d\n", header_str.c_str(), wlan_id);
+			LOGS(logger.file, "%s - num_stas: %d\n", header_str.c_str(), num_stas);
+			LOGS(logger.file, "%s - ap_id: %d\n", header_str.c_str(), ap_id);
+			LOGS(logger.file, "%s - list of STAs IDs: ", header_str.c_str());
 			WriteStaIds(logger);
-			fprintf(logger.file, "\n");
+			LOGS(logger.file, "\n");
 		}
 	}
 };

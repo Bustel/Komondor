@@ -127,8 +127,6 @@ double ComputePowerReceived(double distance, double tx_power, double tx_gain, do
 
 	double pw_received;	// Power received [pW]
 
-	printf("ComputePowerReceived: %d\n", path_loss_model);
-
 	switch(path_loss_model){
 	// Free space - Calculator: https://www.pasternack.com/t-calculator-fspl.aspx (UNITS ARE NOT IN SI!)
 	case PATH_LOSS_LFS:{

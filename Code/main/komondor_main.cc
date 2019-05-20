@@ -82,7 +82,7 @@ component Komondor : public CostSimEng {
 
         void Setup(double simulation_time_komondor, int save_system_logs, int save_node_logs, int save_agent_logs,
             int print_node_logs, int print_system_logs, int print_agent_logs, const char *config_filename, const char *script_filename, const char *simulation_code, int seed_console,
-            int agents_enabled, const char *agents_filename);
+            int agents_enabled, const char *agents_filename, const char* stats_out);
         void Stop();
         void Start();
         void InputChecker();
@@ -122,6 +122,9 @@ component Komondor : public CostSimEng {
         int print_node_logs;                // Flag for activating the printing of node logs
         int save_agent_logs;                // Flag for activating the log writting of agents
         int print_agent_logs;               // Flag for activating the printing of agent logs
+
+        const char* stats_out;
+
         double simulation_time_komondor;    // Simulation time [s]
 
         // Parameters entered via system file
@@ -206,7 +209,7 @@ void Komondor :: Setup(double sim_time_console, int save_system_logs_console, in
         int save_agent_logs_console, int print_system_logs_console, int print_node_logs_console,
         int print_agent_logs_console, const char *config_filename,
         const char *script_output_filename, const char *simulation_code_console, int seed_console,
-        int agents_enabled_console, const char *agents_input_filename_console){
+        int agents_enabled_console, const char *agents_input_filename_console, const char* stats_out_console){
 
     simulation_time_komondor = sim_time_console;
     save_node_logs = save_node_logs_console;
@@ -217,6 +220,7 @@ void Komondor :: Setup(double sim_time_console, int save_system_logs_console, in
     print_agent_logs = print_agent_logs_console;
     nodes_input_filename = config_filename;
     agents_input_filename = agents_input_filename_console;
+    stats_out = stats_out_console;
 
     std::string simulation_code;
     simulation_code.append(ToString(simulation_code_console));
@@ -257,7 +261,6 @@ void Komondor :: Setup(double sim_time_console, int save_system_logs_console, in
 
     if (script_output_file == NULL){
         fprintf(stderr, "Failed to open file: %s\n", script_output_filename);
-        exit(1);
     }
 
     logger_script.save_logs = SAVE_LOG;
@@ -270,7 +273,6 @@ void Komondor :: Setup(double sim_time_console, int save_system_logs_console, in
     script_output_csv_filename.append(script_output_filename_root_str).append("_csv.csv");
 
     g_free(script_output_filename_root);
-    printf("%s\n", script_output_csv_filename.c_str());
 
     // Script output (CSV format)
     script_output_file_csv = fopen(script_output_csv_filename.c_str(),"at");    // Script output is removed when script is executed
@@ -278,14 +280,13 @@ void Komondor :: Setup(double sim_time_console, int save_system_logs_console, in
 
     if (script_output_file_csv == NULL){
         fprintf(stderr, "Failed to open file: %s\n", script_output_csv_filename.c_str());
-        exit(1);
     }
 
     logger_script_csv.save_logs = SAVE_LOG;
     logger_script_csv.file = script_output_file_csv;
 
     // fprintf(logger_script.file, "------------------------------------\n");
-    fprintf(logger_script.file, "%s KOMONDOR SIMULATION '%s' (seed %d)", LOG_LVL1, simulation_code.c_str(), seed);
+    LOGS(logger_script.file, "%s KOMONDOR SIMULATION '%s' (seed %d)", LOG_LVL1, simulation_code.c_str(), seed);
     // Read system (environment) file
 
     SetupEnvironmentByReadingInputFile(config_filename);
@@ -377,10 +378,10 @@ void Komondor :: Setup(double sim_time_console, int save_system_logs_console, in
         printSystemInfo();
         fprintf(stderr, "%s Wlans generated!\n", LOG_LVL2);
         PrintAllWlansInfo();
-        if (print_system_logs) printf("\n");
+        if (print_system_logs) fprintf(stderr, "\n");
         fprintf(stderr, "%s Nodes generated!\n", LOG_LVL2);
         PrintAllNodesInfo(INFO_DETAIL_LEVEL_2);
-        if (print_system_logs) printf("\n");
+        if (print_system_logs) fprintf(stderr, "\n");
         if (agents_enabled) {
             fprintf(stderr, "%s Agents generated!\n\n", LOG_LVL2);
             PrintAllAgentsInfo();
@@ -394,26 +395,26 @@ void Komondor :: Setup(double sim_time_console, int save_system_logs_console, in
 
     InputChecker();
 
-    fprintf(logger_simulation.file, "------------------------------------\n");
+    LOGS(logger_simulation.file, "------------------------------------\n");
 
     if (save_system_logs){
 
-        fprintf(logger_simulation.file, "%s System configuration: \n", LOG_LVL2);
+        LOGS(logger_simulation.file, "%s System configuration: \n", LOG_LVL2);
         WriteSystemInfo(logger_simulation);
-        fprintf(logger_script.file, "%s System configuration: \n", LOG_LVL2);
+        LOGS(logger_script.file, "%s System configuration: \n", LOG_LVL2);
         WriteSystemInfo(logger_script);
 
         std::string header_str;
         header_str.append(ToString(LOG_LVL3));
 
-        fprintf(logger_simulation.file, "%s Wlans generated!\n", LOG_LVL2);
+        LOGS(logger_simulation.file, "%s Wlans generated!\n", LOG_LVL2);
         WriteAllWlansInfo(logger_simulation, header_str);
-        fprintf(logger_script.file, "%s Wlans generated!\n", LOG_LVL2);
+        LOGS(logger_script.file, "%s Wlans generated!\n", LOG_LVL2);
         WriteAllWlansInfo(logger_script, header_str);
 
-        fprintf(logger_simulation.file, "%s Nodes generated!\n", LOG_LVL2);
+        LOGS(logger_simulation.file, "%s Nodes generated!\n", LOG_LVL2);
         WriteAllNodesInfo(logger_simulation, INFO_DETAIL_LEVEL_0, header_str);
-        fprintf(logger_script.file, "%s Nodes generated!\n", LOG_LVL2);
+        LOGS(logger_script.file, "%s Nodes generated!\n", LOG_LVL2);
         WriteAllNodesInfo(logger_script, INFO_DETAIL_LEVEL_0, header_str);
 
     }
@@ -479,7 +480,7 @@ void Komondor :: Start(){
  */
 void Komondor :: Stop(){
 
-    printf("%s KOMONDOR SIMULATION '%s' (seed %d)", LOG_LVL1, simulation_code.c_str(), seed);
+    fprintf(stderr, "%s KOMONDOR SIMULATION '%s' (seed %d)", LOG_LVL1, simulation_code.c_str(), seed);
 
     int total_data_packets_sent (0);
     double total_num_packets_generated (0);
@@ -541,37 +542,37 @@ void Komondor :: Stop(){
 
     if (print_system_logs) {
 
-        printf("\n%s General Statistics:\n", LOG_LVL1);
-        printf("%s Average throughput per WLAN = %.3f Mbps (%.2f pkt/s)\n",
+        fprintf(stderr, "\n%s General Statistics:\n", LOG_LVL1);
+        fprintf(stderr,"%s Average throughput per WLAN = %.3f Mbps (%.2f pkt/s)\n",
                 LOG_LVL2, (total_throughput * pow(10,-6)/total_wlans_number),
                 (total_throughput / (double) frame_length) /total_wlans_number);
-        printf("%s Min. throughput = %.2f Mbps (%.2f pkt/s)\n",
+        fprintf(stderr,"%s Min. throughput = %.2f Mbps (%.2f pkt/s)\n",
                 LOG_LVL3, min_throughput * pow(10,-6), min_throughput / (frame_length * max_num_packets_aggregated));
-        printf("%s Max. throughput = %.2f Mbps (%.2f pkt/s)\n",
+        fprintf(stderr,"%s Max. throughput = %.2f Mbps (%.2f pkt/s)\n",
                         LOG_LVL3, max_throughput * pow(10,-6), max_throughput / (frame_length * max_num_packets_aggregated));
-        printf("%s Total throughput = %.2f Mbps\n", LOG_LVL3, total_throughput * pow(10,-6));
-        printf("%s Total number of packets sent = %d\n", LOG_LVL3, total_data_packets_sent);
-        printf("%s Average number of data packets successfully sent per WLAN = %.2f\n",
+        fprintf(stderr,"%s Total throughput = %.2f Mbps\n", LOG_LVL3, total_throughput * pow(10,-6));
+        fprintf(stderr,"%s Total number of packets sent = %d\n", LOG_LVL3, total_data_packets_sent);
+        fprintf(stderr,"%s Average number of data packets successfully sent per WLAN = %.2f\n",
                 LOG_LVL4, ( (double) total_data_packets_sent/ (double) total_wlans_number));
-        printf("%s Average number of RTS packets lost due to slotted BO = %f (%.3f %% loss)\n",
+        fprintf(stderr,"%s Average number of RTS packets lost due to slotted BO = %f (%.3f %% loss)\n",
                 LOG_LVL4,
                 (double) total_rts_lost_slotted_bo/(double) total_wlans_number,
                 ((double) total_rts_lost_slotted_bo *100/ (double) total_rts_cts_sent));
-        printf("%s Average number of packets sent per WLAN = %d\n", LOG_LVL3, (total_data_packets_sent/total_wlans_number));
-        printf("%s Proportional Fairness = %.2f\n", LOG_LVL2, proportional_fairness);
-        printf("%s Jain's Fairness = %.2f\n",  LOG_LVL2, jains_fairness);
-        printf("%s Prob. collision by slotted BO = %.3f\n", LOG_LVL2, total_prob_slotted_bo_collision / total_wlans_number);
-        printf("%s Av. delay = %.2f ms\n", LOG_LVL2, total_delay * pow(10,3) / total_wlans_number);
-        printf("%s Max. delay = %.2f ms\n", LOG_LVL3, max_delay * pow(10,3));
-        printf("%s Av. expected waiting time = %.2f ms\n", LOG_LVL3, av_expected_waiting_time * pow(10,3));
-        printf("%s Average bandwidth used for transmitting = %.2f MHz\n",
+        fprintf(stderr,"%s Average number of packets sent per WLAN = %d\n", LOG_LVL3, (total_data_packets_sent/total_wlans_number));
+        fprintf(stderr,"%s Proportional Fairness = %.2f\n", LOG_LVL2, proportional_fairness);
+        fprintf(stderr,"%s Jain's Fairness = %.2f\n",  LOG_LVL2, jains_fairness);
+        fprintf(stderr,"%s Prob. collision by slotted BO = %.3f\n", LOG_LVL2, total_prob_slotted_bo_collision / total_wlans_number);
+        fprintf(stderr,"%s Av. delay = %.2f ms\n", LOG_LVL2, total_delay * pow(10,3) / total_wlans_number);
+        fprintf(stderr,"%s Max. delay = %.2f ms\n", LOG_LVL3, max_delay * pow(10,3));
+        fprintf(stderr,"%s Av. expected waiting time = %.2f ms\n", LOG_LVL3, av_expected_waiting_time * pow(10,3));
+        fprintf(stderr,"%s Average bandwidth used for transmitting = %.2f MHz\n",
             LOG_LVL2, total_bandiwdth_tx / (double) total_wlans_number);
-        printf("%s Time channel was idle = %.2f s (%f%%)\n",  LOG_LVL2,
+        fprintf(stderr,"%s Time channel was idle = %.2f s (%f%%)\n",  LOG_LVL2,
             node_container[0].sum_time_channel_idle, (100*node_container[0].sum_time_channel_idle/simulation_time_komondor));
-        printf("\n\n");
+        fprintf(stderr,"\n\n");
     }
 
-    printf("\n");
+    fprintf(stderr,"\n");
 
     if (save_system_logs) {
 
@@ -592,36 +593,42 @@ void Komondor :: Stop(){
         fprintf(logger_simulation.file,"\n");
 
         // If csv file is empty, add header
-        fseek(logger_script_csv.file, 0, SEEK_END);
-        unsigned long len = (unsigned long)ftell(logger_script_csv.file);
-        printf("length = %lu", len);
-        if (len == 0) {
-            fprintf(logger_script_csv.file, "filename;sim_code;wlan_id;wlan_code;node_id;node_code;throughput[Mbps];"
-                                            "data_packets_sent;data_packets_lost;rts_cts_sent;rts_cts_lost\n");
+        
+        if (logger_script_csv.file != NULL) {
+
+            fseek(logger_script_csv.file, 0, SEEK_END);
+
+            unsigned long len = (unsigned long)ftell(logger_script_csv.file);
+            fprintf(stderr,"length = %lu", len);
+            if (len == 0) {
+                fprintf(logger_script_csv.file, "filename;sim_code;wlan_id;wlan_code;node_id;node_code;throughput[Mbps];"
+                                                "data_packets_sent;data_packets_lost;rts_cts_sent;rts_cts_lost\n");
+            }
         }
+
 
         GKeyFile* kf = g_key_file_new();
         GError* error = NULL;
 
     
         for(int m=0; m < total_nodes_number; ++m){
-            fprintf(logger_script.file, "%s Node #%d (%s) Throughput = %f\n", LOG_LVL2, m,
+            LOGS(logger_script.file, "%s Node #%d (%s) Throughput = %f\n", LOG_LVL2, m,
                 node_container[m].node_code.c_str(), node_container[m].throughput);
 
             if(node_container[m].node_type == NODE_TYPE_AP){
                 // Fill CSV script output
-                fprintf(logger_script_csv.file, "%s;", nodes_input_filename);               // Smiluation code
-                fprintf(logger_script_csv.file, "%s;", simulation_code.c_str());            // Smiluation code
-                fprintf(logger_script_csv.file, "%d;", node_container[m].wlan.wlan_id);     // WLAN ID
-                fprintf(logger_script_csv.file, "%s;", node_container[m].wlan.wlan_code.c_str());   // WLAN code
-                fprintf(logger_script_csv.file, "%d;", node_container[m].node_id);          // Node ID
-                fprintf(logger_script_csv.file, "%s;", node_container[m].node_code.c_str());        // Node code
-                fprintf(logger_script_csv.file, "%f;", node_container[m].throughput * pow(10,-6));  // Throughput [Mbps]
-                fprintf(logger_script_csv.file, "%d;", node_container[m].data_packets_sent);        // Packets sent
-                fprintf(logger_script_csv.file, "%d;", node_container[m].data_packets_lost);        // Packets lost
-                fprintf(logger_script_csv.file, "%d;", node_container[m].rts_cts_sent);     // RTS packets sent
-                fprintf(logger_script_csv.file, "%d", node_container[m].rts_cts_lost);      // RTS packets lost
-                fprintf(logger_script_csv.file, "\n");                                      // End of line
+                LOGS(logger_script_csv.file, "%s;", nodes_input_filename);               // Smiluation code
+                LOGS(logger_script_csv.file, "%s;", simulation_code.c_str());            // Smiluation code
+                LOGS(logger_script_csv.file, "%d;", node_container[m].wlan.wlan_id);     // WLAN ID
+                LOGS(logger_script_csv.file, "%s;", node_container[m].wlan.wlan_code.c_str());   // WLAN code
+                LOGS(logger_script_csv.file, "%d;", node_container[m].node_id);          // Node ID
+                LOGS(logger_script_csv.file, "%s;", node_container[m].node_code.c_str());        // Node code
+                LOGS(logger_script_csv.file, "%f;", node_container[m].throughput * pow(10,-6));  // Throughput [Mbps]
+                LOGS(logger_script_csv.file, "%d;", node_container[m].data_packets_sent);        // Packets sent
+                LOGS(logger_script_csv.file, "%d;", node_container[m].data_packets_lost);        // Packets lost
+                LOGS(logger_script_csv.file, "%d;", node_container[m].rts_cts_sent);     // RTS packets sent
+                LOGS(logger_script_csv.file, "%d", node_container[m].rts_cts_lost);      // RTS packets lost
+                LOGS(logger_script_csv.file, "\n");                                      // End of line
 
                 
                        
@@ -642,10 +649,14 @@ void Komondor :: Stop(){
             }
         }
 
-        g_key_file_save_to_file(kf, "statistics.cfg", &error); 
+
+        if (stats_out != NULL){
+            g_key_file_save_to_file(kf, stats_out , &error); 
+        }
+        g_key_file_free(kf);
 
         if (error != NULL){
-            printf("Error loading key file! %s\n", error->message);
+            fprintf(stderr,"Error loading key file! %s\n", error->message);
             exit(1);
         }
 
@@ -658,7 +669,7 @@ void Komondor :: Stop(){
 
         case 0:{
             // For toy scenarios
-            fprintf(logger_script.file, ";%.2f;%.2f;%f;%f\n",
+            LOGS(logger_script.file, ";%.2f;%.2f;%f;%f\n",
                 node_container[0].throughput * pow(10,-6),
                 node_container[2].throughput * pow(10,-6),
                 node_container[0].prob_slotted_bo_collision,
@@ -668,7 +679,7 @@ void Komondor :: Stop(){
 
         case 1:{
             // For large scenarios (Node density vs. throughput)
-            fprintf(logger_script.file, ";%.2f;%.2f;%f;%.2f;%d;%.2f\n",
+            LOGS(logger_script.file, ";%.2f;%.2f;%f;%.2f;%d;%.2f\n",
                 (total_throughput * pow(10,-6)/total_wlans_number),
                 proportional_fairness,
                 jains_fairness,
@@ -680,7 +691,7 @@ void Komondor :: Stop(){
 
         case 2:{
             // Sergio logs for central WLAN scenario
-            fprintf(logger_script.file, ";%.1f;%d;%d;%d;%d;%d;%d;%d\n",
+            LOGS(logger_script.file, ";%.1f;%d;%d;%d;%d;%d;%d;%d\n",
                 node_container[0].throughput * pow(10,-6),
                 node_container[0].rts_cts_sent,
                 node_container[0].rts_cts_lost,
@@ -694,7 +705,7 @@ void Komondor :: Stop(){
 
         case 3:{
             // Biancci multiple WLANs
-            fprintf(logger_script.file, ";%.2f;%.3f;%.5f\n",
+            LOGS(logger_script.file, ";%.2f;%.3f;%.5f\n",
                 av_expected_backoff / SLOT_TIME,
                 (total_throughput * pow(10,-6)/total_wlans_number),
                 total_prob_slotted_bo_collision / total_wlans_number);
@@ -703,30 +714,30 @@ void Komondor :: Stop(){
 
         case 4:{
             // DCB validation
-            fprintf(logger_script.file, ";%.5f",
+            LOGS(logger_script.file, ";%.5f",
                 total_prob_slotted_bo_collision / total_wlans_number);
             for(int w = 0; w < total_wlans_number; ++w) {
-                fprintf(logger_script.file, ";%.3f", node_container[w*2].throughput * pow(10,-6));
+                LOGS(logger_script.file, ";%.3f", node_container[w*2].throughput * pow(10,-6));
             }
-            fprintf(logger_script.file, "\n");
+            LOGS(logger_script.file, "\n");
             break;
         }
 
         case 5:{
             // Variability of optimal policies
             for(int w = 0; w < total_wlans_number; ++w) {
-                fprintf(logger_script.file, ";%.5f", node_container[w*2].prob_slotted_bo_collision);
+                LOGS(logger_script.file, ";%.5f", node_container[w*2].prob_slotted_bo_collision);
             }
             for(int w = 0; w < total_wlans_number; ++w) {
-                fprintf(logger_script.file, ";%.3f", node_container[w*2].throughput * pow(10,-6));
+                LOGS(logger_script.file, ";%.3f", node_container[w*2].throughput * pow(10,-6));
             }
-            fprintf(logger_script.file, "\n");
+            LOGS(logger_script.file, "\n");
             break;
         }
 
         case 6:{
             // Sergio logs for Paper #5 Toy Scenario I and II: 2 WLANs overlap scenario, and 3 line scenario
-            fprintf(logger_script.file, ";%d;%d;%.0f;%.0f;%.0f;%.0f;%.2f;%.2f;"
+            LOGS(logger_script.file, ";%d;%d;%.0f;%.0f;%.0f;%.0f;%.2f;%.2f;"
                 "%.4f;%.4f;%.2f;%.2f;%.4f;%.4f;%.4f;%.4f;%.4f;%.4f;%.2f;%.2f\n",
                 node_container[0].current_dcb_policy,
                 node_container[2].current_dcb_policy,
@@ -754,7 +765,7 @@ void Komondor :: Stop(){
 
         case 7:{
             // Sergio logs for Paper #5: central WLAN scenario
-            fprintf(logger_script.file, ";%.0f;%d;%d;%d;%d;%d;%d;%d;%f;%f;%f;%f;%f\n",
+            LOGS(logger_script.file, ";%.0f;%d;%d;%d;%d;%d;%d;%d;%f;%f;%f;%f;%f\n",
                 node_container[0].throughput / (frame_length * max_num_packets_aggregated),
                 node_container[0].rts_cts_sent,
                 node_container[0].rts_cts_lost,
@@ -773,7 +784,7 @@ void Komondor :: Stop(){
 
         case 8:{
             // Sergio logs for Paper #5: Central WLAN scenario
-            fprintf(logger_script.file, ";%d;%.0f;%.0f;%.2f;"
+            LOGS(logger_script.file, ";%d;%.0f;%.0f;%.2f;"
                 "%.4f;%.2f;%.4f;%.4f;%.4f;%.4f\n",
                 node_container[0].current_dcb_policy,
                 node_container[0].num_packets_generated,
@@ -791,7 +802,7 @@ void Komondor :: Stop(){
 
         case 9:{
             // Sergio logs for Paper #5: 6 WLAN random
-            fprintf(logger_script.file, ";%.2f;%.2f;%.2f;%d;%.4f;%.4f;%.4f;%.2f;%.2f;%.2f;%f;%f;%f\n",
+            LOGS(logger_script.file, ";%.2f;%.2f;%.2f;%d;%.4f;%.4f;%.4f;%.2f;%.2f;%.2f;%f;%f;%f\n",
                 total_throughput/(frame_length * max_num_packets_aggregated * total_wlans_number),
                 (total_throughput * pow(10,-6)/total_wlans_number),
                 min_throughput/(frame_length * max_num_packets_aggregated),
@@ -813,33 +824,33 @@ void Komondor :: Stop(){
         case 10:{
             if (total_nodes_number == 2 || total_nodes_number == 3) {
                 // Basic scenarios
-                fprintf(logger_script.file, ";%.2f\n",
+                LOGS(logger_script.file, ";%.2f\n",
                     node_container[0].throughput * pow(10,-6));
             } else if (total_nodes_number == 6) {
                 // Complex scenarios
-                fprintf(logger_script.file, ";%.2f;%.2f;%.2f\n",
+                LOGS(logger_script.file, ";%.2f;%.2f;%.2f\n",
                     node_container[0].throughput * pow(10,-6),
                     node_container[2].throughput * pow(10,-6),
                     node_container[4].throughput * pow(10,-6));
             } else {
-                printf("Error in Komondor :: Stop(): be care of the desired generated logs (script)\n");
+                fprintf(stderr, "Error in Komondor :: Stop(): be care of the desired generated logs (script)\n");
             }
             break;
         }
 
         default:{
-          printf("No simulation type found\n");
+          fprintf(stderr, "No simulation type found\n");
           break;
         }
 
     }
 
     // End of logs
-    fclose(simulation_output_file);
-    fclose(script_output_file);
+    if (simulation_output_file != NULL) {fclose(simulation_output_file);}
+    if (script_output_file != NULL){ fclose(script_output_file);}
 
-    printf("%s SIMULATION '%s' FINISHED\n", LOG_LVL1, simulation_code.c_str());
-    printf("------------------------------------------\n");
+    fprintf(stderr, "%s SIMULATION '%s' FINISHED\n", LOG_LVL1, simulation_code.c_str());
+    fprintf(stderr, "------------------------------------------\n");
 
 };
 
@@ -862,7 +873,7 @@ void Komondor :: InputChecker(){
         nodes_z[i] = 0;
     }
 
-    if (print_system_logs) printf("%s Validating input files...\n", LOG_LVL2);
+    if (print_system_logs) fprintf(stderr, "%s Validating input files...\n", LOG_LVL2);
 
     for (int i = 0; i < total_nodes_number; ++i) {
 
@@ -875,7 +886,7 @@ void Komondor :: InputChecker(){
         if (node_container[i].tpc_min > node_container[i].tpc_max
                 || node_container[i].tpc_default > node_container[i].tpc_max
                 || node_container[i].tpc_default < node_container[i].tpc_min) {
-            printf("\nERROR: TPC values are not properly configured at node in line %d\n"
+            fprintf(stderr, "\nERROR: TPC values are not properly configured at node in line %d\n"
                     "node_container[i].tpc_min = %f\n"
                     "node_container[i].tpc_default = %f\n"
                     "node_container[i].tpc_max = %f\n\n",
@@ -887,7 +898,7 @@ void Komondor :: InputChecker(){
         if (node_container[i].cca_min > node_container[i].cca_max
                 || node_container[i].cca_default > node_container[i].cca_max
                 || node_container[i].cca_default < node_container[i].cca_min) {
-            printf("\nERROR: CCA values are not properly configured at node in line %d\n\n",i+2);
+            fprintf(stderr, "\nERROR: CCA values are not properly configured at node in line %d\n\n",i+2);
             exit(-1);
         }
 
@@ -898,7 +909,7 @@ void Komondor :: InputChecker(){
                 || node_container[i].current_primary_channel > num_channels_komondor
                 || node_container[i].min_channel_allowed > (num_channels_komondor-1)
                 || node_container[i].max_channel_allowed > (num_channels_komondor-1)) {
-            printf("\nERROR: Channels are not properly configured at node in line %d\n\n",i+2);
+            fprintf(stderr, "\nERROR: Channels are not properly configured at node in line %d\n\n",i+2);
             exit(-1);
         }
     }
@@ -908,19 +919,19 @@ void Komondor :: InputChecker(){
 
             // Node IDs must be different
             if(i!=j && nodes_ids[i] == nodes_ids[j] && i < j) {
-                printf("\nERROR: Nodes in lines %d and %d have the same ID\n\n",i+2,j+2);
+                fprintf(stderr, "\nERROR: Nodes in lines %d and %d have the same ID\n\n",i+2,j+2);
                 exit(-1);
             }
 
             // Nodes position may be required to be different
             if(i!=j && nodes_x[i] == nodes_x[j] && nodes_y[i] == nodes_y[j] && nodes_z[i] == nodes_z[j] && i < j) {
-                printf("%s nERROR: Nodes in lines %d and %d are exactly at the same position\n\n", LOG_LVL2, i+2,j+2);
+                fprintf(stderr, "%s nERROR: Nodes in lines %d and %d are exactly at the same position\n\n", LOG_LVL2, i+2,j+2);
                 exit(-1);
             }
         }
     }
 
-    if (print_system_logs) printf("%s Input files validated!\n", LOG_LVL3);
+    if (print_system_logs) fprintf(stderr, "%s Input files validated!\n", LOG_LVL3);
 
 }
 
@@ -931,7 +942,6 @@ void Komondor :: InputChecker(){
  */
 void Komondor :: SetupEnvironmentByReadingInputFile(const char *system_filename) {
 
-    if (print_system_logs) printf("%s Reading system configuration file '%s'...\n", LOG_LVL1, system_filename);
     fprintf(simulation_output_file, "%s KOMONDOR SIMULATION '%s' (seed %d)", LOG_LVL1, simulation_code.c_str(), seed);
 
     GError* error = NULL;
@@ -1119,14 +1129,7 @@ void Komondor :: SetupEnvironmentByReadingInputFile(const char *system_filename)
  * - nodes_filename: AP or nodes filename
  */
 void Komondor :: GenerateNodes(const char *nodes_filename) {
-
-    if (print_system_logs) printf("%s Generating nodes...\n", LOG_LVL1);
-    fprintf(simulation_output_file, "%s Generating nodes...\n", LOG_LVL1);
-
-    if (print_system_logs) printf("%s Generating nodes DETERMINISTICALLY through NODES input file...\n", LOG_LVL2);
-    if (save_system_logs) fprintf(simulation_output_file, "%s Generating nodes DETERMINISTICALLY...\n", LOG_LVL2);
     ParseNodes(nodes_filename);
-
 }
 
 /*
@@ -1484,7 +1487,7 @@ void Komondor :: ParseNodes(const char* nodes_filename){
     GError* error = NULL;
 
     if (!g_key_file_load_from_file(keyfile, nodes_filename, G_KEY_FILE_NONE, &error)){
-        printf("Error loading configuration file %s \n", nodes_filename);
+        fprintf(stderr, "Error loading configuration file %s \n", nodes_filename);
         exit(-1);
     }
 
@@ -1503,7 +1506,7 @@ void Komondor :: ParseNodes(const char* nodes_filename){
             continue;
         }
 
-        printf("Parsing %s\n", g);
+        fprintf(stderr,"Parsing %s\n", g);
        
         gchar** split_strings; 
         gchar* node_name; 
@@ -1516,175 +1519,175 @@ void Komondor :: ParseNodes(const char* nodes_filename){
         key = "wlan_code";
         gchar* wlan_code = g_key_file_get_string(keyfile, g, key, &error);
         if (wlan_code == NULL){
-            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            fprintf(stderr, "Error parsing key %s of node %s in configuration file!\n", key, g);
             exit(-1); 
         }
 
         key = "type";
         gint node_type = g_key_file_get_integer(keyfile, g, key, &error);
         if (error != NULL){
-            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            fprintf(stderr, "Error parsing key %s of node %s in configuration file!\n", key, g);
             exit(-1); 
         }
 
         key = "destination_id";
         gint destination_id = g_key_file_get_integer(keyfile, g, key, &error);
         if (error != NULL){
-            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            fprintf(stderr, "Error parsing key %s of node %s in configuration file!\n", key, g);
             exit(-1); 
         }
 
         key = "x";
         gdouble pos_x = g_key_file_get_double(keyfile, g, key, &error);
         if (error != NULL){
-            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            fprintf(stderr, "Error parsing key %s of node %s in configuration file!\n", key, g);
             exit(-1); 
         }
 
         key = "y";
         gdouble pos_y = g_key_file_get_double(keyfile, g, key, &error);
         if (error != NULL){
-            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            fprintf(stderr, "Error parsing key %s of node %s in configuration file!\n", key, g);
             exit(-1); 
         }
 
         key = "z";
         gdouble pos_z = g_key_file_get_double(keyfile, g, key, &error);
         if (error != NULL){
-            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            fprintf(stderr, "Error parsing key %s of node %s in configuration file!\n", key, g);
             exit(-1); 
         }
 
         key = "primary_channel";
         gint primary_channel = g_key_file_get_integer(keyfile, g, key, &error);
         if (error != NULL){
-            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            fprintf(stderr, "Error parsing key %s of node %s in configuration file!\n", key, g);
             exit(-1); 
         }
 
         key = "min_channel_allowed";
         gint min_channel_allowed = g_key_file_get_integer(keyfile, g, key, &error);
         if (error != NULL){
-            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            fprintf(stderr, "Error parsing key %s of node %s in configuration file!\n", key, g);
             exit(-1); 
         }
            
         key = "max_channel_allowed";
         gint max_channel_allowed = g_key_file_get_integer(keyfile, g, key, &error);
         if (error != NULL){
-            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            fprintf(stderr, "Error parsing key %s of node %s in configuration file!\n", key, g);
             exit(-1); 
         }
 
         key = "cw";
         gint cw = g_key_file_get_integer(keyfile, g, key, &error);
         if (error != NULL){
-            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            fprintf(stderr, "Error parsing key %s of node %s in configuration file!\n", key, g);
             exit(-1); 
         }
 
         key = "cw_stage";
         gint cw_stage = g_key_file_get_integer(keyfile, g, key, &error);
         if (error != NULL){
-            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            fprintf(stderr, "Error parsing key %s of node %s in configuration file!\n", key, g);
             exit(-1); 
         }
 
         key = "tpc_min";
         gdouble tpc_min_dbm = g_key_file_get_double(keyfile, g, key, &error);
         if (error != NULL){
-            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            fprintf(stderr, "Error parsing key %s of node %s in configuration file!\n", key, g);
             exit(-1); 
         }
 
         key = "tpc_default";
         gdouble tpc_default_dbm = g_key_file_get_double(keyfile, g, key, &error);
         if (error != NULL){
-            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            fprintf(stderr, "Error parsing key %s of node %s in configuration file!\n", key, g);
             exit(-1); 
         }
 
         key = "tpc_max";
         gdouble tpc_max_dbm = g_key_file_get_double(keyfile, g, key, &error);
         if (error != NULL){
-            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            fprintf(stderr, "Error parsing key %s of node %s in configuration file!\n", key, g);
             exit(-1); 
         }
 
         key = "cca_min";
         gdouble cca_min_dbm = g_key_file_get_double(keyfile, g, key, &error);
         if (error != NULL){
-            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            fprintf(stderr, "Error parsing key %s of node %s in configuration file!\n", key, g);
             exit(-1); 
         }
 
         key = "cca_default";
         gdouble cca_default_dbm = g_key_file_get_double(keyfile, g, key, &error);
         if (error != NULL){
-            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            fprintf(stderr, "Error parsing key %s of node %s in configuration file!\n", key, g);
             exit(-1); 
         }
 
         key = "cca_max";
         gdouble cca_max_dbm = g_key_file_get_integer(keyfile, g, key, &error);
         if (error != NULL){
-            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            fprintf(stderr, "Error parsing key %s of node %s in configuration file!\n", key, g);
             exit(-1); 
         }
 
         key = "tx_antenna_gain";
         gint tx_gain_db = g_key_file_get_integer(keyfile, g, key, &error);
         if (error != NULL){
-            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            fprintf(stderr, "Error parsing key %s of node %s in configuration file!\n", key, g);
             exit(-1); 
         }
 
         key = "rx_antenna_gain";
         gint rx_gain_db = g_key_file_get_integer(keyfile, g, key, &error);
         if (error != NULL){
-            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            fprintf(stderr, "Error parsing key %s of node %s in configuration file!\n", key, g);
             exit(-1); 
         }
 
         key = "channel_bonding_model";
         gint channel_bonding_model = g_key_file_get_integer(keyfile, g, key, &error);
         if (error != NULL){
-            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            fprintf(stderr, "Error parsing key %s of node %s in configuration file!\n", key, g);
             exit(-1); 
         }
 
         key = "modulation_default";
         gint modulation_default = g_key_file_get_integer(keyfile, g, key, &error);
         if (error != NULL){
-            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            fprintf(stderr, "Error parsing key %s of node %s in configuration file!\n", key, g);
             exit(-1); 
         }
 
         key = "central_freq";
         gdouble central_frequency = g_key_file_get_double(keyfile, g, key, &error);
         if (error != NULL){
-            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            fprintf(stderr, "Error parsing key %s of node %s in configuration file!\n", key, g);
             exit(-1); 
         }
 
         key = "lambda";
         gdouble lambda = g_key_file_get_double(keyfile, g, key, &error);
         if (error != NULL){
-            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            fprintf(stderr, "Error parsing key %s of node %s in configuration file!\n", key, g);
             exit(-1); 
         }
 
         key = "ieee_protocol";
         gint ieee_protocol = g_key_file_get_integer(keyfile, g, key, &error);
         if (error != NULL){
-            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            fprintf(stderr, "Error parsing key %s of node %s in configuration file!\n", key, g);
             exit(-1); 
         }
 
         key = "traffic_load";
         gdouble traffic_load = g_key_file_get_double(keyfile, g, key, &error);
         if (error != NULL){
-            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            fprintf(stderr, "Error parsing key %s of node %s in configuration file!\n", key, g);
             exit(-1); 
         }
 
@@ -1692,14 +1695,14 @@ void Komondor :: ParseNodes(const char* nodes_filename){
         gchar* node_env_char = g_key_file_get_string(keyfile, g, key, &error);
         node_env_type node_env = NODE_ENV_INDOOR;
         if (node_env_char == NULL){
-            printf("No node environment specified. Assuming indoor node\n");
+            fprintf(stderr, "No node environment specified. Assuming indoor node\n");
             error = NULL;
         } else if (g_strcmp0(node_env_char, "indoor") == 0){
             node_env = NODE_ENV_INDOOR; 
         } else if (g_strcmp0(node_env_char, "outdoor") == 0){
             node_env = NODE_ENV_OUTDOOR; 
         } else {
-            printf("Error parsing key %s of node %s in configuration file!\n", key, g);
+            fprintf(stderr, "Error parsing key %s of node %s in configuration file!\n", key, g);
             exit(-1); 
         }
         g_free(node_env_char);
@@ -1746,7 +1749,7 @@ void Komondor :: ParseNodes(const char* nodes_filename){
     }
 
     if (num_nodes == 0){
-        printf("No nodes found in configuration file!\n");
+        fprintf(stderr, "No nodes found in configuration file!\n");
         exit(-1);
     }
 
@@ -1883,7 +1886,7 @@ void Komondor :: ParseNodes(const char* nodes_filename){
                 g_strcmp0(node_container[n].wlan_code.c_str(), wlan_container[i].wlan_code.c_str()) != 0){
                 continue;
             }
-            printf("Added Station %s to WLAN %s\n", node_container[n].node_code.c_str(), wlan_container[i].wlan_code.c_str());
+            fprintf(stderr, "Added Station %s to WLAN %s\n", node_container[n].node_code.c_str(), wlan_container[i].wlan_code.c_str());
             wlan_container[i].list_sta_id[sta_index] = node_container[n].node_id;
             node_container[n].wlan = wlan_container[i];
             sta_index++;
@@ -1916,26 +1919,26 @@ void Komondor :: ParseNodes(const char* nodes_filename){
 void Komondor :: printSystemInfo(){
 
     if (print_system_logs){
-        printf("%s total_nodes_number = %d\n", LOG_LVL3, total_nodes_number);
-        printf("%s num_channels_komondor = %d\n", LOG_LVL3, num_channels_komondor);
-        printf("%s basic_channel_bandwidth = %f MHz\n", LOG_LVL3, basic_channel_bandwidth);
-        printf("%s pdf_backoff = %d\n", LOG_LVL3, pdf_backoff);
-        printf("%s pdf_tx_time = %d\n", LOG_LVL3, pdf_tx_time);
-        printf("%s frame_length = %d bits\n", LOG_LVL3, frame_length);
-        printf("%s traffic_model = %d\n", LOG_LVL3, traffic_model);
-        printf("%s backoff_type = %d\n", LOG_LVL3, backoff_type);
-        printf("%s cw_adaptation = %d\n", LOG_LVL3, cw_adaptation);
-        printf("%s pifs_activated = %d\n", LOG_LVL3, pifs_activated);
-        printf("%s capture_effect_model = %d\n", LOG_LVL3, capture_effect_model);
-        printf("%s max_num_packets_aggregated = %d\n", LOG_LVL3, max_num_packets_aggregated);
+        fprintf(stderr, "%s total_nodes_number = %d\n", LOG_LVL3, total_nodes_number);
+        fprintf(stderr, "%s num_channels_komondor = %d\n", LOG_LVL3, num_channels_komondor);
+        fprintf(stderr, "%s basic_channel_bandwidth = %f MHz\n", LOG_LVL3, basic_channel_bandwidth);
+        fprintf(stderr, "%s pdf_backoff = %d\n", LOG_LVL3, pdf_backoff);
+        fprintf(stderr, "%s pdf_tx_time = %d\n", LOG_LVL3, pdf_tx_time);
+        fprintf(stderr, "%s frame_length = %d bits\n", LOG_LVL3, frame_length);
+        fprintf(stderr, "%s traffic_model = %d\n", LOG_LVL3, traffic_model);
+        fprintf(stderr, "%s backoff_type = %d\n", LOG_LVL3, backoff_type);
+        fprintf(stderr, "%s cw_adaptation = %d\n", LOG_LVL3, cw_adaptation);
+        fprintf(stderr, "%s pifs_activated = %d\n", LOG_LVL3, pifs_activated);
+        fprintf(stderr, "%s capture_effect_model = %d\n", LOG_LVL3, capture_effect_model);
+        fprintf(stderr, "%s max_num_packets_aggregated = %d\n", LOG_LVL3, max_num_packets_aggregated);
         //printf("%s path_loss_model_de = %d\n", LOG_LVL3, path_loss_model);
-        printf("%s capture_effect = %f [linear] (%f dB)\n", LOG_LVL3, capture_effect, ConvertPower(LINEAR_TO_DB, capture_effect));
-        printf("%s noise_level = %f pW (%f dBm)\n",
+        fprintf(stderr, "%s capture_effect = %f [linear] (%f dB)\n", LOG_LVL3, capture_effect, ConvertPower(LINEAR_TO_DB, capture_effect));
+        fprintf(stderr, "%s noise_level = %f pW (%f dBm)\n",
                 LOG_LVL3, noise_level, ConvertPower(PW_TO_DBM, noise_level));
-        printf("%s adjacent_channel_model = %d\n", LOG_LVL3, adjacent_channel_model);
-        printf("%s collisions_model = %d\n", LOG_LVL3, collisions_model);
-        printf("%s Constant PER = %f\n", LOG_LVL3, constant_per);
-        printf("\n");
+        fprintf(stderr, "%s adjacent_channel_model = %d\n", LOG_LVL3, adjacent_channel_model);
+        fprintf(stderr, "%s collisions_model = %d\n", LOG_LVL3, collisions_model);
+        fprintf(stderr, "%s Constant PER = %f\n", LOG_LVL3, constant_per);
+        fprintf(stderr, "\n");
     }
 }
 
@@ -1946,19 +1949,19 @@ void Komondor :: printSystemInfo(){
  */
 void Komondor :: WriteSystemInfo(Logger logger){
 
-    fprintf(logger.file, "%s total_nodes_number = %d\n", LOG_LVL3, total_nodes_number);
-    fprintf(logger.file, "%s num_channels_komondor = %d\n", LOG_LVL3, num_channels_komondor);
-    fprintf(logger.file, "%s basic_channel_bandwidth = %f\n", LOG_LVL3, basic_channel_bandwidth);
-    fprintf(logger.file, "%s pdf_backoff = %d\n", LOG_LVL3, pdf_backoff);
-    fprintf(logger.file, "%s pdf_tx_time = %d\n", LOG_LVL3, pdf_tx_time);
-    fprintf(logger.file, "%s frame_length = %d bits\n", LOG_LVL3, frame_length);
-    fprintf(logger.file, "%s ack_length = %d bits\n", LOG_LVL3, ack_length);
-    fprintf(logger.file, "%s max_num_packets_aggregated = %d\n", LOG_LVL3, max_num_packets_aggregated);
-    //fprintf(logger.file, "%s path_loss_model = %d\n", LOG_LVL3, path_loss_model);
-    fprintf(logger.file, "%s capture_effect = %f\n", LOG_LVL3, capture_effect);
-    fprintf(logger.file, "%s noise_level = %f dBm\n", LOG_LVL3, noise_level);
-    fprintf(logger.file, "%s adjacent_channel_model = %d\n", LOG_LVL3, adjacent_channel_model);
-    fprintf(logger.file, "%s collisions_model = %d\n", LOG_LVL3, collisions_model);
+    LOGS(logger.file, "%s total_nodes_number = %d\n", LOG_LVL3, total_nodes_number);
+    LOGS(logger.file, "%s num_channels_komondor = %d\n", LOG_LVL3, num_channels_komondor);
+    LOGS(logger.file, "%s basic_channel_bandwidth = %f\n", LOG_LVL3, basic_channel_bandwidth);
+    LOGS(logger.file, "%s pdf_backoff = %d\n", LOG_LVL3, pdf_backoff);
+    LOGS(logger.file, "%s pdf_tx_time = %d\n", LOG_LVL3, pdf_tx_time);
+    LOGS(logger.file, "%s frame_length = %d bits\n", LOG_LVL3, frame_length);
+    LOGS(logger.file, "%s ack_length = %d bits\n", LOG_LVL3, ack_length);
+    LOGS(logger.file, "%s max_num_packets_aggregated = %d\n", LOG_LVL3, max_num_packets_aggregated);
+    //LOGS(logger.file, "%s path_loss_model = %d\n", LOG_LVL3, path_loss_model);
+    LOGS(logger.file, "%s capture_effect = %f\n", LOG_LVL3, capture_effect);
+    LOGS(logger.file, "%s noise_level = %f dBm\n", LOG_LVL3, noise_level);
+    LOGS(logger.file, "%s adjacent_channel_model = %d\n", LOG_LVL3, adjacent_channel_model);
+    LOGS(logger.file, "%s collisions_model = %d\n", LOG_LVL3, collisions_model);
 }
 
 /*
@@ -2045,7 +2048,7 @@ int Komondor :: GetNumOfLines(const char *filename){
     // Nodes file
     FILE* stream = fopen(filename, "r");
     if (!stream){
-        printf("Nodes configuration file %s not found!\n", filename);
+        fprintf(stderr, "Nodes configuration file %s not found!\n", filename);
         exit(-1);
     }
     char line[CHAR_BUFFER_SIZE];
@@ -2073,12 +2076,13 @@ int main(int argc, char *argv[]){
     int save_node_logs = 1;
     int save_agent_logs = 1;
     int print_system_logs = 1;
-    int print_node_logs = 1;
-    int print_agent_logs = 1;
+    int print_node_logs = 0;
+    int print_agent_logs = 0;
     
 
     gchar** config = NULL;
     gchar* agents = NULL;
+    gchar* stats = NULL;
     gint  seed = -1; 
     gdouble sim_time = 60.0;
     static GOptionEntry options[] = 
@@ -2086,6 +2090,7 @@ int main(int argc, char *argv[]){
         {"agents" , 'a', 0, G_OPTION_ARG_FILENAME, &agents, "Path to agent configuration", "agent_path"},
         {"seed", 's', 0 , G_OPTION_ARG_INT, &seed, "Seed for pseudo-random number generators", "S"},
         {"time", 't', 0 , G_OPTION_ARG_DOUBLE, &sim_time, "Simulation Time", "T"},
+        {"stats", 0, 0 , G_OPTION_ARG_FILENAME, &stats, "Output of node statistics in machine-readable format (ini)", "[path]"},
         {G_OPTION_REMAINING, 0, 0,G_OPTION_ARG_FILENAME_ARRAY,&config, "Path to system and node configuration", "config_path"},
         { NULL } 
         
@@ -2097,18 +2102,18 @@ int main(int argc, char *argv[]){
     g_option_context_add_main_entries(context, options, NULL);
 
     if (!g_option_context_parse(context, &argc, &argv, &error)){
-        printf("option parsing failed: %s\n", error->message);
+        fprintf(stderr, "option parsing failed: %s\n", error->message);
         exit(1);
     }
 
     if (seed == -1){
-        printf("No seed was provided!\n");
+        fprintf(stderr, "No seed was provided!\n");
         show_usage(context);
         exit(1);
     }	 
 
     if (config == NULL){
-        printf("Missing configuration file!\n"); 
+        fprintf(stderr, "Missing configuration file!\n"); 
         show_usage(context);
         exit(1);
     }
@@ -2126,10 +2131,10 @@ int main(int argc, char *argv[]){
     test.StopTime(sim_time);
     test.Setup(sim_time, save_system_logs, save_node_logs, save_agent_logs, print_system_logs, print_node_logs, print_agent_logs,
         config[0], script_output_filename, simulation_code, seed,
-        agents_enabled, agents);
+        agents_enabled, agents, stats);
 
-    printf("------------------------------------------\n");
-    printf("%s SIMULATION '%s' STARTED\n", LOG_LVL1, simulation_code);
+    fprintf(stderr, "------------------------------------------\n");
+    fprintf(stderr, "%s SIMULATION '%s' STARTED\n", LOG_LVL1, simulation_code);
 
     test.Run();
 

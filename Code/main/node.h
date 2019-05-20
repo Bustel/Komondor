@@ -74,7 +74,7 @@
 #define __SAVELOGS__
 
 #ifdef __SAVELOGS__
-    #define    LOGS(f,...)    fprintf(f, ##__VA_ARGS__)
+    #define    LOGS(f,...)    if (f!=NULL){fprintf(f, ##__VA_ARGS__);}
 #else
     #define    LOGS(f,...)
 #endif
@@ -4001,25 +4001,25 @@ void Node:: CallSensing(trigger_t &){
  */
 void Node :: WriteNodeInfo(Logger node_logger, int info_detail_level, std::string header_str){
 
-    fprintf(node_logger.file, "%s Node %s info:\n", header_str.c_str(), node_code.c_str());
-    fprintf(node_logger.file, "%s - node_id = %d\n", header_str.c_str(), node_id);
-    fprintf(node_logger.file, "%s - node_type = %d\n", header_str.c_str(), node_type);
-    fprintf(node_logger.file, "%s - position = (%.2f, %.2f, %.2f)\n", header_str.c_str(), x, y, z);
-    fprintf(node_logger.file, "%s - current_primary_channel = %d\n", header_str.c_str(), current_primary_channel);
-    fprintf(node_logger.file, "%s - min_channel_allowed = %d\n", header_str.c_str(), min_channel_allowed);
-    fprintf(node_logger.file, "%s - max_channel_allowed = %d\n", header_str.c_str(), max_channel_allowed);
-    fprintf(node_logger.file, "%s - current_dcb_policy = %d\n", header_str.c_str(), current_dcb_policy);
+    LOGS(node_logger.file, "%s Node %s info:\n", header_str.c_str(), node_code.c_str());
+    LOGS(node_logger.file, "%s - node_id = %d\n", header_str.c_str(), node_id);
+    LOGS(node_logger.file, "%s - node_type = %d\n", header_str.c_str(), node_type);
+    LOGS(node_logger.file, "%s - position = (%.2f, %.2f, %.2f)\n", header_str.c_str(), x, y, z);
+    LOGS(node_logger.file, "%s - current_primary_channel = %d\n", header_str.c_str(), current_primary_channel);
+    LOGS(node_logger.file, "%s - min_channel_allowed = %d\n", header_str.c_str(), min_channel_allowed);
+    LOGS(node_logger.file, "%s - max_channel_allowed = %d\n", header_str.c_str(), max_channel_allowed);
+    LOGS(node_logger.file, "%s - current_dcb_policy = %d\n", header_str.c_str(), current_dcb_policy);
 
     if(info_detail_level > INFO_DETAIL_LEVEL_0){
         wlan.WriteWlanInfo(node_logger, header_str);
     }
 
     if(info_detail_level > INFO_DETAIL_LEVEL_1){
-        fprintf(node_logger.file, "%s - cw_min = %d\n", header_str.c_str(), cw_min);
-        fprintf(node_logger.file, "%s - cw_stage_max = %d\n", header_str.c_str(), cw_stage_max);
-        fprintf(node_logger.file, "%s - destination_id = %d\n", header_str.c_str(), destination_id);
-        fprintf(node_logger.file, "%s - tpc_default = %f pW\n", header_str.c_str(), tpc_default);
-        fprintf(node_logger.file, "%s - cca_default = %f pW\n", header_str.c_str(), cca_default);
+        LOGS(node_logger.file, "%s - cw_min = %d\n", header_str.c_str(), cw_min);
+        LOGS(node_logger.file, "%s - cw_stage_max = %d\n", header_str.c_str(), cw_stage_max);
+        LOGS(node_logger.file, "%s - destination_id = %d\n", header_str.c_str(), destination_id);
+        LOGS(node_logger.file, "%s - tpc_default = %f pW\n", header_str.c_str(), tpc_default);
+        LOGS(node_logger.file, "%s - cca_default = %f pW\n", header_str.c_str(), cca_default);
     }
 
 }
@@ -4028,30 +4028,29 @@ void Node :: WriteNodeInfo(Logger node_logger, int info_detail_level, std::strin
  * WriteNodeConfiguration(): writes Node conf.
  */
 void Node :: WriteNodeConfiguration(Logger node_logger, std::string header_str){
-    fprintf(node_logger.file, "%s Configuration %s info:\n", header_str.c_str(), node_code.c_str());
-    fprintf(node_logger.file, "%s - current_primary = %d\n", header_str.c_str(), current_primary_channel);
-    fprintf(node_logger.file, "%s - current_cca = %f (%f dBm)\n", header_str.c_str(), current_cca, ConvertPower(PW_TO_DBM,current_cca));
-    fprintf(node_logger.file, "%s - current_tpc = %f (%f dBm)\n", header_str.c_str(), current_tpc, ConvertPower(PW_TO_DBM,current_tpc));
-    fprintf(node_logger.file, "%s - current_dcb_policy = %d\n", header_str.c_str(), current_dcb_policy);
+    LOGS(node_logger.file, "%s Configuration %s info:\n", header_str.c_str(), node_code.c_str());
+    LOGS(node_logger.file, "%s - current_cca = %f (%f dBm)\n", header_str.c_str(), current_cca, ConvertPower(PW_TO_DBM,current_cca));
+    LOGS(node_logger.file, "%s - current_tpc = %f (%f dBm)\n", header_str.c_str(), current_tpc, ConvertPower(PW_TO_DBM,current_tpc));
+    LOGS(node_logger.file, "%s - current_dcb_policy = %d\n", header_str.c_str(), current_dcb_policy);
 }
 
 /*
  * WriteReceivedConfiguration(): writes received conf.
  */
 void Node :: WriteReceivedConfiguration(Logger node_logger, std::string header_str, Configuration new_configuration) {
-    fprintf(node_logger.file, "%s Received Configuration:\n", header_str.c_str());
-    fprintf(node_logger.file, "%s - selected_primary_channel = %d\n", header_str.c_str(), new_configuration.selected_primary_channel);
-    fprintf(node_logger.file, "%s - selected_cca = %f (%f dBm)\n", header_str.c_str(), new_configuration.selected_cca, ConvertPower(PW_TO_DBM,new_configuration.selected_cca));
-    fprintf(node_logger.file, "%s - current_tpc = %f (%f dBm)\n", header_str.c_str(), new_configuration.selected_tx_power, ConvertPower(PW_TO_DBM,new_configuration.selected_tx_power));
-    fprintf(node_logger.file, "%s - selected_dcb_policy = %d\n", header_str.c_str(), new_configuration.selected_dcb_policy);
+    LOGS(node_logger.file, "%s Received Configuration:\n", header_str.c_str());
+    LOGS(node_logger.file, "%s - selected_primary_channel = %d\n", header_str.c_str(), new_configuration.selected_primary_channel);
+    LOGS(node_logger.file, "%s - selected_cca = %f (%f dBm)\n", header_str.c_str(), new_configuration.selected_cca, ConvertPower(PW_TO_DBM,new_configuration.selected_cca));
+    LOGS(node_logger.file, "%s - current_tpc = %f (%f dBm)\n", header_str.c_str(), new_configuration.selected_tx_power, ConvertPower(PW_TO_DBM,new_configuration.selected_tx_power));
+    LOGS(node_logger.file, "%s - selected_dcb_policy = %d\n", header_str.c_str(), new_configuration.selected_dcb_policy);
 }
 /*
  * WriteNodeConfiguration(): writes Node conf.
  */
 void Node :: PrintNodeConfiguration(){
-    fprintf(stderr, "Node%d - Configuration info:\n", node_id);
-    fprintf(stderr, " - current_cca = %f (%f dBm)\n", current_cca, ConvertPower(PW_TO_DBM,current_cca));
-    fprintf(stderr, " - current_tpc = %f (%f dBm)\n", current_tpc, ConvertPower(PW_TO_DBM,current_tpc));
+    LOGS(stderr, "Node%d - Configuration info:\n", node_id);
+    LOGS(stderr, " - current_cca = %f (%f dBm)\n", current_cca, ConvertPower(PW_TO_DBM,current_cca));
+    LOGS(stderr, " - current_tpc = %f (%f dBm)\n", current_tpc, ConvertPower(PW_TO_DBM,current_tpc));
 }
 
 /*
@@ -4061,7 +4060,7 @@ void Node :: PrintNodeConfiguration(){
  */
 void Node :: PrintProgressBar(trigger_t &){
     // if(print_node_logs) printf("* %d %% *\n", progress_bar_counter * PROGRESS_BAR_DELTA);
-    fprintf(stderr, "* %d %% *\n", progress_bar_counter * PROGRESS_BAR_DELTA);
+    LOGS(stderr, "* %d %% *\n", progress_bar_counter * PROGRESS_BAR_DELTA);
     trigger_sim_time.Set(round_to_digits(SimTime() + simulation_time_komondor / (100/PROGRESS_BAR_DELTA),15));
     // End progress bar
     if(node_id == 0 && progress_bar_counter == (100/PROGRESS_BAR_DELTA)-1){
@@ -4071,11 +4070,11 @@ void Node :: PrintProgressBar(trigger_t &){
 }
 
 void print_entry_int(gpointer key, gpointer value, gpointer user_data){
-    fprintf(stderr, "%s %s: %d\n",LOG_LVL2, (gchar*) key, * (gint*) value);
+    LOGS(stderr, "%s %s: %d\n",LOG_LVL2, (gchar*) key, * (gint*) value);
 }
 
 void print_entry_double(gpointer key, gpointer value, gpointer user_data){
-    fprintf(stderr, "%s %s: %f\n",LOG_LVL2, (gchar*) key, * (gdouble*) value);
+    LOGS(stderr, "%s %s: %f\n",LOG_LVL2, (gchar*) key, * (gdouble*) value);
 }
 
 /*
@@ -4449,7 +4448,7 @@ void Node :: InitializeVariables() {
 
     // Output file - logger
     node_logger.save_logs = save_node_logs;
-    node_logger.file = node_logger.file;
+    node_logger.file = NULL;
 
     // Arrays and other
     channel_power = new double[num_channels_komondor];
