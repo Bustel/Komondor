@@ -18,7 +18,7 @@ class Komondor:
                 pass
 
             p = subprocess.Popen(
-                '../Code/build/komondor_main -t ' + str(self.sim_time) + ' -s 112 cfg/telegraph_gen_network.cfg',
+                '../Code/build/komondor_main -t ' + str(self.sim_time) + ' -s 112 cfg/telegraph_gen_network.cfg' + ' --stats=./',
                 shell=True,
                 stdout=subprocess.PIPE,
                 stderr = subprocess.PIPE

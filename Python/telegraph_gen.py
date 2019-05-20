@@ -29,10 +29,10 @@ if __name__ == "__main__":
         # AP2: 20 MHz, CH:0
         d11p_2 = Dot80211Params(num_channels=1, min_channel_allowed=0, max_channel_allowed=0)
     elif channel_cfg == 3:
-        # AP1: 60 MHz, DCB
-        d11p_1 = Dot80211Params(num_channels=3, min_channel_allowed=0, max_channel_allowed=2)
-        # AP2: 60 MHz, DCB
-        d11p_2 = Dot80211Params(num_channels=3, min_channel_allowed=0, max_channel_allowed=2)
+        # AP1: 80 MHz, DCB
+        d11p_1 = Dot80211Params(num_channels=4, min_channel_allowed=0, max_channel_allowed=3)
+        # AP2: 80 MHz, DCB
+        d11p_2 = Dot80211Params(num_channels=4, min_channel_allowed=0, max_channel_allowed=3)
     else:
         assert False
 
@@ -45,7 +45,7 @@ if __name__ == "__main__":
     vis = Visualizer(channel_cfg)
 
     # for different distances
-    sta_ap_distances = range(10, 100, 5)
+    sta_ap_distances = range(10, 100, 15)
     all_res = {}
     for sta_ap_distance in sta_ap_distances:
         tg.gen_fixed_placement(sta_ap_distance)
