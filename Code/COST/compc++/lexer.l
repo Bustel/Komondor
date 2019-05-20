@@ -31,6 +31,7 @@ stringtext                              ([^"])|(\\.)
                             string filename = yytext;
                             filename.erase(filename.size()-1,1);
                             string pathname=CTranslation::Current()->filename;
+
                             string::size_type pos = pathname.rfind ('/');
                             if(pos==string::npos)
                             	pathname="";
@@ -41,7 +42,7 @@ stringtext                              ([^"])|(\\.)
                             CTranslation::New();
                             CTranslation::Current()->filename = filename;
 
-				
+
                             if(g_debug)printf("include file '%s'\n",filename.c_str());
 			    yyin = fopen( filename.c_str(), "r" );
 			    if ( ! yyin )
@@ -50,16 +51,20 @@ stringtext                              ([^"])|(\\.)
 					string path;
 					path.append(g_searchpath[i]);
 					path.append("/");
-					path.append(filename);
+					path.append(yytext);
+                            		path.erase(path.size()-1,1);
 
 					if (path.c_str()[0] != '/'){
 						path = pathname + path;
 					}
 
-					printf("Trying %s (%s)\n",path.c_str(), CTranslation::Current()->filename.c_str());
+					printf("Including %s\n",path.c_str());
 
 					yyin = fopen( path.c_str(), "r");
-					if (yyin){break;}
+					if (yyin){
+						printf("Successful.\n");
+						break;
+					}
 				}
 				if (!yyin){	
                                 	CTranslation::Error(NULL, 1, "cannot open include file '%s'\n", filename.c_str());

@@ -56,7 +56,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <string.h>
-#include "../list_of_macros.h"
+#include "macros.h"
 #include "logger.h"
 
 // WLAN info

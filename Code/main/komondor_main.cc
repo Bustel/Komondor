@@ -59,7 +59,7 @@
 #include <errno.h>
 
 #include ".././COST/cost.h"
-#include "../list_of_macros.h"
+#include "macros.h"
 #include "../structures/logical_nack.h"
 #include "../structures/notification.h"
 #include "../structures/wlan.h"

@@ -50,7 +50,7 @@
 #include <algorithm>
 #include <stddef.h>
 
-#include "../list_of_macros.h"
+#include "macros.h"
 
 /*
  * SelectMCSResponse(): select the proper MCS of transmitter per number of channels

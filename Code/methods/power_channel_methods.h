@@ -50,7 +50,7 @@
 #include <math.h>
 #include <iostream>
 
-#include "../list_of_macros.h"
+#include "macros.h"
 #include "../structures/modulations.h"
 #include "auxiliary_methods.h"
 

@@ -46,7 +46,7 @@
  * - This file contains the methods related to "time" operations
  */
 
-#include "../../list_of_macros.h"
+#include "macros.h"
 #include "action_selection_strategies/epsilon_greedy.h"
 #include "action_selection_strategies/thompson_sampling.h"
 //#include "action_selection_strategies/thompson_sampling.h"

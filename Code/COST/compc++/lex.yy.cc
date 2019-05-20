@@ -900,6 +900,7 @@ YY_RULE_SETUP
                             string filename = yytext;
                             filename.erase(filename.size()-1,1);
                             string pathname=CTranslation::Current()->filename;
+
                             string::size_type pos = pathname.rfind ('/');
                             if(pos==string::npos)
                             	pathname="";
@@ -910,7 +911,7 @@ YY_RULE_SETUP
                             CTranslation::New();
                             CTranslation::Current()->filename = filename;
 
-				
+
                             if(g_debug)printf("include file '%s'\n",filename.c_str());
 			    yyin = fopen( filename.c_str(), "r" );
 			    if ( ! yyin )
@@ -919,16 +920,20 @@ YY_RULE_SETUP
 					string path;
 					path.append(g_searchpath[i]);
 					path.append("/");
-					path.append(filename);
+					path.append(yytext);
+                            		path.erase(path.size()-1,1);
 
 					if (path.c_str()[0] != '/'){
 						path = pathname + path;
 					}
 
-					printf("Trying %s (%s)\n",path.c_str(), CTranslation::Current()->filename.c_str());
+					printf("Including %s\n",path.c_str());
 
 					yyin = fopen( path.c_str(), "r");
-					if (yyin){break;}
+					if (yyin){
+						printf("Successful.\n");
+						break;
+					}
 				}
 				if (!yyin){	
                                 	CTranslation::Error(NULL, 1, "cannot open include file '%s'\n", filename.c_str());
@@ -947,12 +952,12 @@ YY_RULE_SETUP
 case 3:
 /* rule 3 can match eol */
 YY_RULE_SETUP
-#line 78 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 83 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 { BEGIN(INITIAL); CToken::Current()->Push("\n"); }
 	YY_BREAK
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(incl):
-#line 80 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 85 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 {
 	                        if ( !CTranslation::Delete() )
 							{
@@ -971,7 +976,7 @@ case YY_STATE_EOF(incl):
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 96 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 101 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 {   
                             CToken* t = CToken::New(CTranslation::Current());
                             int c1, c2;
@@ -993,7 +998,7 @@ YY_RULE_SETUP
 case 5:
 /* rule 5 can match eol */
 YY_RULE_SETUP
-#line 114 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 119 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 { 
                             CToken::Current()->Push("\n"); 
                             CTranslation::Current()->lineno++; 
@@ -1001,19 +1006,19 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 118 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 123 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 {}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 119 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 124 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 { 
                             CToken::Current()->Push(yytext);
                         }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 123 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 128 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 {
 							string text = "#define";
 							string id,id1,id2;
@@ -1094,7 +1099,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 201 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 206 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 {   
                             int c1, c2;
 	                        c1 = yyinput();
@@ -1113,7 +1118,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 218 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 223 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 {   
                             int c;
                             while ((c = yyinput()) != EOF && c != '\n');
@@ -1123,157 +1128,157 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 225 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 230 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 {  CToken* t = CToken::New( CTranslation::Current(), '{' ); t->Push("{"); return t; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 226 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 231 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 {  CToken* t = CToken::New( CTranslation::Current(), '}' ); t->Push("}"); return t; }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 227 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 232 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 {  CToken* t = CToken::New( CTranslation::Current(), '(' ); t->Push("("); return t; }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 228 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 233 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 {  CToken* t = CToken::New( CTranslation::Current(), ')' ); t->Push(")"); return t; }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 229 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 234 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 {  CToken* t = CToken::New( CTranslation::Current(), '[' ); t->Push("["); return t; }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 230 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 235 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 {  CToken* t = CToken::New( CTranslation::Current(), ']' ); t->Push("]"); return t; }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 231 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 236 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 {  CToken* t = CToken::New( CTranslation::Current(), '<' ); t->Push("<"); return t; }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 232 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 237 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 {  CToken* t = CToken::New( CTranslation::Current(), '>' ); t->Push(">"); return t; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 233 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 238 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 {  CToken* t = CToken::New( CTranslation::Current(), ';' ); t->Push(";"); return t; }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 234 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 239 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 {  CToken* t = CToken::New( CTranslation::Current(), '.' ); t->Push("."); return t; }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 235 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 240 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 {  CToken* t = CToken::New( CTranslation::Current(), '~' ); t->Push("~"); return t; }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 236 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 241 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 {  CToken* t = CToken::New( CTranslation::Current(), ',' ); t->Push(","); return t; }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 238 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 243 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 {  CToken* t = CToken::New( CTranslation::Current(), ':' );     t->Push(":");       return t; }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 239 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 244 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 {  CToken* t = CToken::New( CTranslation::Current(), ARRAY );     t->Push("[]");       return t; }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 240 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 245 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 {  CToken* t = CToken::New( CTranslation::Current(), SCOPE );     t->Push("::");       return t; }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 241 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 246 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 {  CToken* t = CToken::New( CTranslation::Current(), DOTSTAR );   t->Push(".*");       return t; }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 242 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 247 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 {  CToken* t = CToken::New( CTranslation::Current(), ARROW );     t->Push("->");       return t; }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 243 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 248 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 {  CToken* t = CToken::New( CTranslation::Current(), ARROWSTAR ); t->Push("->*");      return t; }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 245 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 250 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 {  CToken* t = CToken::New( CTranslation::Current(), OUTPORT );   t->Push("outport");         return t; }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 246 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 251 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 {  CToken* t = CToken::New( CTranslation::Current(), INPORT );    t->Push("inport");         return t; }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 247 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 252 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 {  CToken* t = CToken::New( CTranslation::Current(), COMPONENT ); t->Push("class");    return t; }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 248 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 253 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 {  CToken* t = CToken::New( CTranslation::Current(), CLASS ); t->Push("class");    return t; }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 249 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 254 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 {  CToken* t = CToken::New( CTranslation::Current(), TYPENAME ); t->Push("typename");    return t; }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 250 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 255 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 {  CToken* t = CToken::New( CTranslation::Current(), CLASS ); t->Push("enum");    return t; }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 251 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 256 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 {  CToken* t = CToken::New( CTranslation::Current(), CLASS ); t->Push("struct");    return t; }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 252 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 257 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 {  CToken* t = CToken::New( CTranslation::Current(), CONNECT );   t->Push("connect");  return t; }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 253 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 258 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 {  CToken* t = CToken::New( CTranslation::Current(), TEMPLATE );  t->Push("template"); return t; }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 254 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 259 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 {  CToken* t = CToken::New( CTranslation::Current(), FSPECIFIER );  t->Push("virtual"); return t; }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 255 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 260 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 {  CToken* t = CToken::New( CTranslation::Current(), FSPECIFIER );  t->Push("inline"); return t; }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 256 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 261 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 {  CToken* t = CToken::New( CTranslation::Current(), FSPECIFIER );  t->Push("explicit"); return t; }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 258 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 263 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 {
                             CToken* t = CToken::New( CTranslation::Current(), VARID );
                            	std::map<string, string>::iterator iter;
@@ -1287,64 +1292,64 @@ YY_RULE_SETUP
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 269 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 274 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 { DEFAULT_ACTION; }
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 270 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 275 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 { DEFAULT_ACTION; }
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 271 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 276 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 { DEFAULT_ACTION; }
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 273 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 278 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 { DEFAULT_ACTION; }
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 274 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 279 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 { DEFAULT_ACTION; }
 	YY_BREAK
 case 47:
 /* rule 47 can match eol */
 YY_RULE_SETUP
-#line 276 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 281 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 { DEFAULT_ACTION; }
 	YY_BREAK
 case 48:
 /* rule 48 can match eol */
 YY_RULE_SETUP
-#line 277 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 282 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 { DEFAULT_ACTION; }
 	YY_BREAK
 case 49:
 /* rule 49 can match eol */
 YY_RULE_SETUP
-#line 279 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 284 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 { DEFAULT_ACTION; }
 	YY_BREAK
 case 50:
 /* rule 50 can match eol */
 YY_RULE_SETUP
-#line 280 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 285 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 { DEFAULT_ACTION; }
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 282 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 287 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 { DEFAULT_ACTION; }
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 284 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 289 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 ECHO;
 	YY_BREAK
-#line 1347 "lex.yy.cc"
+#line 1352 "lex.yy.cc"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -2347,7 +2352,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 284 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
+#line 289 "/home/sebastian/Dokumente/Komondor/Code/COST/compc++/lexer.l"
 
 
 

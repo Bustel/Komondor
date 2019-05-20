@@ -46,7 +46,7 @@
  * - This file contains the methods related to "time" operations
  */
 
-#include "../../../list_of_macros.h"
+#include "macros.h"
 
 #include <math.h>
 

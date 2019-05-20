@@ -49,7 +49,7 @@
 #include <math.h>
 #include <algorithm>
 #include <stddef.h>
-#include "../list_of_macros.h"
+#include "macros.h"
 
 /*
  * GenerateLogicalNack: generates a logical NACK

@@ -53,7 +53,7 @@
 #include <iostream>
 #include <stdlib.h>
 
-#include "../list_of_macros.h"
+#include "macros.h"
 #include "../structures/node_configuration.h"
 #include "../structures/performance_metrics.h"
 #include "../structures/action.h"

@@ -53,7 +53,7 @@
 #include <iostream>
 #include <stdlib.h>
 
-#include "../list_of_macros.h"
+#include "macros.h"
 #include "../methods/auxiliary_methods.h"
 
 // Agent component: "TypeII" represents components that are aware of the existence of the simulated time.

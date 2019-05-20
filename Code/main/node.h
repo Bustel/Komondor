@@ -56,7 +56,7 @@
 #include <stdlib.h>
 #include <glib.h>
 
-#include "../list_of_macros.h"
+#include "macros.h"
 #include "../methods/auxiliary_methods.h"
 #include "../methods/power_channel_methods.h"
 #include "../methods/backoff_methods.h"
