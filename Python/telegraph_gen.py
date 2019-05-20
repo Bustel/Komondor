@@ -45,7 +45,7 @@ if __name__ == "__main__":
     vis = Visualizer(channel_cfg)
 
     # for different distances
-    sta_ap_distances = range(10, 100, 15)
+    sta_ap_distances = range(10, 100, 10)
     all_res = {}
     for sta_ap_distance in sta_ap_distances:
         tg.gen_fixed_placement(sta_ap_distance)
@@ -72,6 +72,8 @@ if __name__ == "__main__":
         sr = SimResult(res_fname)
         sim_res = sr.parse_results()
         all_res[sta_ap_distance] = sim_res
+
+        print(all_res)
 
     # show final res
     vis.plot_thr_vs_distance_bar_chart(sta_ap_distances, all_res)

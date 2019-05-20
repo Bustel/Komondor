@@ -48,7 +48,7 @@ class Visualizer:
         # convert sim_res into numpy matrix
         data = np.empty((0,3), float)
 
-        for dist_k in all_sim_res.keys():
+        for dist_k in sorted(all_sim_res):
             row = []
             for flow_k in all_sim_res[dist_k]:
                 thr = all_sim_res[dist_k][flow_k]['throughput']
@@ -56,7 +56,7 @@ class Visualizer:
             data = np.vstack([data, row])
 
         if False:
-            plt.imshow(data);
+            plt.imshow(data)
             plt.colorbar()
             plt.show()
 
