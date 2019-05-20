@@ -10,21 +10,21 @@ class SimConfig:
         self.config.optionxform = str
         self.out_fname = out_fname
 
-    def create(self, d11p, tg):
+    def create(self, d11ps, tg):
         # create global system conf
-        self.create_system(d11p)
+        self.create_system(d11ps[0])
 
         # create BSSs
         # create APs
         for ap_i in range(0, tg.num_aps):
             ap_name = chr(65 + ap_i)
-            self.create_ap(d11p, ap_name, tg.aps[ap_i][0], tg.aps[ap_i][1], tg.aps[ap_i][2])
+            self.create_ap(d11ps[ap_i], ap_name, tg.aps[ap_i][0], tg.aps[ap_i][1], tg.aps[ap_i][2])
         # create STAs + association
         sta_id = 0
         for ap_i in range(0, tg.num_aps):
             ap_name = chr(65 + ap_i)
             for sta_i in range(0, tg.num_stas_per_ap[ap_i]):
-                self.create_sta(d11p, ap_name, str(sta_i+1), tg.stas[sta_id][0], tg.stas[sta_id][1], tg.stas[sta_id][2])
+                self.create_sta(d11ps[ap_i], ap_name, str(sta_i+1), tg.stas[sta_id][0], tg.stas[sta_id][1], tg.stas[sta_id][2])
                 sta_id = sta_id + 1
 
         # write to file
@@ -65,9 +65,9 @@ class SimConfig:
             'x': pos_x,
             'y': pos_y,
             'z': pos_z,
-            'primary_channel': 0,
-            'min_channel_allowed': 0,
-            'max_channel_allowed': d11p.num_channels-1,
+            'primary_channel': d11p.min_channel_allowed,
+            'min_channel_allowed': d11p.min_channel_allowed,
+            'max_channel_allowed': d11p.max_channel_allowed,
             'cw': 16,
             'cw_stage': 5,
             'tpc_min': tx_power,
@@ -95,9 +95,9 @@ class SimConfig:
             'x': pos_x,
             'y': pos_y,
             'z': pos_z,
-            'primary_channel': 0,
-            'min_channel_allowed': 0,
-            'max_channel_allowed': d11p.num_channels-1,
+            'primary_channel': d11p.min_channel_allowed,
+            'min_channel_allowed': d11p.min_channel_allowed,
+            'max_channel_allowed': d11p.max_channel_allowed,
             'cw': 16,
             'cw_stage': 5,
             'tpc_min': tx_power,

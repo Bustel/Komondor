@@ -7,7 +7,7 @@ import os
 '''
 class Komondor:
 
-    def __init__(self, sim_time=10):
+    def __init__(self, sim_time=100):
         self.sim_time = sim_time
 
     def run(self):

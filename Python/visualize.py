@@ -7,8 +7,8 @@ import networkx as nx
 '''
 class Visualizer:
 
-    def __init__(self, d11p):
-        self.d11p = d11p
+    def __init__(self, channel_cfg):
+        self.channel_cfg = channel_cfg
 
     def show_node_placement(self, tg):
 
@@ -66,8 +66,8 @@ class Visualizer:
         plt.xlabel('Distance AP to STA [m]')
         plt.ylabel('Throughput [Mbps]')
         plt.grid()
-        plt.title(self.d11p.to_string())
+        plt.title(str(self.channel_cfg))
         plt.legend(loc='upper right')
         #plt.show()
 
-        plt.savefig('plot_' + str(self.d11p.num_channels) + '.png')
+        plt.savefig('plot_' + str(self.channel_cfg) + '.png')
