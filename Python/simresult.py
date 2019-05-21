@@ -1,5 +1,5 @@
 import configparser
-import random
+import os
 
 '''
     Parsing the results

@@ -1,4 +1,5 @@
 import configparser
+import os
 
 '''
     Create config file which is used by the komondor simulator
@@ -9,6 +10,12 @@ class SimConfig:
         self.config = configparser.ConfigParser()
         self.config.optionxform = str
         self.out_fname = cfg_fname
+
+        try:
+            os.mkdir(os.path.dirname(self.out_fname))
+            os.remove(self.out_fname)
+        except:
+            pass
 
     def create(self, d11ps, tg):
         # create global system conf

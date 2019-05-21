@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import networkx as nx
+import os
 
 '''
     Visualize the results
@@ -10,6 +11,11 @@ class Visualizer:
     def __init__(self, channel_cfg, folder='./plots/'):
         self.channel_cfg = channel_cfg
         self.folder = folder
+
+        try:
+            os.mkdir(folder)
+        except:
+            pass
 
     def show_node_placement(self, tg):
 

@@ -16,6 +16,8 @@ Placement:
 if __name__ == "__main__":
 
     channel_cfg = int(sys.argv[1])
+    sim_time = 10
+    step_sz = 20
     print('Running w/ channel config = %d' % channel_cfg)
 
     # create sim params for each AP
@@ -48,7 +50,7 @@ if __name__ == "__main__":
     vis = Visualizer(channel_cfg)
 
     # for different distances
-    sta_ap_distances = range(10, 100, 2)
+    sta_ap_distances = range(10, 100, step_sz)
     all_res = {}
     for sta_ap_distance in sta_ap_distances:
         print('... place nodes')
@@ -65,7 +67,7 @@ if __name__ == "__main__":
         # execute komondor simulator
         print('... simulate for d=%f' % sta_ap_distance)
         res_fname = 'res/telegraph_statistics_' + str(channel_cfg) + '.cfg'
-        sim = Komondor(cfg_fname, res_fname, sim_time=100)
+        sim = Komondor(cfg_fname, res_fname, sim_time=sim_time)
         sim.run()
 
         print('... parse results')

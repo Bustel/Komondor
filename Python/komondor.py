@@ -16,6 +16,7 @@ class Komondor:
     def run(self):
         try:
             try:
+                os.mkdir(os.path.dirname(self.res_fname))
                 os.remove(self.res_fname)
             except:
                 pass
