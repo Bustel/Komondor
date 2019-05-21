@@ -5,10 +5,10 @@ import configparser
 '''
 class SimConfig:
 
-    def __init__(self, out_fname):
+    def __init__(self, cfg_fname):
         self.config = configparser.ConfigParser()
         self.config.optionxform = str
-        self.out_fname = out_fname
+        self.out_fname = cfg_fname
 
     def create(self, d11ps, tg):
         # create global system conf

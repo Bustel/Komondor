@@ -7,8 +7,9 @@ import networkx as nx
 '''
 class Visualizer:
 
-    def __init__(self, channel_cfg):
+    def __init__(self, channel_cfg, folder='./plots/'):
         self.channel_cfg = channel_cfg
+        self.folder = folder
 
     def show_node_placement(self, tg):
 
@@ -70,4 +71,4 @@ class Visualizer:
         plt.legend(loc='upper right')
         #plt.show()
 
-        plt.savefig('plot_' + str(self.channel_cfg) + '.png')
+        plt.savefig(self.folder + 'plot_' + str(self.channel_cfg) + '.png')

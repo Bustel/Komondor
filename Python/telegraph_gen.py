@@ -7,6 +7,12 @@ from visualize import Visualizer
 import time
 import sys
 
+'''
+Placement:
+    STA     STA      STA
+      \    /       /
+       AP        AP
+'''
 if __name__ == "__main__":
 
     channel_cfg = int(sys.argv[1])
@@ -37,15 +43,12 @@ if __name__ == "__main__":
         assert False
 
     # create topo
-    #   STA     STA      STA
-    #     \    /       /
-    #      AP        AP
     tg = TopoGenerator()
     # visualize results
     vis = Visualizer(channel_cfg)
 
     # for different distances
-    sta_ap_distances = range(10, 100, 10)
+    sta_ap_distances = range(10, 100, 2)
     all_res = {}
     for sta_ap_distance in sta_ap_distances:
         tg.gen_fixed_placement(sta_ap_distance)
@@ -54,21 +57,22 @@ if __name__ == "__main__":
         #vis.show_node_placement(tg)
 
         # export as cfg file
-        out_fname = 'cfg/telegraph_gen_network.cfg'
-        sc = SimConfig(out_fname)
+        cfg_fname = 'cfg/telegraph_gen_network_' + str(channel_cfg) + '.cfg'
+        sc = SimConfig(cfg_fname)
         sc.create([d11p_1, d11p_2], tg)
 
         # execute komondor simulator
+        res_fname = 'res/telegraph_statistics_' + str(channel_cfg) + '.cfg'
+
         print('Simulate for d=%f' % sta_ap_distance)
         if True:
-            sim = Komondor(sim_time=10)
+            sim = Komondor(cfg_fname, res_fname, sim_time=100)
             sim.run()
         else:
             print('Simulator mockup')
             time.sleep(1)
 
         # parse results
-        res_fname = 'statistics.cfg'
         sr = SimResult(res_fname)
         sim_res = sr.parse_results()
         all_res[sta_ap_distance] = sim_res
