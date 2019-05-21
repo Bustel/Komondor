@@ -43,45 +43,61 @@
  * -----------------------------------------------------------------
  * File description: this is the main Komondor file
  *
- * - This file defines a WLAN and provides basic displaying methods
+ * - This file defines a NOTIFICATION and provides basic displaying methods
  */
 
+#include <cstdio>
+
+#include "notification.hpp"
 #include "macros.h"
-#include "logger.hpp"
 
-// Action info
-struct Action
-{
-	int channel;	// Channel selected
-	double cca;		// CCA level
-	double tx_power;	// Tx Power
-	int dcb_policy;
-//	int *list_sta_id;	// List of STAs IDs belonging to the WLAN
-//
-//	/*
-//	 * SetSizeOfSTAsArray(): sets the size of the array list_sta_id
-//	 */
-//	void SetSizeOfSTAsArray(int num_stas){
-//
-//		list_sta_id = (int *) malloc(num_stas * sizeof(*list_sta_id));
-//
-//		for(int s = 0; s < num_stas; s++){
-//			list_sta_id[s] = NODE_ID_NONE;
-//		}
-//	}
 
-	/*
-	 * PrintStaIds(): prints the list of STAs IDs belonging to the WLAN
-	 */
-	void PrintAction(){
 
-		printf("------------\n Action:\n");
-		printf(" * channel = %d\n", channel);
-		printf(" * cca = %f\n", cca);
-		printf(" * tx_power = %f\n", tx_power);
-		printf(" * dcb_policy = %d\n", dcb_policy);
-		printf("------------\n");
+void TxInfo::PrintTxInfo(int packet_id, int destination_id, double tx_duration){
+	printf("packet_id = %d - destination_id = %d - tx_duration = %f - tx_power = %f pw"
+		" - position = (%.2f, %.2f, %.2f)\n",
+		packet_id, destination_id, tx_duration, tx_power, x, y, z);
+}
+
+
+
+/*
+ * SetSizeOfIdsArray(): sets the size of the array list_id_aggregated
+ */
+void TxInfo::SetSizeOfIdsAggregatedArray(int num_packets_aggregated){
+	list_id_aggregated = new int[num_packets_aggregated];
+	for(int t = 0; t < num_packets_aggregated; ++t){
+		list_id_aggregated[t] = 0;
 	}
+}
 
 
-};
+/*
+ * SetSizeOfTimestampAggregatedArray(): sets the size of the array timestamp_frames_aggregated
+ */
+void TxInfo::SetSizeOfTimestampAggregatedArray(int num_packets_aggregated){
+	timestamp_frames_aggregated = new double[num_packets_aggregated];
+	for(int t = 0; t < num_packets_aggregated; ++t){
+		timestamp_frames_aggregated[t] = 0;
+	}
+}
+
+
+/*
+ * SetSizeOfMCS(): sets the size of the array modulation_schemes
+ */
+void TxInfo::SetSizeOfMCS(int channels_groups){
+	//modulation_schemes = new int[channels_groups];
+	for(int s = 0; s < channels_groups; ++s){
+		modulation_schemes[s] = MODULATION_NONE;
+	}
+}
+
+
+void Notification::PrintNotification(void){
+	printf("source_id = %d - packet_type = %d - left_channel = %d - right_channel = %d - pkt_length = %d -",
+		source_id, packet_type, left_channel, right_channel, frame_length);
+	printf("tx_info: ");
+	tx_info.PrintTxInfo(packet_id, destination_id, tx_duration);
+}
+

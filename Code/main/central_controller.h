@@ -53,10 +53,11 @@
 #include <iostream>
 #include <stdlib.h>
 
-#include "macros.h"
-#include "../structures/node_configuration.h"
+#include <macros.h>
+#include <node_configuration.hpp>
+#include <auxiliary_methods.hpp>
+
 #include "../structures/performance_metrics.h"
-#include "../methods/auxiliary_methods.h"
 #include "../methods/agent_methods.h"
 #include "../learning_modules/graph_coloring/graph_coloring.h"
 

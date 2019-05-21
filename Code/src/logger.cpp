@@ -43,45 +43,11 @@
  * -----------------------------------------------------------------
  * File description: this is the main Komondor file
  *
- * - This file defines a WLAN and provides basic displaying methods
+ * - This file defines a LOGGER to generate logs
  */
-
-#include "macros.h"
 #include "logger.hpp"
 
-// Action info
-struct Action
-{
-	int channel;	// Channel selected
-	double cca;		// CCA level
-	double tx_power;	// Tx Power
-	int dcb_policy;
-//	int *list_sta_id;	// List of STAs IDs belonging to the WLAN
-//
-//	/*
-//	 * SetSizeOfSTAsArray(): sets the size of the array list_sta_id
-//	 */
-//	void SetSizeOfSTAsArray(int num_stas){
-//
-//		list_sta_id = (int *) malloc(num_stas * sizeof(*list_sta_id));
-//
-//		for(int s = 0; s < num_stas; s++){
-//			list_sta_id[s] = NODE_ID_NONE;
-//		}
-//	}
+void Logger::SetVoidHeadString(){
+		sprintf(head_string, "%s", " ");
+}
 
-	/*
-	 * PrintStaIds(): prints the list of STAs IDs belonging to the WLAN
-	 */
-	void PrintAction(){
-
-		printf("------------\n Action:\n");
-		printf(" * channel = %d\n", channel);
-		printf(" * cca = %f\n", cca);
-		printf(" * tx_power = %f\n", tx_power);
-		printf(" * dcb_policy = %d\n", dcb_policy);
-		printf("------------\n");
-	}
-
-
-};

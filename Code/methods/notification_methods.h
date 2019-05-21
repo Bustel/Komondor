@@ -50,6 +50,8 @@
 #include <algorithm>
 #include <stddef.h>
 #include "macros.h"
+#include "../structures/logical_nack.h"
+
 
 /*
  * GenerateLogicalNack: generates a logical NACK

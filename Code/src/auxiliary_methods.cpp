@@ -45,25 +45,15 @@
  *
  * - This file contains the auxiliary methods to carry out the rest of operations 
  */
-
 #include <math.h>
 #include <algorithm>
 #include <stddef.h>
 #include <string>
 #include <sstream>
+#include <glib.h>
+#include <macros.h>
+#include <auxiliary_methods.hpp>
 
-#include "macros.h"
-
-#ifndef _AUX_METHODS_
-#define _AUX_METHODS_
-
-template <typename T>
-std::string ToString(T val)
-{
-    std::stringstream stream;
-    stream << val;
-    return stream.str();
-}
 
 /*
  * PickRandomElementFromArray(): pick uniformely random an element of an array
@@ -258,4 +248,3 @@ double fix_time_offset(double time_value, int trunc_pos, int round_pos){
 	return fixed_time_value;
 }
 
-#endif

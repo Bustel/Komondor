@@ -43,22 +43,61 @@
  * -----------------------------------------------------------------
  * File description: this is the main Komondor file
  *
- * - This file defines a LOGGER to generate logs
+ * - This file defines a WLAN and provides basic displaying methods
  */
 
-#ifndef _AUX_LOGGER_
-#define _AUX_LOGGER_
 
-struct Logger
-{
-	int save_logs;		// Flag for activating the log writting
-	FILE *file;			// File for writting logs
-	char head_string[INTEGER_SIZE];	// Header string (to be passed as argument when it is needed to write info from other class or component)
+#define    LOGS(f,...)    if (f!=NULL){fprintf(f, ##__VA_ARGS__);}
+#include <stdio.h>
+#include <iostream>
+#include <stdlib.h>
+#include <string.h>
 
-	void SetVoidHeadString(){
-		sprintf(head_string, "%s", " ");
-	}
-	// TODO: create 'getter' methods
-};
+#include "macros.h"
+#include "logger.hpp"
 
-#endif
+#include "wlan.hpp"
+
+void Wlan::SetSizeOfSTAsArray(int num_stas){
+    list_sta_id = new int[num_stas];
+    for(int s = 0; s < num_stas; ++s){
+        list_sta_id[s] = NODE_ID_NONE;
+    }
+}
+
+void Wlan::PrintStaIds(){
+    for(int s = 0; s < num_stas; s++){
+        LOGS(stderr, "%d  ", list_sta_id[s]);
+    }
+    LOGS(stderr, "\n");
+}
+
+void Wlan::WriteStaIds(Logger logger){
+    if (logger.save_logs){
+        for(int s = 0; s < num_stas; s++){
+            LOGS(logger.file, "%d  ", list_sta_id[s]);
+        }
+    }
+}
+
+void Wlan::PrintWlanInfo(){
+    LOGS(stderr, "%s WLAN %s:\n", LOG_LVL3, wlan_code.c_str());
+    LOGS(stderr, "%s wlan_id: %d\n", LOG_LVL4, wlan_id);
+    LOGS(stderr, "%s num_stas: %d\n", LOG_LVL4, num_stas);
+    LOGS(stderr, "%s ap_id: %d\n", LOG_LVL4, ap_id);
+    LOGS(stderr, "%s list of STAs IDs: ", LOG_LVL4);
+    PrintStaIds();
+}
+
+void Wlan::WriteWlanInfo(Logger logger, std::string header_str){
+    if (logger.save_logs){
+        LOGS(logger.file, "%s WLAN %s:\n", header_str.c_str(), wlan_code.c_str());
+        LOGS(logger.file, "%s - wlan_id: %d\n", header_str.c_str(), wlan_id);
+        LOGS(logger.file, "%s - num_stas: %d\n", header_str.c_str(), num_stas);
+        LOGS(logger.file, "%s - ap_id: %d\n", header_str.c_str(), ap_id);
+        LOGS(logger.file, "%s - list of STAs IDs: ", header_str.c_str());
+        WriteStaIds(logger);
+        LOGS(logger.file, "\n");
+    }
+}
+
