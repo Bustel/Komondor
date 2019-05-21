@@ -46,10 +46,14 @@
  * - This file contains the methods related to "time" operations
  */
 
-#include "macros.h"
 
 #ifndef _AUX_AGENT_METHODS_
 #define _AUX_AGENT_METHODS_
+
+#include <macros.h>
+#include <agent_methods.hpp>
+#include <cstdio>
+#include <cstdlib>
 
 /*
  * RestartPerformanceMetrics(): restarts the performance metrics being tracked by a given AP-agent pair

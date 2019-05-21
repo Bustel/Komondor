@@ -62,6 +62,7 @@
 #include <power_channel_methods.hpp>
 #include <modulations.hpp>
 #include <auxiliary_methods.hpp>
+#include <performance_metrics.hpp>
 
 #include "../methods/backoff_methods.h"
 #include "../methods/modulations_methods.h"
@@ -69,7 +70,6 @@
 #include "../methods/time_methods.h"
 #include "../structures/logical_nack.h"
 #include "../structures/FIFO.h"
-#include "../structures/performance_metrics.h"
 
 #define __SAVELOGS__
 
