@@ -42,42 +42,36 @@ if __name__ == "__main__":
     else:
         assert False
 
-    # create topo
+    # create topology
     tg = TopoGenerator()
     # visualize results
     vis = Visualizer(channel_cfg)
+
+    # export as cfg file
+    cfg_fname = 'cfg/telegraph_gen_network_' + str(channel_cfg) + '.cfg'
+    sc = SimConfig(cfg_fname)
+    sc.create([d11p_1, d11p_2], tg)
 
     # for different distances
     sta_ap_distances = range(10, 100, 2)
     all_res = {}
     for sta_ap_distance in sta_ap_distances:
+        print('... place nodes')
         tg.gen_fixed_placement(sta_ap_distance)
 
         # show node placement
         #vis.show_node_placement(tg)
 
-        # export as cfg file
-        cfg_fname = 'cfg/telegraph_gen_network_' + str(channel_cfg) + '.cfg'
-        sc = SimConfig(cfg_fname)
-        sc.create([d11p_1, d11p_2], tg)
-
         # execute komondor simulator
+        print('... simulate for d=%f' % sta_ap_distance)
         res_fname = 'res/telegraph_statistics_' + str(channel_cfg) + '.cfg'
+        sim = Komondor(cfg_fname, res_fname, sim_time=100)
+        sim.run()
 
-        print('Simulate for d=%f' % sta_ap_distance)
-        if True:
-            sim = Komondor(cfg_fname, res_fname, sim_time=100)
-            sim.run()
-        else:
-            print('Simulator mockup')
-            time.sleep(1)
-
-        # parse results
+        print('... parse results')
         sr = SimResult(res_fname)
         sim_res = sr.parse_results()
         all_res[sta_ap_distance] = sim_res
-
-        print(all_res)
 
     # show final res
     vis.plot_thr_vs_distance_bar_chart(sta_ap_distances, all_res)
