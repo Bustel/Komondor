@@ -46,14 +46,8 @@
  * - This file defines modulations and MCS parameters
  */
 
-struct Mcs_array {
-   static const double mcs_array[4][12];
-   static const double coding_rate_array[12];
-   static const int bits_per_symbol_modulation_array[12];
-   static const int modulation_bits[12];
-   static const double coding_rates[12];
-};
-
+#include <cmath>
+#include "modulations.hpp"
 
 // THIS IS DEPRECATED
 const double Mcs_array::mcs_array[4][12] = {	// rows: modulation type, colums: number of channels (1, 2, 4, 8)

@@ -49,7 +49,9 @@
 #include <math.h>
 #include <algorithm>
 #include <stddef.h>
-#include "../list_of_macros.h"
+#include "macros.h"
+#include "../structures/logical_nack.h"
+
 
 /*
  * GenerateLogicalNack: generates a logical NACK

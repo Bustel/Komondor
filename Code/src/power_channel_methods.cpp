@@ -49,10 +49,19 @@
 #include <stddef.h>
 #include <math.h>
 #include <iostream>
+#include <cstdio>
+#include <cassert>
 
-#include "../list_of_macros.h"
-#include "../structures/modulations.h"
-#include "auxiliary_methods.h"
+#include <glib.h>
+
+#include <macros.h>
+#include <logger.hpp>
+
+#include <modulations.hpp>
+#include <auxiliary_methods.hpp>
+
+#include <power_channel_methods.hpp>
+
 
 /***********************/
 /***********************/

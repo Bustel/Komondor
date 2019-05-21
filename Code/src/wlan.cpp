@@ -47,89 +47,57 @@
  */
 
 
-#ifndef _AUX_WLAN_
-#define _AUX_WLAN_
-
-
 #define    LOGS(f,...)    if (f!=NULL){fprintf(f, ##__VA_ARGS__);}
 #include <stdio.h>
 #include <iostream>
 #include <stdlib.h>
 #include <string.h>
-#include "../list_of_macros.h"
-#include "logger.h"
 
-// WLAN info
-struct Wlan
-{
-	int wlan_id;			// WLAN ID
-	std::string wlan_code;	// Code of the WLAN (string)
-	int num_stas;			// Number of STAs in the WLAN (AP not included)
-	int ap_id;				// Id of the Access Point
-	int *list_sta_id;		// List of STAs IDs belonging to the WLAN
+#include "macros.h"
+#include "logger.hpp"
 
-	/*
-	 * SetSizeOfSTAsArray(): sets the size of the array list_sta_id
-	 */
-	void SetSizeOfSTAsArray(int num_stas){
-		list_sta_id = new int[num_stas];
-		for(int s = 0; s < num_stas; ++s){
-			list_sta_id[s] = NODE_ID_NONE;
-		}
-	}
+#include "wlan.hpp"
 
-	/*
-	 * PrintStaIds(): prints the list of STAs IDs belonging to the WLAN
-	 */
-	void PrintStaIds(){
-		for(int s = 0; s < num_stas; s++){
-			LOGS(stderr, "%d  ", list_sta_id[s]);
-		}
-		LOGS(stderr, "\n");
-	}
+void Wlan::SetSizeOfSTAsArray(int num_stas){
+    list_sta_id = new int[num_stas];
+    for(int s = 0; s < num_stas; ++s){
+        list_sta_id[s] = NODE_ID_NONE;
+    }
+}
 
-	/*
-	 * WriteStaIds(): writes STAs list of IDs in a given file
-	 * Input arguments:
-	 * - logger: logger containing the file to write on
-	 */
-	void WriteStaIds(Logger logger){
-		if (logger.save_logs){
-			for(int s = 0; s < num_stas; s++){
-				LOGS(logger.file, "%d  ", list_sta_id[s]);
-			}
-		}
-	}
+void Wlan::PrintStaIds(){
+    for(int s = 0; s < num_stas; s++){
+        LOGS(stderr, "%d  ", list_sta_id[s]);
+    }
+    LOGS(stderr, "\n");
+}
 
-	/*
-	 * PrintWlanInfo(): prints general WLAN info
-	 */
-	void PrintWlanInfo(){
-		LOGS(stderr, "%s WLAN %s:\n", LOG_LVL3, wlan_code.c_str());
-		LOGS(stderr, "%s wlan_id: %d\n", LOG_LVL4, wlan_id);
-		LOGS(stderr, "%s num_stas: %d\n", LOG_LVL4, num_stas);
-		LOGS(stderr, "%s ap_id: %d\n", LOG_LVL4, ap_id);
-		LOGS(stderr, "%s list of STAs IDs: ", LOG_LVL4);
-		PrintStaIds();
-	}
+void Wlan::WriteStaIds(Logger logger){
+    if (logger.save_logs){
+        for(int s = 0; s < num_stas; s++){
+            LOGS(logger.file, "%d  ", list_sta_id[s]);
+        }
+    }
+}
 
-	/*
-	 * WriteWlanInfo(): writes general WLAN info in a given file
-	 * Input arguments:
-	 * - logger: logger containing the file to write on
-	 * - header_string: header string
-	 */
-	void WriteWlanInfo(Logger logger, std::string header_str){
-		if (logger.save_logs){
-			LOGS(logger.file, "%s WLAN %s:\n", header_str.c_str(), wlan_code.c_str());
-			LOGS(logger.file, "%s - wlan_id: %d\n", header_str.c_str(), wlan_id);
-			LOGS(logger.file, "%s - num_stas: %d\n", header_str.c_str(), num_stas);
-			LOGS(logger.file, "%s - ap_id: %d\n", header_str.c_str(), ap_id);
-			LOGS(logger.file, "%s - list of STAs IDs: ", header_str.c_str());
-			WriteStaIds(logger);
-			LOGS(logger.file, "\n");
-		}
-	}
-};
+void Wlan::PrintWlanInfo(){
+    LOGS(stderr, "%s WLAN %s:\n", LOG_LVL3, wlan_code.c_str());
+    LOGS(stderr, "%s wlan_id: %d\n", LOG_LVL4, wlan_id);
+    LOGS(stderr, "%s num_stas: %d\n", LOG_LVL4, num_stas);
+    LOGS(stderr, "%s ap_id: %d\n", LOG_LVL4, ap_id);
+    LOGS(stderr, "%s list of STAs IDs: ", LOG_LVL4);
+    PrintStaIds();
+}
 
-#endif
+void Wlan::WriteWlanInfo(Logger logger, std::string header_str){
+    if (logger.save_logs){
+        LOGS(logger.file, "%s WLAN %s:\n", header_str.c_str(), wlan_code.c_str());
+        LOGS(logger.file, "%s - wlan_id: %d\n", header_str.c_str(), wlan_id);
+        LOGS(logger.file, "%s - num_stas: %d\n", header_str.c_str(), num_stas);
+        LOGS(logger.file, "%s - ap_id: %d\n", header_str.c_str(), ap_id);
+        LOGS(logger.file, "%s - list of STAs IDs: ", header_str.c_str());
+        WriteStaIds(logger);
+        LOGS(logger.file, "\n");
+    }
+}
+

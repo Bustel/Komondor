@@ -46,8 +46,8 @@
  * - This file defines a WLAN and provides basic displaying methods
  */
 
-#include "../list_of_macros.h"
-#include "logger.h"
+#include "macros.h"
+#include "logger.hpp"
 
 // Action info
 struct Action

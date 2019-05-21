@@ -41,87 +41,63 @@
  *           $Revision: 1.0 $
  *
  * -----------------------------------------------------------------
- * File description: this file contains functions related to the agents' operation
+ * File description: this is the main Komondor file
  *
- * - This file contains the methods related to "time" operations
+ * - This file defines a NOTIFICATION and provides basic displaying methods
  */
 
+#include <cstdio>
+
+#include "notification.hpp"
 #include "macros.h"
 
-#include <math.h>
 
-#ifndef _AUX_THOMPSON_SAMPLING_
-#define _AUX_THOMPSON_SAMPLING_
 
-double gaussrand(double mean, double std){
-
-	static double V1, V2, S;
-	static int phase = 0;
-	double X;
-
-	if(phase == 0) {
-
-		do {
-
-			double U1 = (double)rand() /  RAND_MAX;
-			double U2 = (double)rand() /  RAND_MAX;
-
-			V1 = 2*U1 - 1;
-			V2 = 2*U2 - 1;
-			S = V1 * V1 + V2 * V2;
-
-		} while (S >= 1 || S == 0);
-
-		X = (V1 * sqrt(-2 * log(S) / S)) * std + mean;
-
-	} else {
-		X = (V1 * sqrt(-2 * log(S) / S)) * std + mean;
-	}
-
-	phase = 1 - phase;
-
-	return X;
-
+void TxInfo::PrintTxInfo(int packet_id, int destination_id, double tx_duration){
+	printf("packet_id = %d - destination_id = %d - tx_duration = %f - tx_power = %f pw"
+		" - position = (%.2f, %.2f, %.2f)\n",
+		packet_id, destination_id, tx_duration, tx_power, x, y, z);
 }
+
+
 
 /*
- * PickArmThompsonSampling(): selects an action according to the epsilon-greedy strategy
- * INPUT:
- * 	- num_actions: number of possible actions
- * 	- reward_per_arm: array containing the last stored reward for each action
- * 	- epsilon: current exploration coefficient
- * OUTPUT:
- *  - arm_index: index of the selected action
+ * SetSizeOfIdsArray(): sets the size of the array list_id_aggregated
  */
-int PickArmThompsonSampling(int num_actions, double *estimated_reward_per_arm,
-		int *times_arm_has_been_selected) {
-
-	//TODO: validate the behavior of this implementation
-
-	int action_ix;
-
-	double *theta = new double[num_actions];
-
-	for (int i = 0; i < num_actions; i++) {
-
-		theta[i] = gaussrand(estimated_reward_per_arm[i],
-			1/(1+times_arm_has_been_selected[i]));
-
+void TxInfo::SetSizeOfIdsAggregatedArray(int num_packets_aggregated){
+	list_id_aggregated = new int[num_packets_aggregated];
+	for(int t = 0; t < num_packets_aggregated; ++t){
+		list_id_aggregated[t] = 0;
 	}
-
-	double max = 0;
-	for (int i = 0; i < num_actions; i ++) {
-		if(theta[i] > max) {
-			max = theta[i];
-			action_ix = i;
-		}
-		//  TODO: elseif(theta[i] == max) --> Break ties!
-	}
-
-//		printf("EXPLOIT: arm_index = %d\n", arm_index);
-
-	return action_ix;
-
 }
 
-#endif
+
+/*
+ * SetSizeOfTimestampAggregatedArray(): sets the size of the array timestamp_frames_aggregated
+ */
+void TxInfo::SetSizeOfTimestampAggregatedArray(int num_packets_aggregated){
+	timestamp_frames_aggregated = new double[num_packets_aggregated];
+	for(int t = 0; t < num_packets_aggregated; ++t){
+		timestamp_frames_aggregated[t] = 0;
+	}
+}
+
+
+/*
+ * SetSizeOfMCS(): sets the size of the array modulation_schemes
+ */
+void TxInfo::SetSizeOfMCS(int channels_groups){
+	//modulation_schemes = new int[channels_groups];
+	for(int s = 0; s < channels_groups; ++s){
+		modulation_schemes[s] = MODULATION_NONE;
+	}
+}
+
+
+void Notification::PrintNotification(void){
+	printf("source_id = %d - packet_type = %d - left_channel = %d - right_channel = %d - pkt_length = %d -",
+		source_id, packet_type, left_channel, right_channel, frame_length);
+	printf("tx_info: ");
+	tx_info.PrintTxInfo(packet_id, destination_id, tx_duration);
+}
+

@@ -46,9 +46,13 @@
  * - This file contains the methods related to "time" operations
  */
 
-#include "../../list_of_macros.h"
+#include "macros.h"
 #include "action_selection_strategies/epsilon_greedy.h"
 #include "action_selection_strategies/thompson_sampling.h"
+
+#include "power_channel_methods.hpp"
+
+
 //#include "action_selection_strategies/thompson_sampling.h"
 
 #ifndef _AUX_MABS_

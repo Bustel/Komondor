@@ -53,11 +53,12 @@
 #include <iostream>
 #include <stdlib.h>
 
-#include "../list_of_macros.h"
-#include "../structures/node_configuration.h"
+#include "macros.h"
+#include "node_configuration.hpp"
+#include "auxiliary_methods.hpp"
+
 #include "../structures/performance_metrics.h"
 #include "../structures/action.h"
-#include "../methods/auxiliary_methods.h"
 #include "../methods/agent_methods.h"
 #include "../learning_modules/multi_armed_bandits/multi_armed_bandits.h"
 

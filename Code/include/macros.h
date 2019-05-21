@@ -49,8 +49,8 @@
 
 
 // Code parameters
-#define FALSE 				0			// Boolean: false
-#define TRUE 				1			// Boolean: true
+//#define FALSE 				0			// Boolean: false
+//#define TRUE 				1			// Boolean: true
 #define INTEGER_SIZE		8			// Size of an integer
 #define CHAR_BUFFER_SIZE	1024		// Size of system buffer
 

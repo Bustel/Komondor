@@ -45,20 +45,9 @@
  *
  * - This file defines a LOGGER to generate logs
  */
+#include "logger.hpp"
 
-#ifndef _AUX_LOGGER_
-#define _AUX_LOGGER_
-
-struct Logger
-{
-	int save_logs;		// Flag for activating the log writting
-	FILE *file;			// File for writting logs
-	char head_string[INTEGER_SIZE];	// Header string (to be passed as argument when it is needed to write info from other class or component)
-
-	void SetVoidHeadString(){
+void Logger::SetVoidHeadString(){
 		sprintf(head_string, "%s", " ");
-	}
-	// TODO: create 'getter' methods
-};
+}
 
-#endif

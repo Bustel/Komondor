@@ -48,6 +48,17 @@
  * time is over. Finally, it processes the results.
  */
 
+#include "../COST/cost.h"
+
+//Include order seems to matter for COST preprocessing
+
+//NOTE: We are including source files because we have to. Not because we want
+//to. 
+#include "node.cpp"
+#include "traffic_generator.h"
+#include "agent.h"
+#include "central_controller.h"
+
 #include <stdio.h>
 #include <iostream>
 #include <stdlib.h>
@@ -58,18 +69,23 @@
 #include <unistd.h>
 #include <errno.h>
 
-#include ".././COST/cost.h"
-#include "../list_of_macros.h"
-#include "../structures/logical_nack.h"
-#include "../structures/notification.h"
-#include "../structures/wlan.h"
-#include "node.h"
-#include "traffic_generator.h"
-#include "agent.h"
-#include "central_controller.h"
+#include <notification.hpp>
+#include <wlan.hpp>
+#include <macros.h>
 
+
+#include <../structures/logical_nack.h>
 #include <glib.h>
 #include <glib/gprintf.h>
+
+
+
+
+
+
+
+
+#define    LOGS(f,...)    if (f!=NULL){fprintf(f, ##__VA_ARGS__);}
 
 int total_nodes_number;         // Total number of nodes
 char* tmp_nodes;
@@ -293,10 +309,6 @@ void Komondor :: Setup(double sim_time_console, int save_system_logs_console, in
 
     // Generate nodes
     GenerateNodes(nodes_input_filename);
-
-
-    
-
 
     // Compute distance of each pair of nodes
     for(int i = 0; i < total_nodes_number; ++i) {
