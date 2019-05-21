@@ -47,17 +47,17 @@ if __name__ == "__main__":
     # visualize results
     vis = Visualizer(channel_cfg)
 
-    # export as cfg file
-    cfg_fname = 'cfg/telegraph_gen_network_' + str(channel_cfg) + '.cfg'
-    sc = SimConfig(cfg_fname)
-    sc.create([d11p_1, d11p_2], tg)
-
     # for different distances
     sta_ap_distances = range(10, 100, 2)
     all_res = {}
     for sta_ap_distance in sta_ap_distances:
         print('... place nodes')
         tg.gen_fixed_placement(sta_ap_distance)
+
+        # export as cfg file
+        cfg_fname = 'cfg/telegraph_gen_network_' + str(channel_cfg) + '.cfg'
+        sc = SimConfig(cfg_fname)
+        sc.create([d11p_1, d11p_2], tg)
 
         # show node placement
         #vis.show_node_placement(tg)
