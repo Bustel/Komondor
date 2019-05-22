@@ -31,6 +31,7 @@
 # Komondor
 *.cxx
 Code/build/*
+Code/COST/compc++/lex.yy.cc
 *.txt~
 *.csv~
 
