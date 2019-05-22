@@ -46,13 +46,17 @@
  * - This file contains the methods related to "time" operations
  */
 
+#include <cstdio>
 #include <math.h>
 #include <algorithm>
 #include <stddef.h>
-#include "macros.h"
+#include <macros.h>
+
+#include <time_methods.hpp>
+
 
 // Exponential redefinition
-double	Random( double v=1.0)	{ return v*drand48();}
+double	Random( double v)	{ return v*drand48();}
 int	Random( int v)	{ return (int)(v*drand48()); }
 double	Exponential(double mean){ return -mean*log(Random());}
 
