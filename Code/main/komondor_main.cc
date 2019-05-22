@@ -53,11 +53,13 @@
 //Include order seems to matter for COST preprocessing
 
 //NOTE: We are including source files because we have to. Not because we want
-//to. 
+//to. Also: We have to use quotation marks otherwise COST will not recognise
+//the components.  
+//
 #include "node.cpp"
-#include "traffic_generator.h"
-#include "agent.h"
-#include "central_controller.h"
+#include "traffic_generator.cpp"
+#include "agent.cpp"
+#include "central_controller.cpp"
 
 #include <stdio.h>
 #include <iostream>
@@ -72,9 +74,9 @@
 #include <notification.hpp>
 #include <wlan.hpp>
 #include <macros.h>
+#include <logical_nack.hpp>
 
 
-#include <../structures/logical_nack.h>
 #include <glib.h>
 #include <glib/gprintf.h>
 

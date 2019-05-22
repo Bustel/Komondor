@@ -43,45 +43,36 @@
  * -----------------------------------------------------------------
  * File description: this is the main Komondor file
  *
- * - This file defines a WLAN and provides basic displaying methods
+ * - This file defines a NOTIFICATION and provides basic displaying methods
  */
 
-#include "macros.h"
-#include "logger.hpp"
+#include <performance_metrics.hpp>
+#include <macros.h>
+#include <cstdio>
 
-// Action info
-struct Action
-{
-	int channel;	// Channel selected
-	double cca;		// CCA level
-	double tx_power;	// Tx Power
-	int dcb_policy;
-//	int *list_sta_id;	// List of STAs IDs belonging to the WLAN
-//
-//	/*
-//	 * SetSizeOfSTAsArray(): sets the size of the array list_sta_id
-//	 */
-//	void SetSizeOfSTAsArray(int num_stas){
-//
-//		list_sta_id = (int *) malloc(num_stas * sizeof(*list_sta_id));
-//
-//		for(int s = 0; s < num_stas; s++){
-//			list_sta_id[s] = NODE_ID_NONE;
-//		}
-//	}
-
-	/*
-	 * PrintStaIds(): prints the list of STAs IDs belonging to the WLAN
-	 */
-	void PrintAction(){
-
-		printf("------------\n Action:\n");
-		printf(" * channel = %d\n", channel);
-		printf(" * cca = %f\n", cca);
-		printf(" * tx_power = %f\n", tx_power);
-		printf(" * dcb_policy = %d\n", dcb_policy);
-		printf("------------\n");
-	}
+void Performance::PrintReport(void){
+		printf("%s Report (last measurement in %f):\n", LOG_LVL4, last_time_measured);
+		printf("%s throughput = %f\n", LOG_LVL5, throughput);
+		printf("%s max_bound_throughput = %f\n", LOG_LVL5, max_bound_throughput);
+		printf("%s data_packets_sent = %d\n", LOG_LVL5, data_packets_sent);
+		printf("%s data_packets_lost = %d\n", LOG_LVL5, data_packets_lost);
+		printf("%s rts_cts_packets_sent = %d\n", LOG_LVL5, rts_cts_packets_sent);
+		printf("%s rts_cts_packets_lost = %d\n", LOG_LVL5, rts_cts_packets_lost);
+		printf("%s num_packets_generated = %f\n", LOG_LVL5, num_packets_generated);
+		printf("%s num_packets_dropped = %f\n", LOG_LVL5, num_packets_dropped);
+		printf("\n");
+}
 
 
-};
+
+/*
+ * SetSizeOfRssiList(): sets the size of the array list_id_aggregated
+ */
+void Performance::SetSizeOfRssiList(int total_wlans_number){
+		rssi_list = new double[total_wlans_number];
+		for(int i = 0; i < total_wlans_number; ++i){
+			rssi_list[i] = 0;
+		}
+}
+
+

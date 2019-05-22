@@ -56,9 +56,9 @@
 #include <macros.h>
 #include <node_configuration.hpp>
 #include <auxiliary_methods.hpp>
+#include <performance_metrics.hpp>
+#include <agent_methods.hpp>
 
-#include "../structures/performance_metrics.h"
-#include "../methods/agent_methods.h"
 #include "../learning_modules/graph_coloring/graph_coloring.h"
 
 // Agent component: "TypeII" represents components that are aware of the existence of the simulated time.

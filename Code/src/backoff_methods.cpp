@@ -49,7 +49,11 @@
 #include <math.h>
 #include <algorithm>
 #include <stddef.h>
-#include "macros.h"
+#include <glib.h>
+#include <cstdio>
+
+#include <macros.h>
+
 
 // Exponential redefinition for convenience
 double	Random2( double v=1.0)	{ return v*drand48();}
