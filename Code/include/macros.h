@@ -45,7 +45,8 @@
  *
  * - This file contains all the macros used by the rest of the code
  */
-
+#ifndef MACROS_H
+#define MACROS_H
 
 
 // Code parameters
@@ -85,10 +86,10 @@
 #define STATE_SLEEP		13	// Virtual Carrier Sense (process only RTS and CTS)
 
 // Logs
-#define PRINT_LOG				0	// Print logs per console
-#define WRITE_LOG				1	// Write log in file
-#define SAVE_LOG_NONE			0	// Don't save logs
-#define SAVE_LOG				1	// Save logs
+#define PRINT_LOG				1	// Print logs per console
+#define WRITE_LOG				0	// Write log in file
+#define SAVE_LOG_NONE			1	// Don't save logs
+#define SAVE_LOG				0	// Save logs
 #define LOG_HEADER_NODE_SIZE	30	// Node log header size
 
 // Transmission initiated or finished
@@ -536,3 +537,5 @@
 #define LOG_Z14 "Z14"
 #define LOG_Z15 "Z15"
 #define LOG_Z16 "Z16"
+
+#endif 

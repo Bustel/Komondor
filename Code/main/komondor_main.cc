@@ -100,7 +100,7 @@ component Komondor : public CostSimEng {
 
         void Setup(double simulation_time_komondor, int save_system_logs, int save_node_logs, int save_agent_logs,
             int print_node_logs, int print_system_logs, int print_agent_logs, const char *config_filename, const char *script_filename, const char *simulation_code, int seed_console,
-            int agents_enabled, const char *agents_filename, const char* stats_out);
+            int agents_enabled, const char *agents_filename, const char* stats_out, const char* legacy_out);
         void Stop();
         void Start();
         void InputChecker();
@@ -142,6 +142,7 @@ component Komondor : public CostSimEng {
         int print_agent_logs;               // Flag for activating the printing of agent logs
 
         const char* stats_out;
+        const char* legacy_out;
 
         double simulation_time_komondor;    // Simulation time [s]
 
@@ -227,7 +228,8 @@ void Komondor :: Setup(double sim_time_console, int save_system_logs_console, in
         int save_agent_logs_console, int print_system_logs_console, int print_node_logs_console,
         int print_agent_logs_console, const char *config_filename,
         const char *script_output_filename, const char *simulation_code_console, int seed_console,
-        int agents_enabled_console, const char *agents_input_filename_console, const char* stats_out_console){
+        int agents_enabled_console, const char *agents_input_filename_console, const char* stats_out_console,
+        const char* legacy_out_console){
 
     simulation_time_komondor = sim_time_console;
     save_node_logs = save_node_logs_console;
@@ -239,6 +241,8 @@ void Komondor :: Setup(double sim_time_console, int save_system_logs_console, in
     nodes_input_filename = config_filename;
     agents_input_filename = agents_input_filename_console;
     stats_out = stats_out_console;
+    legacy_out = legacy_out_console;
+
 
     std::string simulation_code;
     simulation_code.append(ToString(simulation_code_console));
@@ -247,37 +251,24 @@ void Komondor :: Setup(double sim_time_console, int save_system_logs_console, in
     agents_enabled = agents_enabled_console;
     total_wlans_number = 0;
 
-    // Generate output files
-
-    if (print_system_logs) fprintf(stderr, "%s Creating output files\n", LOG_LVL1);
-
-    std::string simulation_filename_remove;
-    simulation_filename_remove.append("output/simulation_output_").append(simulation_code);
-
-    std::string simulation_filename_fopen;
-    simulation_filename_fopen.append("../").append(simulation_filename_remove);
-
-    if(remove(simulation_filename_remove.c_str()) == 0){
-        if (print_system_logs) fprintf(stderr, "%s Simulation output file '%s' found and removed. New one created!\n",
-                LOG_LVL2, simulation_filename_remove.c_str());
-    } else {
-        if (print_system_logs) fprintf(stderr, "%s Simulation output file '%s' created!\n",
-                            LOG_LVL2, simulation_filename_remove.c_str());
-    }
-
     // Get loggers to write in output files
-    simulation_output_file = fopen(simulation_filename_fopen.c_str(),"at");
-    if (simulation_output_file == NULL){
-        fprintf(stderr, "Failed to open file: %s\n", simulation_filename_fopen.c_str());
-        exit(1);
+    if (legacy_out != NULL){
+
+        simulation_output_file = fopen(legacy_out, "w");
+        if (simulation_output_file == NULL){
+            fprintf(stderr, "Failed to open file: %s\n", legacy_out);
+            exit(1);
+        }
+        logger_simulation.save_logs = SAVE_LOG;
+    } else {
+        logger_simulation.save_logs = 0;
     }
-    logger_simulation.save_logs = SAVE_LOG;
-    logger_simulation.file = simulation_output_file;
+    logger_simulation.file = NULL;
 
     // Script output (Readable)
     script_output_file = fopen(script_output_filename,"at");    // Script output is removed when script is executed
 
-    if (script_output_file == NULL){
+    if (SAVE_LOG && script_output_file == NULL){
         fprintf(stderr, "Failed to open file: %s\n", script_output_filename);
     }
 
@@ -296,7 +287,7 @@ void Komondor :: Setup(double sim_time_console, int save_system_logs_console, in
     script_output_file_csv = fopen(script_output_csv_filename.c_str(),"at");    // Script output is removed when script is executed
 
 
-    if (script_output_file_csv == NULL){
+    if (SAVE_LOG && script_output_file_csv == NULL){
         fprintf(stderr, "Failed to open file: %s\n", script_output_csv_filename.c_str());
     }
 
@@ -2097,6 +2088,7 @@ int main(int argc, char *argv[]){
     gchar** config = NULL;
     gchar* agents = NULL;
     gchar* stats = NULL;
+    gchar* legacy = NULL;
     gint  seed = -1; 
     gdouble sim_time = 60.0;
     static GOptionEntry options[] = 
@@ -2105,6 +2097,7 @@ int main(int argc, char *argv[]){
         {"seed", 's', 0 , G_OPTION_ARG_INT, &seed, "Seed for pseudo-random number generators", "S"},
         {"time", 't', 0 , G_OPTION_ARG_DOUBLE, &sim_time, "Simulation Time", "T"},
         {"stats", 0, 0 , G_OPTION_ARG_FILENAME, &stats, "Output of node statistics in machine-readable format (ini)", "[path]"},
+        {"legacy", 0, 0 , G_OPTION_ARG_FILENAME, &legacy, "Output of node statistics in legacy format", "[path]"},
         {G_OPTION_REMAINING, 0, 0,G_OPTION_ARG_FILENAME_ARRAY,&config, "Path to system and node configuration", "config_path"},
         { NULL } 
         
@@ -2145,7 +2138,7 @@ int main(int argc, char *argv[]){
     test.StopTime(sim_time);
     test.Setup(sim_time, save_system_logs, save_node_logs, save_agent_logs, print_system_logs, print_node_logs, print_agent_logs,
         config[0], script_output_filename, simulation_code, seed,
-        agents_enabled, agents, stats);
+        agents_enabled, agents, stats, legacy);
 
     fprintf(stderr, "------------------------------------------\n");
     fprintf(stderr, "%s SIMULATION '%s' STARTED\n", LOG_LVL1, simulation_code);
