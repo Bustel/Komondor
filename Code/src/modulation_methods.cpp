@@ -50,7 +50,8 @@
 #include <algorithm>
 #include <stddef.h>
 
-#include "macros.h"
+#include <macros.h>
+#include <power_channel_methods.hpp>
 
 /*
  * SelectMCSResponse(): select the proper MCS of transmitter per number of channels
@@ -89,9 +90,9 @@ void SelectMCSResponse(int *mcs_response, double power_rx_interest) {
  * Output:
  * - Eb_to_N0: Eb_to_N0 value in linear
  */
-double ComputeEbToNoise(double sinr, double bit_rate, int badnwidth, int modulation_type){
+double ComputeEbToNoise(double sinr, double bit_rate, int bandwidth, int modulation_type){
 
-	double Es_to_N0 (sinr * (bit_rate/badnwidth));
+	double Es_to_N0 (sinr * (bit_rate/bandwidth));
 
 	//printf("Es_to_N0 = %f (%f) \n", Es_to_N0, ConvertPower(LINEAR_TO_DB, Es_to_N0));
 

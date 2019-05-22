@@ -64,12 +64,11 @@
 #include <auxiliary_methods.hpp>
 #include <performance_metrics.hpp>
 #include <time_methods.hpp>
-
-#include "../methods/backoff_methods.h"
-#include "../methods/modulations_methods.h"
-#include "../methods/notification_methods.h"
-#include "../structures/logical_nack.h"
-#include "../structures/FIFO.h"
+#include <FIFO.hpp>
+#include <logical_nack.hpp>
+#include <notification_methods.hpp>
+#include <backoff_methods.hpp>
+#include <modulation_methods.hpp>
 
 #define __SAVELOGS__
 

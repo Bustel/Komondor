@@ -58,10 +58,9 @@
 #include <auxiliary_methods.hpp>
 #include <performance_metrics.hpp>
 #include <agent_methods.hpp>
+#include <action.hpp>
 
 
-
-#include "../structures/action.h"
 #include "../learning_modules/multi_armed_bandits/multi_armed_bandits.h"
 
 // Agent component: "TypeII" represents components that are aware of the existence of the simulated time.

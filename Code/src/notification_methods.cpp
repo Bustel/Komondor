@@ -46,11 +46,16 @@
  * - This file contains the methods related to "notifications" operations
  */
 
+
+#include <cstdio>
 #include <math.h>
 #include <algorithm>
 #include <stddef.h>
-#include "macros.h"
-#include "../structures/logical_nack.h"
+
+#include <macros.h>
+#include <logical_nack.hpp>
+#include <power_channel_methods.hpp>
+#include <notification_methods.hpp>
 
 
 /*
