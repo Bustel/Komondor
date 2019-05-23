@@ -36,19 +36,24 @@ class TopoGenerator:
                 sta_id = sta_id + 1
 
 
-    def placement_from_vector(self, ap_vector, sta_ap_distance, sta_sta_distance=10,ap_ap_distance=20):
-
-        # TODO Shouldn't we place the APs in the middle of the stations (on the
-        # x-axis)  
+    def placement_from_vector(self, ap_vector, sta_ap_distance,
+                              sta_sta_distance=10):
+        """
+        Generates a dynamic placement from a vector, where each item
+        corresponds to an AP with n Stations. APs are placed in the middle of
+        their stations. 
+        """
 
         self.num_aps = len(ap_vector)
         self.num_stas_per_ap = ap_vector
         
         sta_id = 0
+        sta_x_pos = 0
         for i, num_stas in enumerate(ap_vector):
             self.bss[i] = []
-            self.aps[i] = [i*ap_ap_distance, 0 ,0]
-
+            self.aps[i] = [sta_x_pos - sta_sta_distance +  ((num_stas+1) * sta_sta_distance)/2 , 0 ,0]
+            print(self.aps[i])
+            sta_x_pos += num_stas * sta_sta_distance 
             for _ in range(0,num_stas):
                 self.stas[sta_id] = [sta_id*sta_sta_distance, sta_ap_distance, 0]
                 self.bss[i].append(sta_id)

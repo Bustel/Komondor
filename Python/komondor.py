@@ -7,7 +7,7 @@ import os
 '''
 class Komondor:
 
-    def __init__(self, cfg_fname, res_fname, sim_time=100, debug=True):
+    def __init__(self, cfg_fname, res_fname, sim_time=100, debug=False):
         self.cfg_fname = cfg_fname
         self.res_fname = res_fname
         self.sim_time = sim_time
