@@ -54,6 +54,7 @@
 #include <macros.h>
 #include <auxiliary_methods.hpp>
 
+#define    LOGS(f,...)    if (f!=NULL){fprintf(f, ##__VA_ARGS__);}
 
 /*
  * PickRandomElementFromArray(): pick uniformely random an element of an array
@@ -93,9 +94,9 @@ void PrintOrWriteArrayInt(int *list, int list_size, int write_or_print, int save
 		}
 		case WRITE_LOG:{
 			for(int c = 0; c < list_size; ++c){
-				 if(save_node_logs)  fprintf(node_logger.file, "%d  ", list[c]);
+				 if(save_node_logs)  LOGS(node_logger.file, "%d  ", list[c]);
 			}
-			if(save_node_logs)  fprintf(node_logger.file, "\n");
+			if(save_node_logs)  LOGS(node_logger.file, "\n");
 			break;
 		}
 	}
@@ -120,9 +121,9 @@ void PrintOrWriteArrayDouble(double *list, int list_size, int write_or_print, in
 		}
 		case WRITE_LOG:{
 			for(int c = 0; c < list_size; ++c){
-				 if(save_node_logs)  fprintf(node_logger.file, "%f  ", list[c]);
+				 if(save_node_logs)  LOGS(node_logger.file, "%f  ", list[c]);
 			}
-			if(save_node_logs)  fprintf(node_logger.file, "\n");
+			if(save_node_logs)  LOGS(node_logger.file, "\n");
 			break;
 		}
 	}

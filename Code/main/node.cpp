@@ -676,7 +676,7 @@ void Node :: Stop(){
     if (save_node_logs) PrintOrWriteNodeStatistics(WRITE_LOG);
 
     // Close node logs file
-    if(save_node_logs) fclose(node_logger.file);
+    if(save_node_logs && node_logger.file != NULL) fclose(node_logger.file);
 
     // LOGS(node_logger.file, "%.15f;N%d;S%d;%s;%s Node info:\n", SimTime(), node_id, node_state, LOG_C01, LOG_LVL1);
 };
@@ -731,6 +731,7 @@ void Node :: InportSomeNodeStartTX(Notification &notification){
         int path_loss_model = -1;
         node_env_type node_env_other = (node_env_type) notification.src_node_env;
 
+
         if (node_env == node_env_other && node_env_other ==NODE_ENV_INDOOR){
             path_loss_model = path_loss_model_indoor_indoor;   
         } else if (node_env == node_env_other && node_env_other ==NODE_ENV_OUTDOOR){
@@ -764,15 +765,15 @@ void Node :: InportSomeNodeStartTX(Notification &notification){
             LOGS(node_logger.file, "%.15f;N%d;S%d;%s;%s timestampt_channel_becomes_frees: ",
                 SimTime(), node_id, node_state, LOG_F02, LOG_LVL3);
             for(int i = 0; i < num_channels_komondor; ++i){
-                fprintf(node_logger.file, "%.9f  ", timestampt_channel_becomes_free[i]);
+                LOGS(node_logger.file, "%.9f  ", timestampt_channel_becomes_free[i]);
             }
-            fprintf(node_logger.file, "\n");
+            LOGS(node_logger.file, "\n");
             LOGS(node_logger.file, "%.15f;N%d;S%d;%s;%s difference times: ",
                 SimTime(), node_id, node_state, LOG_F02, LOG_LVL3);
             for(int i = 0; i < num_channels_komondor; ++i){
-                fprintf(node_logger.file, "%.9f  ", SimTime() - timestampt_channel_becomes_free[i]);
+                LOGS(node_logger.file, "%.9f  ", SimTime() - timestampt_channel_becomes_free[i]);
             }
-            fprintf(node_logger.file, "\n");
+            LOGS(node_logger.file, "\n");
         }
 
         // Decide action according to current state and Notification initiated
@@ -1934,15 +1935,15 @@ void Node :: InportSomeNodeFinishTX(Notification &notification){
             LOGS(node_logger.file, "%.15f;N%d;S%d;%s;%s timestampt_channel_becomes_free: ",
                 SimTime(), node_id, node_state, LOG_F02, LOG_LVL3);
             for(int i = 0; i < num_channels_komondor; ++i){
-                fprintf(node_logger.file, "%.9f  ", timestampt_channel_becomes_free[i]);
+                LOGS(node_logger.file, "%.9f  ", timestampt_channel_becomes_free[i]);
             }
-            fprintf(node_logger.file, "\n");
+            LOGS(node_logger.file, "\n");
             LOGS(node_logger.file, "%.15f;N%d;S%d;%s;%s difference times: ",
                 SimTime(), node_id, node_state, LOG_F02, LOG_LVL3);
             for(int i = 0; i < num_channels_komondor; ++i){
-                fprintf(node_logger.file, "%.9f  ", SimTime() - timestampt_channel_becomes_free[i]);
+                LOGS(node_logger.file, "%.9f  ", SimTime() - timestampt_channel_becomes_free[i]);
             }
-            fprintf(node_logger.file, "\n");
+            LOGS(node_logger.file, "\n");
         }
 
         switch(node_state){
@@ -2761,15 +2762,15 @@ void Node :: EndBackoff(trigger_t &){
         LOGS(node_logger.file, "%.15f;N%d;S%d;%s;%s timestampt_channel_becomes_frees: ",
             SimTime(), node_id, node_state, LOG_F02, LOG_LVL3);
         for(int i = 0; i < num_channels_komondor; ++i){
-            fprintf(node_logger.file, "%.9f  ", timestampt_channel_becomes_free[i]);
+            LOGS(node_logger.file, "%.9f  ", timestampt_channel_becomes_free[i]);
         }
-        fprintf(node_logger.file, "\n");
+        LOGS(node_logger.file, "\n");
         LOGS(node_logger.file, "%.15f;N%d;S%d;%s;%s difference times: ",
             SimTime(), node_id, node_state, LOG_F02, LOG_LVL3);
         for(int i = 0; i < num_channels_komondor; ++i){
-            fprintf(node_logger.file, "%.9f  ", SimTime() - timestampt_channel_becomes_free[i]);
+            LOGS(node_logger.file, "%.9f  ", SimTime() - timestampt_channel_becomes_free[i]);
         }
-        fprintf(node_logger.file, "\n");
+        LOGS(node_logger.file, "\n");
     }
 
     LOGS(node_logger.file, "%.15f;N%d;S%d;%s;%s Channels founds free (mind PIFS if activated): ",
@@ -2779,6 +2780,7 @@ void Node :: EndBackoff(trigger_t &){
             num_channels_komondor, channels_free);
 
     // Identify the channel range to TX in depending on the channel bonding scheme and free channels
+    // This is so dumb...
     int ix_mcs_per_node (current_destination_id - wlan.list_sta_id[0]);
 
     GetTxChannelsByChannelBonding(channels_for_tx, current_dcb_policy, channels_free,
@@ -3084,6 +3086,11 @@ void Node :: SelectDestination(){
         current_destination_id = default_destination_id;
     }
     current_destination_id = PickRandomElementFromArray(wlan.list_sta_id, wlan.num_stas);
+    //DEBUG:
+    //
+    if (current_destination_id == 0){
+       wlan.PrintWlanInfo(); 
+    }
 
     if (current_destination_id == NODE_ID_NONE){
         fprintf(stderr, "There are no stations associated with this AP. This is probably an error! Exiting\n");
@@ -3934,6 +3941,8 @@ void Node :: PrintNodeInfo(int info_detail_level){
     fprintf(stderr, "%s node_id = %d\n", LOG_LVL4, node_id);
     fprintf(stderr, "%s node_type = %d\n", LOG_LVL4, node_type);
     fprintf(stderr, "%s position = (%.2f, %.2f, %.2f)\n", LOG_LVL4, x, y, z);
+    fprintf(stderr, "%s node_env = (%s)\n", LOG_LVL4,  node_env == NODE_ENV_INDOOR ? "indoor" : node_env == NODE_ENV_OUTDOOR ? "outdoor" : "ERROR");
+
     fprintf(stderr, "%s current_primary_channel = %d\n", LOG_LVL4, current_primary_channel);
     fprintf(stderr, "%s min_channel_allowed = %d\n", LOG_LVL4, min_channel_allowed);
     fprintf(stderr, "%s max_channel_allowed = %d\n", LOG_LVL4, max_channel_allowed);
@@ -4297,74 +4306,74 @@ void Node :: PrintOrWriteNodeStatistics(int write_or_print){
 
                 if (node_is_transmitter) {
                     // Throughput
-                    fprintf(node_logger.file, "%.15f;N%d;S%d;%s;%s Throughput = %f Mbps\n",
+                    LOGS(node_logger.file, "%.15f;N%d;S%d;%s;%s Throughput = %f Mbps\n",
                         SimTime(), node_id, node_state, LOG_C02, LOG_LVL2, throughput * pow(10,-6));
 
                     // Data packets sent and lost
-                    fprintf(node_logger.file,
+                    LOGS(node_logger.file,
                         "%.15f;N%d;S%d;%s;%s Data packets sent: %d\n",
                         SimTime(), node_id, node_state, LOG_C03, LOG_LVL2, data_packets_sent);
-                    fprintf(node_logger.file,
+                    LOGS(node_logger.file,
                         "%.15f;N%d;S%d;%s;%s Data packets lost: %d\n",
                         SimTime(), node_id, node_state, LOG_C04, LOG_LVL2, data_packets_lost);
-                    fprintf(node_logger.file,
+                    LOGS(node_logger.file,
                         "%.15f;N%d;S%d;%s;%s Loss ratio: %f\n",
                         SimTime(), node_id, node_state, LOG_C05, LOG_LVL2, data_packets_lost_percentage);
 
                     // Time EFFECTIVELY transmitting in a given number of channels (no losses)
-                    fprintf(node_logger.file, "%.15f;N%d;S%d;%s;%s Time EFFECTIVELY transmitting in N channels: ",
+                    LOGS(node_logger.file, "%.15f;N%d;S%d;%s;%s Time EFFECTIVELY transmitting in N channels: ",
                         SimTime(), node_id, node_state, LOG_C06, LOG_LVL2);
                     for(int n = 0; n < num_channels_allowed; ++n){
-                        fprintf(node_logger.file, "(%d) %f  ",
+                        LOGS(node_logger.file, "(%d) %f  ",
                             n+1, total_time_transmitting_in_num_channels[n] - total_time_lost_in_num_channels[n]);
                     }
-                    fprintf(node_logger.file, "\n");
+                    LOGS(node_logger.file, "\n");
 
                     // Time EFFECTIVELY transmitting in each of the channels (no losses)
-                    fprintf(node_logger.file,
+                    LOGS(node_logger.file,
                         "%.15f;N%d;S%d;%s;%s Time EFFECTIVELY transmitting in each channel: ",
                         SimTime(), node_id, node_state, LOG_C07, LOG_LVL2);
                     for(int c = 0; c < num_channels_komondor; ++c){
-                        fprintf(node_logger.file, "(#%d) %f ",
+                        LOGS(node_logger.file, "(#%d) %f ",
                             c, total_time_transmitting_per_channel[c] - total_time_lost_per_channel[c]);
                     }
-                    fprintf(node_logger.file, "\n");
+                    LOGS(node_logger.file, "\n");
 
                     // Time LOST transmitting in a given number of channels
-                    fprintf(node_logger.file, "%.15f;N%d;S%d;%s;%s Time LOST transmitting in N channels: ",
+                    LOGS(node_logger.file, "%.15f;N%d;S%d;%s;%s Time LOST transmitting in N channels: ",
                         SimTime(), node_id, node_state, LOG_C08, LOG_LVL2);
                     for(int n = 0; n < num_channels_allowed; ++n){
-                        fprintf(node_logger.file, "(%d) %f  ", n+1, total_time_lost_in_num_channels[n]);
+                        LOGS(node_logger.file, "(%d) %f  ", n+1, total_time_lost_in_num_channels[n]);
                     }
-                    fprintf(node_logger.file, "\n");
+                    LOGS(node_logger.file, "\n");
 
                     // Time LOST transmitting in each of the channels
-                    fprintf(node_logger.file, "%.15f;N%d;S%d;%s;%s Time LOST transmitting in each channel: ",
+                    LOGS(node_logger.file, "%.15f;N%d;S%d;%s;%s Time LOST transmitting in each channel: ",
                         SimTime(), node_id, node_state, LOG_C09, LOG_LVL2);
                     for(int c = 0; c < num_channels_komondor; ++c){
-                        fprintf(node_logger.file, "(#%d) %f ", c, total_time_lost_per_channel[c]);
+                        LOGS(node_logger.file, "(#%d) %f ", c, total_time_lost_per_channel[c]);
                     }
-                    fprintf(node_logger.file, "\n");
+                    LOGS(node_logger.file, "\n");
 
                     // Number of TX initiations that have been not possible due to channel state and DCB model
-                    fprintf(node_logger.file, "%.15f;N%d;S%d;%s;%s num_tx_init_not_possible = %d\n",
+                    LOGS(node_logger.file, "%.15f;N%d;S%d;%s;%s num_tx_init_not_possible = %d\n",
                         SimTime(), node_id, node_state, LOG_C09, LOG_LVL2, num_tx_init_not_possible);
 
                     // Spectrum utilization
-                    fprintf(node_logger.file,"%s Time occupying the spectrum in each channel:", LOG_LVL3);
+                    LOGS(node_logger.file,"%s Time occupying the spectrum in each channel:", LOG_LVL3);
                     for(int c = 0; c < num_channels_komondor; ++c){
-                        fprintf(node_logger.file,"\n%s - %d = %.2f s (%.2f %%)",
+                        LOGS(node_logger.file,"\n%s - %d = %.2f s (%.2f %%)",
                             LOG_LVL3, c, total_time_spectrum_per_channel[c],
                             (total_time_spectrum_per_channel[c] * 100 /SimTime()));
                     }
 
-                    fprintf(node_logger.file,"\n%s - Average bandwidth used for transmitting = %.2f MHz / %d MHz (%.2f %%)\n",
+                    LOGS(node_logger.file,"\n%s - Average bandwidth used for transmitting = %.2f MHz / %d MHz (%.2f %%)\n",
                         LOG_LVL4,
                         bandwidth_used_txing,
                         num_channels_allowed * 20,
                         bandwidth_used_txing * 100 / (num_channels_allowed * 20));
 
-                    fprintf(node_logger.file,"\n");
+                    LOGS(node_logger.file,"\n");
 
 
                 }

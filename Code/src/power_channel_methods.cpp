@@ -62,6 +62,7 @@
 
 #include <power_channel_methods.hpp>
 
+#define    LOGS(f,...)    if (f!=NULL){fprintf(f, ##__VA_ARGS__);}
 
 /***********************/
 /***********************/
@@ -1121,9 +1122,9 @@ void PrintOrWriteChannelPower(int write_or_print, int save_node_logs, Logger nod
 		}
 		case WRITE_LOG:{
 			for(int c = 0; c < num_channels_komondor; ++c){
-				if(save_node_logs) fprintf(node_logger.file, "%f  ", ConvertPower(PW_TO_DBM, (*channel_power)[c]));
+				if(save_node_logs) LOGS(node_logger.file, "%f  ", ConvertPower(PW_TO_DBM, (*channel_power)[c]));
 			}
-			if(save_node_logs)  fprintf(node_logger.file, "\n");
+			if(save_node_logs)  LOGS(node_logger.file, "\n");
 			break;
 		}
 	}
@@ -1149,9 +1150,9 @@ void PrintOrWriteChannelsFree(int write_or_print,
 		}
 		case WRITE_LOG:{
 			for(int c = 0; c < num_channels_komondor; ++c){
-				 if(save_node_logs) fprintf(node_logger.file, "%d ", channels_free[c]);
+				 if(save_node_logs) LOGS(node_logger.file, "%d ", channels_free[c]);
 			}
-			if(save_node_logs)  fprintf(node_logger.file, "\n");
+			if(save_node_logs)  LOGS(node_logger.file, "\n");
 			break;
 		}
 	}
@@ -1178,10 +1179,10 @@ void PrintOrWriteNodesTransmitting(int write_or_print,
 		case WRITE_LOG:{
 			for(int n = 0; n < total_nodes_number; ++n){
 				 if(save_node_logs){
-					 if(nodes_transmitting[n])  fprintf(node_logger.file, "N%d ", n);
+					 if(nodes_transmitting[n])  LOGS(node_logger.file, "N%d ", n);
 				 }
 			}
-			if(save_node_logs)  fprintf(node_logger.file, "\n");
+			if(save_node_logs)  LOGS(node_logger.file, "\n");
 			break;
 		}
 	}
@@ -1208,9 +1209,9 @@ void PrintOrWriteChannelForTx(int write_or_print,
 		}
 		case WRITE_LOG:{
 			for(int c = 0; c < num_channels_komondor; ++c){
-				 if(save_node_logs)  fprintf(node_logger.file, "%d  ", channels_for_tx[c]);
+				 if(save_node_logs)  LOGS(node_logger.file, "%d  ", channels_for_tx[c]);
 			}
-			if(save_node_logs)  fprintf(node_logger.file, "\n");
+			if(save_node_logs)  LOGS(node_logger.file, "\n");
 			break;
 		}
 	}

@@ -60,6 +60,8 @@
 
 void Wlan::SetSizeOfSTAsArray(int num_stas){
     list_sta_id = new int[num_stas];
+//    list_sta_id = (int*) malloc(sizeof(int) * num_stas);
+
     for(int s = 0; s < num_stas; ++s){
         list_sta_id[s] = NODE_ID_NONE;
     }

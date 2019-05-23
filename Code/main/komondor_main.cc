@@ -262,6 +262,7 @@ void Komondor :: Setup(double sim_time_console, int save_system_logs_console, in
         logger_simulation.save_logs = SAVE_LOG;
     } else {
         logger_simulation.save_logs = 0;
+        simulation_output_file = NULL;
     }
     logger_simulation.file = NULL;
 
@@ -611,15 +612,9 @@ void Komondor :: Stop(){
             }
         }
 
-
-        GKeyFile* kf = g_key_file_new();
-        GError* error = NULL;
-
-    
         for(int m=0; m < total_nodes_number; ++m){
             LOGS(logger_script.file, "%s Node #%d (%s) Throughput = %f\n", LOG_LVL2, m,
                 node_container[m].node_code.c_str(), node_container[m].throughput);
-
             if(node_container[m].node_type == NODE_TYPE_AP){
                 // Fill CSV script output
                 LOGS(logger_script_csv.file, "%s;", nodes_input_filename);               // Smiluation code
@@ -635,38 +630,54 @@ void Komondor :: Stop(){
                 LOGS(logger_script_csv.file, "%d", node_container[m].rts_cts_lost);      // RTS packets lost
                 LOGS(logger_script_csv.file, "\n");                                      // End of line
 
+            }
+ 
+
+
+        }
+    }
+
+    GKeyFile* kf = g_key_file_new();
+    GError* error = NULL;
+
+
+    for(int m=0; m < total_nodes_number; ++m){
+        if(node_container[m].node_type == NODE_TYPE_AP){
+
+                   
+            for (int i = 0; i < node_container[m].wlan.num_stas; i++){
+                int id = node_container[m].wlan.list_sta_id[i];
+                double tp = ((double) node_container[m].GetCounterInt("data_frames_acked/N%d", id)* frame_length) / SimTime();
+                double delay = node_container[m].GetCounterDouble("accumulated_delay/N%d", id) / (double) node_container[m].GetCounterInt("num_delay_measurements/N%d", id);
                 
-                       
-                for (int i = 0; i < node_container[m].wlan.num_stas; i++){
-                    int id = node_container[m].wlan.list_sta_id[i];
-                    double tp = ((double) node_container[m].GetCounterInt("data_frames_acked/N%d", id)* frame_length) / SimTime();
-                    double delay = node_container[m].GetCounterDouble("accumulated_delay/N%d", id) / (double) node_container[m].GetCounterInt("num_delay_measurements/N%d", id);
-                    
-                    gchar* group_name = g_strdup_printf("Node_%s", node_container[id].node_code.c_str());
+                gchar* group_name = g_strdup_printf("Node_%s", node_container[id].node_code.c_str());
 
-                    g_key_file_set_double(kf, group_name, "throughput", tp);   
-                    g_key_file_set_double(kf, group_name, "delay", delay);   
-                    g_key_file_set_string(kf, group_name, "wlan", node_container[m].wlan.wlan_code.c_str());   
-
-                }
-
+                g_key_file_set_double(kf, group_name, "throughput", tp);   
+                g_key_file_set_double(kf, group_name, "delay", delay);   
+                g_key_file_set_string(kf, group_name, "wlan", node_container[m].wlan.wlan_code.c_str());   
 
             }
+
+
         }
-
-
-        if (stats_out != NULL){
-            g_key_file_save_to_file(kf, stats_out , &error); 
-        }
-        g_key_file_free(kf);
-
-        if (error != NULL){
-            fprintf(stderr,"Error loading key file! %s\n", error->message);
-            exit(1);
-        }
-
-
     }
+
+
+    if (stats_out != NULL){
+        g_key_file_save_to_file(kf, stats_out , &error); 
+    }
+    g_key_file_free(kf);
+
+    if (error != NULL){
+        fprintf(stderr,"Error loading key file! %s\n", error->message);
+        exit(1);
+    }
+
+
+
+
+
+
 
     int simulation_index (1);
 
@@ -947,13 +958,13 @@ void Komondor :: InputChecker(){
  */
 void Komondor :: SetupEnvironmentByReadingInputFile(const char *system_filename) {
 
-    fprintf(simulation_output_file, "%s KOMONDOR SIMULATION '%s' (seed %d)", LOG_LVL1, simulation_code.c_str(), seed);
+    LOGS(simulation_output_file, "%s KOMONDOR SIMULATION '%s' (seed %d)", LOG_LVL1, simulation_code.c_str(), seed);
 
     GError* error = NULL;
     GKeyFile* key_file = g_key_file_new();
 
     if (!g_key_file_load_from_file(key_file, system_filename, G_KEY_FILE_NONE, &error)){
-        printf("Error loading configuration file\n");
+        printf("Error loading configuration file %s\n", system_filename);
         exit(-1);
     }
 
@@ -1765,6 +1776,14 @@ void Komondor :: ParseNodes(const char* nodes_filename){
 
     wlan_container = new Wlan[num_aps];
 
+
+    //Obscure global vars ftw!        
+    //Yes. They WILL SCREW YOU OVER.
+    total_wlans_number = num_aps;
+    total_nodes_number = num_nodes;
+
+
+
     GSList* cur;
     gint i;
     gint wlan_index = 0;
@@ -1860,11 +1879,6 @@ void Komondor :: ParseNodes(const char* nodes_filename){
 
     }
     g_slist_free(nodes);
-
-    //Obscure global vars ftw!        
-    total_wlans_number = num_aps;
-    total_nodes_number = num_nodes;
-
 
     // I hate this stupid code so much...
     gint n;
@@ -2077,9 +2091,9 @@ int main(int argc, char *argv[]){
     //TODO These options should be adjustable via args but are kind of dumb anyways...
     const gchar* script_output_filename = DEFAULT_SCRIPT_FILENAME; 
     const gchar* simulation_code = DEFAULT_SIMULATION_CODE;
-    int save_system_logs = 1;
+    int save_system_logs = 0;
     int save_node_logs = 1;
-    int save_agent_logs = 1;
+    int save_agent_logs = 0;
     int print_system_logs = 1;
     int print_node_logs = 0;
     int print_agent_logs = 0;
@@ -2127,6 +2141,7 @@ int main(int argc, char *argv[]){
 
 
     int agents_enabled = 1 ? agents != NULL : 0;
+ 
 
     total_nodes_number = 0;
 
