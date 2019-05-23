@@ -53,14 +53,17 @@ class Visualizer:
     def plot_thr_vs_distance_bar_chart(self, sta_ap_distances, all_sim_res):
 
         # convert sim_res into numpy matrix
-        data = np.empty((0,3), float)
+        data = None
 
         for dist_k in sorted(all_sim_res):
+            if data is None:
+                data = np.empty((0,len(all_sim_res[dist_k])), float)
             row = []
             for flow_k in all_sim_res[dist_k]:
                 thr = all_sim_res[dist_k][flow_k]['throughput']
                 row.append(thr)
             data = np.vstack([data, row])
+
 
         if False:
             plt.imshow(data)

@@ -16,31 +16,54 @@ Placement:
 if __name__ == "__main__":
 
     channel_cfg = int(sys.argv[1])
-    sim_time = 10
-    step_sz = 20
+    sim_time = 30
+    step_sz = 1
     print('Running w/ channel config = %d' % channel_cfg)
 
     # create sim params for each AP
     if channel_cfg == 0:
-        # AP1: 20 MHz, CH:0
-        d11p_1 = Dot80211Params(num_channels=2, min_channel_allowed=0, max_channel_allowed=0)
-        # AP2: 20 MHz, CH:1
-        d11p_2 = Dot80211Params(num_channels=2, min_channel_allowed=1, max_channel_allowed=1)
+        # AP1: 160 MHz, CH:0-7 DCB: ALWAYS_MAX
+        d11p_1 = Dot80211Params(num_channels=8, min_channel_allowed=0, max_channel_allowed=7)
+        
+        # AP2: 160 MHz, CH:0-7
+        d11p_2 = Dot80211Params(num_channels=8, min_channel_allowed=0, max_channel_allowed=7)
+
+        # AP3: 160 MHz, CH:0-7
+        d11p_3 = Dot80211Params(num_channels=8, min_channel_allowed=0, max_channel_allowed=7)
     elif channel_cfg == 1:
-        # AP1: 40 MHz, DCB
-        d11p_1 = Dot80211Params(num_channels=2, min_channel_allowed=0, max_channel_allowed=1)
-        # AP2: 40 MHz, DCB
-        d11p_2 = Dot80211Params(num_channels=2, min_channel_allowed=0, max_channel_allowed=1)
+
+        # AP1: 160 MHz, CH:0-7 DCB: STATIC
+        d11p_1 = Dot80211Params(num_channels=8, min_channel_allowed=0,max_channel_allowed=7, channel_bonding_mode=1)
+        
+        # AP2: 160 MHz, CH:0-7 
+        d11p_2 = Dot80211Params(num_channels=8, min_channel_allowed=0, max_channel_allowed=7, channel_bonding_mode=1)
+
+        # AP3: 160 MHz, CH:0-7
+        d11p_3 = Dot80211Params(num_channels=8, min_channel_allowed=0, max_channel_allowed=7, channel_bonding_mode=1)
+
     elif channel_cfg == 2:
-        # AP1: 40 MHz, CH:1-2
-        d11p_1 = Dot80211Params(num_channels=3, min_channel_allowed=1, max_channel_allowed=2)
-        # AP2: 20 MHz, CH:0
-        d11p_2 = Dot80211Params(num_channels=1, min_channel_allowed=0, max_channel_allowed=0)
+
+        # AP1: 80 MHz, CH:0-3 DCB: ALWAYS_MAX
+        d11p_1 = Dot80211Params(num_channels=8, min_channel_allowed=0,max_channel_allowed=3, channel_bonding_mode=3)
+        
+        # AP2: 40 MHz, CH:6-7 DCB: ALWAYS_MAX
+        d11p_2 = Dot80211Params(num_channels=8, min_channel_allowed=6, max_channel_allowed=7, channel_bonding_mode=3)
+
+        # AP3: 80 MHz, CH:4-7 DCB: ALWAYS_MAX
+        d11p_3 = Dot80211Params(num_channels=8, min_channel_allowed=4, max_channel_allowed=7, channel_bonding_mode=3)
+
     elif channel_cfg == 3:
-        # AP1: 80 MHz, DCB
-        d11p_1 = Dot80211Params(num_channels=4, min_channel_allowed=0, max_channel_allowed=3)
-        # AP2: 80 MHz, DCB
-        d11p_2 = Dot80211Params(num_channels=4, min_channel_allowed=0, max_channel_allowed=3)
+
+        # AP1: 80 MHz, CH:0-3 DCB: STATIC 
+        d11p_1 = Dot80211Params(num_channels=8, min_channel_allowed=0,max_channel_allowed=3, channel_bonding_mode=1)
+        
+        # AP2: 40 MHz, CH:6-7 DCB: STATIC 
+        d11p_2 = Dot80211Params(num_channels=8, min_channel_allowed=6, max_channel_allowed=7, channel_bonding_mode=1)
+
+        # AP3: 40 MHz, CH:4-5 DCB: STATIC 
+        d11p_3 = Dot80211Params(num_channels=8, min_channel_allowed=4, max_channel_allowed=5, channel_bonding_mode=1)
+
+
     else:
         assert False
 
@@ -54,12 +77,12 @@ if __name__ == "__main__":
     all_res = {}
     for sta_ap_distance in sta_ap_distances:
         print('... place nodes')
-        tg.gen_fixed_placement(sta_ap_distance)
+        tg.placement_from_vector([4, 1, 2], sta_ap_distance)
 
         # export as cfg file
         cfg_fname = 'cfg/telegraph_gen_network_' + str(channel_cfg) + '.cfg'
         sc = SimConfig(cfg_fname)
-        sc.create([d11p_1, d11p_2], tg)
+        sc.create([d11p_1, d11p_2, d11p_3], tg)
 
         # show node placement
         #vis.show_node_placement(tg)
