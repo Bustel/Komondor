@@ -13,7 +13,7 @@ class SimResult:
     def parse_results(self):
         self.config.read(self.res_fname)
 
-        print('Loaded results file: %s' % self.res_fname)
+#        print('Loaded results file: %s' % self.res_fname)
 
         res = {}
         flow_id = 1

@@ -4,100 +4,173 @@ from simconfig import SimConfig
 from simresult import SimResult
 from topogenerator import TopoGenerator
 from visualize import Visualizer
+
+
 import time
 import sys
+import multiprocessing
+import functools
+import math
+import statistics
+from progress.bar import Bar
 
-'''
-Placement:
-    STA     STA      STA
-      \    /       /
-       AP        AP
-'''
-if __name__ == "__main__":
-
-    channel_cfg = int(sys.argv[1])
-    sim_time = 30
-    step_sz = 1
-    print('Running w/ channel config = %d' % channel_cfg)
-
-    # create sim params for each AP
-    if channel_cfg == 0:
-        # AP1: 160 MHz, CH:0-7 DCB: ALWAYS_MAX
-        d11p_1 = Dot80211Params(num_channels=8, min_channel_allowed=0, max_channel_allowed=7)
-        
-        # AP2: 160 MHz, CH:0-7
-        d11p_2 = Dot80211Params(num_channels=8, min_channel_allowed=0, max_channel_allowed=7)
-
-        # AP3: 160 MHz, CH:0-7
-        d11p_3 = Dot80211Params(num_channels=8, min_channel_allowed=0, max_channel_allowed=7)
-    elif channel_cfg == 1:
-
-        # AP1: 160 MHz, CH:0-7 DCB: STATIC
-        d11p_1 = Dot80211Params(num_channels=8, min_channel_allowed=0,max_channel_allowed=7, channel_bonding_mode=1)
-        
-        # AP2: 160 MHz, CH:0-7 
-        d11p_2 = Dot80211Params(num_channels=8, min_channel_allowed=0, max_channel_allowed=7, channel_bonding_mode=1)
-
-        # AP3: 160 MHz, CH:0-7
-        d11p_3 = Dot80211Params(num_channels=8, min_channel_allowed=0, max_channel_allowed=7, channel_bonding_mode=1)
-
-    elif channel_cfg == 2:
-
-        # AP1: 80 MHz, CH:0-3 DCB: ALWAYS_MAX
-        d11p_1 = Dot80211Params(num_channels=8, min_channel_allowed=0,max_channel_allowed=3, channel_bonding_mode=3)
-        
-        # AP2: 40 MHz, CH:6-7 DCB: ALWAYS_MAX
-        d11p_2 = Dot80211Params(num_channels=8, min_channel_allowed=6, max_channel_allowed=7, channel_bonding_mode=3)
-
-        # AP3: 80 MHz, CH:4-7 DCB: ALWAYS_MAX
-        d11p_3 = Dot80211Params(num_channels=8, min_channel_allowed=4, max_channel_allowed=7, channel_bonding_mode=3)
-
-    elif channel_cfg == 3:
-
-        # AP1: 80 MHz, CH:0-3 DCB: STATIC 
-        d11p_1 = Dot80211Params(num_channels=8, min_channel_allowed=0,max_channel_allowed=3, channel_bonding_mode=1)
-        
-        # AP2: 40 MHz, CH:6-7 DCB: STATIC 
-        d11p_2 = Dot80211Params(num_channels=8, min_channel_allowed=6, max_channel_allowed=7, channel_bonding_mode=1)
-
-        # AP3: 40 MHz, CH:4-5 DCB: STATIC 
-        d11p_3 = Dot80211Params(num_channels=8, min_channel_allowed=4, max_channel_allowed=5, channel_bonding_mode=1)
+from operator import itemgetter
 
 
-    else:
-        assert False
-
-    # create topology
-    tg = TopoGenerator()
-    # visualize results
-    vis = Visualizer(channel_cfg)
-
-    # for different distances
-    sta_ap_distances = range(10, 100, step_sz)
+def sim_worker( tupel_num_param_comb, sta_ap_distances, ap_vector):
+    global queue
+    channel_cfg, param_comb = tupel_num_param_comb
+    #print('Started simulation #{0}'.format(channel_cfg))
     all_res = {}
     for sta_ap_distance in sta_ap_distances:
-        print('... place nodes')
-        tg.placement_from_vector([4, 1, 2], sta_ap_distance)
+        tg.placement_from_vector(ap_vector, sta_ap_distance)
 
         # export as cfg file
         cfg_fname = 'cfg/telegraph_gen_network_' + str(channel_cfg) + '.cfg'
         sc = SimConfig(cfg_fname)
-        sc.create([d11p_1, d11p_2, d11p_3], tg)
-
-        # show node placement
-        #vis.show_node_placement(tg)
+        sc.create(param_comb, tg)
 
         # execute komondor simulator
-        print('... simulate for d=%f' % sta_ap_distance)
         res_fname = 'res/telegraph_statistics_' + str(channel_cfg) + '.cfg'
         sim = Komondor(cfg_fname, res_fname, sim_time=sim_time)
         sim.run()
 
-        print('... parse results')
         sr = SimResult(res_fname)
         sim_res = sr.parse_results()
         all_res[sta_ap_distance] = sim_res
 
-    # show final res
-    vis.plot_thr_vs_distance_bar_chart(sta_ap_distances, all_res)
+    #print('Finished simulation #{0}'.format(channel_cfg))
 
+    queue.put(1)
+    return all_res
+   
+
+def janes_fairness(sim_result):
+    def square(a):
+        return math.pow(a,2)
+
+    flow_vals = list(map(lambda flow: sim_result[flow]['throughput'],
+                         sim_result.keys())) 
+    a = square(sum(flow_vals))
+    b = sum(map(square, flow_vals)) * len(flow_vals)
+    return a/b
+    
+def mean_janes_fairness(sim_result_dict):
+    return statistics.mean(map(lambda dist: janes_fairness(sim_result_dict[dist]),
+                        sim_result_dict.keys())) 
+
+
+def min_flow_rate(sim_result):
+    flow_vals = list(map(lambda flow: sim_result[flow]['throughput'],
+                         sim_result.keys())) 
+    return min(flow_vals)
+
+
+def mean_min_flow_rate(sim_result_dict):
+    return statistics.mean(map(lambda dist: min_flow_rate(sim_result_dict[dist]),
+                        sim_result_dict.keys()))
+
+def total_flow(sim_result):
+    flow_vals = list(map(lambda flow: sim_result[flow]['throughput'],
+                         sim_result.keys())) 
+    return sum(flow_vals)
+
+def mean_total_flow(sim_result_dict):
+    return statistics.mean(map(lambda dist: total_flow(sim_result_dict[dist]),
+                        sim_result_dict.keys()))
+
+
+
+
+def init(q):
+    global queue
+    queue = q
+
+if __name__ == "__main__":
+
+    sim_time = 1
+    step_sz = 10
+    max_dist = 51
+    num_processes = 8
+
+
+    # create topology
+    tg = TopoGenerator()
+    # visualize results
+    #vis = Visualizer(channel_cfg)
+
+    ap_vector = [4,1,2]
+    param_combinations = list(Dot80211Params.get_all_combinations(num_aps=len(ap_vector),
+                                             dcb_modes=[1]))
+
+    #SHORTEN FOR DEBUG
+    param_combinations = param_combinations[0:len(param_combinations)//5]
+
+    print('Generated {0} parameter combinations.'.format(len(param_combinations)))
+    bar = Bar('Simulating combinations', max=len(param_combinations))
+    q = multiprocessing.Queue()
+
+
+    mean_min_flow_rates = []
+    mean_fairness = []
+
+
+    with multiprocessing.Pool(processes=num_processes, initializer=init,
+                              initargs=(q,)) as pool:
+        worker = functools.partial(sim_worker, 
+                                   sta_ap_distances=range(10, max_dist,step_sz),
+                                   ap_vector=ap_vector,
+                                   )
+
+
+
+        async_res = pool.map_async(worker, enumerate(param_combinations)) 
+        while not async_res.ready():
+            try: 
+                q.get(timeout=5.0)
+                bar.next()
+            except:
+                # Race condition
+                # async might not be ready yet
+                # but queue is already empty
+                pass
+        while not q.empty():
+            try:
+                q.get(False)
+                bar.next()
+            except:
+                print('Timeout while waiting.')
+                pass
+
+
+        combined_results = async_res.get()
+        bar.finish()
+        print('Simulations completed. Processing results.')
+        
+
+        mean_fairness = pool.map(mean_janes_fairness,combined_results)
+        mean_min_flow_rates = pool.map(mean_min_flow_rate, combined_results)
+        mean_total_flow = pool.map(mean_total_flow, combined_results)
+        
+
+    counter = 1 
+    for comb, mean_min_rate, fairness, total_flow in sorted(zip(param_combinations,
+                                                    mean_min_flow_rates,
+                                                    mean_fairness,
+                                                    mean_total_flow),
+                                      key=itemgetter(1), reverse=True):
+
+        if counter > 10:
+            break
+        print('### {0} ####'.format(counter))
+        print('Mean minimum flow rate: {:.2f} Mbps'.format(mean_min_rate/1e6))
+        print('Total flow rate: {:.2f} Mbps'.format(total_flow/1e6))
+        print('Jane\'s fairness: {:.2f}'.format(fairness))
+        print('AP1: {0}'.format(comb[0].to_string()))
+        print('AP2: {0}'.format(comb[1].to_string()))
+        print('AP3: {0}'.format(comb[2].to_string()))
+
+        
+        counter += 1  
+        
+    print('Done')

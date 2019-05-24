@@ -52,7 +52,6 @@ class TopoGenerator:
         for i, num_stas in enumerate(ap_vector):
             self.bss[i] = []
             self.aps[i] = [sta_x_pos - sta_sta_distance +  ((num_stas+1) * sta_sta_distance)/2 , 0 ,0]
-            print(self.aps[i])
             sta_x_pos += num_stas * sta_sta_distance 
             for _ in range(0,num_stas):
                 self.stas[sta_id] = [sta_id*sta_sta_distance, sta_ap_distance, 0]

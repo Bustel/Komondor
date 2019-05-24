@@ -38,7 +38,7 @@ class SimConfig:
         with open(self.out_fname, 'w') as configfile:
             self.config.write(configfile)
 
-        print('Exported cfg file to: %s' % self.out_fname)
+#        print('Exported cfg file to: %s' % self.out_fname)
 
     def create_system(self, d11p):
         self.config['System'] = {
