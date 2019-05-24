@@ -6,4 +6,4 @@
 2. Source virtual python environment: `source .env/bin/activate`
 3. Install requirements: `pip3 install -r requirements.txt`
 
-Now you can run the telegraph simulator: `./all.sh`
+Now you can run the telegraph simulator: `python telegraph_gen.py`
