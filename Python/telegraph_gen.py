@@ -31,7 +31,11 @@ def sim_worker( tupel_num_param_comb, sta_ap_distances, ap_vector):
         sc.create(param_comb, tg)
 
         # execute komondor simulator
-        res_fname = 'res/telegraph_statistics_' + str(channel_cfg) + '.cfg'
+       # res_fname = 'res/telegraph_statistics_' + str(channel_cfg) + '.cfg'
+        res_fname = 'res/telegraph_statistics_{:d}_{:d}m.cfg'.format(channel_cfg,
+                                                         sta_ap_distance)
+
+
         sim = Komondor(cfg_fname, res_fname, sim_time=sim_time)
         sim.run()
 
@@ -104,7 +108,7 @@ if __name__ == "__main__":
                                              dcb_modes=[1]))
 
     #SHORTEN FOR DEBUG
-    param_combinations = param_combinations[0:len(param_combinations)//5]
+    param_combinations = param_combinations[0:len(param_combinations)//100]
 
     print('Generated {0} parameter combinations.'.format(len(param_combinations)))
     bar = Bar('Simulating combinations', max=len(param_combinations))
