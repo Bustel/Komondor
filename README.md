@@ -76,6 +76,13 @@ The new inputs are described next:
 * ```FLAG_SAVE_AGENT_LOGS``` :flag to indicate whether to save the agent logs into separate files (1) or not (0). If this flag is activated, one file per agent will be created.
 * ```FLAG_PRINT_AGENT_LOGS```: flag to indicate whether to print the agent logs (1) or not (0). 
 
+### Build using Cmake
+
+```
+$ cmake .
+$ make
+```
+
 # Input files
 
 There are two types of input files that are required for basic Komondor's execution. These files are located at the "input" folder, and which allow to configure system and nodes parameters, respectively:
