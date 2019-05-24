@@ -608,6 +608,8 @@ void Node :: Start(){
         node_logger.save_logs = save_node_logs;
         node_logger.file = output_log_file;
         node_logger.SetVoidHeadString();
+    }else{
+	node_logger.file = NULL;
     }
 
     LOGS(node_logger.file,"%.18f;N%d;S%d;%s;%s Start()\n",
