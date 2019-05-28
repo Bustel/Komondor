@@ -4,15 +4,29 @@
 #include <macros.h>
 #include <cstdio>
 
+const int LOG_LVL_DEBUG = 0;
+const int LOG_LVL_INFO = 10;
+const int LOG_LVL_WARN = 20;
+const int LOG_LVL_ERROR = 30;
+
 struct Logger
 {
-	int save_logs;		// Flag for activating the log writting
-	FILE *file;			// File for writting logs
-	char head_string[INTEGER_SIZE];	// Header string (to be passed as argument when it is needed to write info from other class or component)
+	FILE* file;			// File for writting logs
+	int lvl;
+	const char* prefix;
 
-	void SetVoidHeadString();
-	// TODO: create 'getter' methods
+	void init(int lvl, FILE* file, const char* prefix); 	
+	void log(int l, const char* format_key, ...);
+    void v_log(int l, const char* format_key, va_list args);
+
+    void debug(const char* format_key, ...);
+    void info(const char* format_key, ...);
+    void warn(const char* format_key, ...);
+    void error(const char* format_key, ...);
+
 };
+
+
 
 
 #endif

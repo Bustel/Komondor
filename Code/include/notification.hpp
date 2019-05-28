@@ -1,6 +1,7 @@
 #ifndef NOTIFICATION_HPP
 #define NOTIFICATION_HPP
 // Notification specific info (may be not checked by the other nodes)
+#include <node_env.h>
 
 struct TxInfo
 {
@@ -61,7 +62,7 @@ struct Notification
 	// Specific transmission info (may not be checked by the others nodes)
 	TxInfo tx_info;
 
-    int src_node_env; 
+    node_env_type src_node_env; 
 
 	void PrintNotification(void);
 };

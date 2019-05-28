@@ -117,10 +117,7 @@ component Agent : public TypeII{
 		int type_of_reward;				// Type of reward
 		double time_between_requests; 	// Time between two information requests to the AP (for a given measurement)
 
-		// Print/write variables
-		int save_agent_logs;
-		int print_agent_logs;
-		std::string simulation_code;		// Simulation code
+    	std::string simulation_code;		// Simulation code
 
 	// Private items (just for node operation)
 	private:
@@ -141,11 +138,7 @@ component Agent : public TypeII{
 		Configuration new_configuration;
 		Configuration configuration_from_controller;
 
-		// File for writting node logs
-		FILE *output_log_file;				// File for logs in which the agent is involved
-		char own_file_path[32];				// Name of the file for agent logs
-		Logger agent_logger;				// struct containing the attributes needed for writting logs in a file
-		char *header_string;				// Header string for the logger
+    	Logger logger;				// struct containing the attributes needed for writting logs in a file
 
 		MultiArmedBandit mab_agent;
 //		bool not_initialized;				// Boolean to determine whether the learning alg. has been initialized or not
@@ -191,20 +184,7 @@ void Agent :: Setup(){
  * Start()
  */
 void Agent :: Start(){
-
-	// Create agent logs file if required
-	if(save_agent_logs) {
-		// Name agent log file accordingly to the agent_id
-		sprintf(own_file_path,"%s_A%d_%s.txt","../output/logs_output", agent_id, wlan_code.c_str());
-		remove(own_file_path);
-		output_log_file = fopen(own_file_path, "at");
-		agent_logger.save_logs = save_agent_logs;
-		agent_logger.file = output_log_file;
-		agent_logger.SetVoidHeadString();
-	}
-	
-	if(save_agent_logs) fprintf(agent_logger.file,"%.18f;A%d;%s;%s Start()\n",
-		SimTime(), agent_id, LOG_B00, LOG_LVL1);
+    logger.init(LOG_LVL_INFO, NULL, "Agent Logger");	
 
 	if(centralized_flag) {
 		// --- Do nothing ---
@@ -223,15 +203,8 @@ void Agent :: Start(){
  */
 void Agent :: Stop(){
 
-	if(save_agent_logs) fprintf(agent_logger.file, "%.15f;A%d;%s;%s Agent Stop()\n",
+	logger.info( "%.15f;A%d;%s;%s Agent Stop()\n",
 		SimTime(), agent_id, LOG_C00, LOG_LVL1);
-
-	// Print and write node statistics if required
-//	mab_agent.PrintOrWriteAgentStatistics(PRINT_LOG, agent_logger, SimTime());
-//	mab_agent.PrintOrWriteAgentStatistics(WRITE_LOG, agent_logger, SimTime());
-
-	// Close node logs file
-	if(save_agent_logs) fclose(agent_logger.file);
 
 };
 
@@ -247,13 +220,11 @@ void Agent :: Stop(){
  */
 void Agent :: RequestInformationToAp(trigger_t &){
 
-//	printf("%s Agent #%d: Requesting information to AP\n", LOG_LVL1, agent_id);
-	if(save_agent_logs && !centralized_flag) fprintf(agent_logger.file, "----------------------------------------------------------------\n");
 
-	if(save_agent_logs) fprintf(agent_logger.file, "%.15f;A%d;%s;%s RequestInformationToAp() (request #%d)\n",
+    logger.debug( "%.15f;A%d;%s;%s RequestInformationToAp() (request #%d)\n",
 			SimTime(), agent_id, LOG_F00, LOG_LVL1, num_requests);
 
-	if(save_agent_logs) fprintf(agent_logger.file, "%.15f;A%d;%s;%s Requesting information to AP\n",
+	logger.debug("%.15f;A%d;%s;%s Requesting information to AP\n",
 			SimTime(), agent_id, LOG_C00, LOG_LVL2);
 
 	outportRequestInformationToAp();
@@ -271,23 +242,22 @@ void Agent :: RequestInformationToAp(trigger_t &){
 void Agent :: InportReceivingInformationFromAp(Configuration &received_configuration,
 		Performance &received_performance){
 
-//	printf("%s Agent #%d: Message received from the AP\n", LOG_LVL1, agent_id);
 
-	if(save_agent_logs) fprintf(agent_logger.file, "%.15f;A%d;%s;%s InportReceivingInformationFromAp()\n",
+	logger.debug( "%.15f;A%d;%s;%s InportReceivingInformationFromAp()\n",
 			SimTime(), agent_id, LOG_F00, LOG_LVL1);
 
-	if(save_agent_logs) fprintf(agent_logger.file, "%.15f;A%d;%s;%s New information has been received from the AP\n",
+	logger.debug( "%.15f;A%d;%s;%s New information has been received from the AP\n",
 			SimTime(), agent_id, LOG_C00, LOG_LVL2);
 
 	configuration = received_configuration;
 
-	if(save_agent_logs) WriteConfiguration(configuration);
+    WriteConfiguration(configuration);
 
 	performance = received_performance;
 
 	if (centralized_flag) {
 		// Forward the information to the controller
-		if(save_agent_logs) fprintf(agent_logger.file, "%.15f;A%d;%s;%s Answering to the controller with current information\n",
+		logger.debug( "%.15f;A%d;%s;%s Answering to the controller with current information\n",
 			SimTime(), agent_id, LOG_F02, LOG_LVL2);
 		outportAnswerToController(configuration, performance, agent_id);
 	} else {
@@ -306,24 +276,24 @@ void Agent :: SendNewConfigurationToAp(Configuration &configuration_to_send){
 
 //	printf("%s Agent #%d: Sending new configuration to AP\n", LOG_LVL1, agent_id);
 
-	if(save_agent_logs) fprintf(agent_logger.file, "%.15f;A%d;%s;%s SendNewConfigurationToAp()\n",
+	logger.debug( "%.15f;A%d;%s;%s SendNewConfigurationToAp()\n",
 			SimTime(), agent_id, LOG_F00, LOG_LVL1);
 
-	if(save_agent_logs) fprintf(agent_logger.file, "%.15f;A%d;%s;%s Sending a new configuration to the AP\n",
+	logger.debug( "%.15f;A%d;%s;%s Sending a new configuration to the AP\n",
 			SimTime(), agent_id, LOG_C00, LOG_LVL2);
 
-	if(save_agent_logs) WriteConfiguration(configuration_to_send);
+    WriteConfiguration(configuration_to_send);
 
 	// TODO (LOW PRIORITY): generate a trigger to simulate delays in the agent-node communication
 	outportSendConfigurationToAp(configuration_to_send);
 
 	// Set trigger for next request in case of being an independent agent (not controlled by a central entity)
 	if (!centralized_flag) {
-		if(save_agent_logs) fprintf(agent_logger.file, "%.15f;A%d;%s;%s Next request to be sent at %f\n",
+		logger.debug( "%.15f;A%d;%s;%s Next request to be sent at %f\n",
 			SimTime(), agent_id, LOG_C00, LOG_LVL2, fix_time_offset(SimTime() + time_between_requests,13,12));
 		trigger_request_information_to_ap.Set(fix_time_offset(SimTime() + time_between_requests,13,12));
 	} else {
-		if(save_agent_logs) fprintf(agent_logger.file, "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
+		logger.debug( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
 	}
 
 };
@@ -345,9 +315,9 @@ void Agent :: InportReceivingRequestFromController(int destination_agent_id) {
 
 //		printf("%s Agent #%d: New information request received from the Controller\n", LOG_LVL1, agent_id);
 
-		if(save_agent_logs) fprintf(agent_logger.file, "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
+		logger.debug( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
 
-		if(save_agent_logs) fprintf(agent_logger.file, "%.15f;A%d;%s;%s New information request received from the Controller for Agent %d\n",
+		logger.debug( "%.15f;A%d;%s;%s New information request received from the Controller for Agent %d\n",
 			SimTime(), agent_id, LOG_F02, LOG_LVL2, destination_agent_id);
 
 		/* Once the CC requests to retrieve information from the AP, a trigger is set, which determines
@@ -370,7 +340,7 @@ void Agent :: InportReceiveConfigurationFromController(int destination_agent_id,
 
 	if(agent_id == destination_agent_id) {
 
-		if(save_agent_logs) fprintf(agent_logger.file, "%.15f;A%d;%s;%s New configuration received from the Controller to Agent %d\n",
+		logger.debug( "%.15f;A%d;%s;%s New configuration received from the Controller to Agent %d\n",
 			SimTime(), agent_id, LOG_F02, LOG_LVL2, destination_agent_id);
 
 		// Update the received configuration
@@ -394,7 +364,7 @@ void Agent :: InportReceiveConfigurationFromController(int destination_agent_id,
  */
 void Agent :: ComputeNewConfiguration(){
 
-	if(save_agent_logs) fprintf(agent_logger.file, "%.15f;A%d;%s;%s ComputeNewConfiguration()\n",
+	logger.debug( "%.15f;A%d;%s;%s ComputeNewConfiguration()\n",
 			SimTime(), agent_id, LOG_F00, LOG_LVL1);
 
 	// Update the current configuration according to the selected learning method
@@ -406,13 +376,13 @@ void Agent :: ComputeNewConfiguration(){
 		case MULTI_ARMED_BANDITS:{
 
 			// Update the configuration according to the MABs operation
-			new_configuration = mab_agent.UpdateConfiguration(configuration, performance, agent_logger, SimTime());
+			new_configuration = mab_agent.UpdateConfiguration(configuration, performance, logger, SimTime());
 			break;
 
 		}
 
 		default:{
-			printf("ERROR: %d is not a correct learning mechanism\n", learning_mechanism);
+			logger.error("ERROR: %d is not a correct learning mechanism\n", learning_mechanism);
 			exit(EXIT_FAILURE);
 			break;
 		}
@@ -435,7 +405,6 @@ void Agent :: ComputeNewConfiguration(){
  */
 void Agent :: InitializeAgent() {
 
-	//printf("Agent #%d says: I'm alive!\n", agent_id);
 
 	num_requests = 0;
 
@@ -461,7 +430,7 @@ void Agent :: InitializeLearningAlgorithm() {
 
 	if (centralized_flag) { // Learning operation managed by the CC
 
-		fprintf(stderr, "%s Agent %d: Learning operation managed by the CC\n", LOG_LVL5, agent_id);
+		logger.info( "%s Agent %d: Learning operation managed by the CC\n", LOG_LVL5, agent_id);
 
 	} else  { // Learning operation managed by the agent
 
@@ -473,8 +442,8 @@ void Agent :: InitializeLearningAlgorithm() {
 			case MULTI_ARMED_BANDITS:{
 
 				mab_agent.agent_id = agent_id;
-				mab_agent.save_agent_logs = save_agent_logs;
-				mab_agent.print_agent_logs = print_agent_logs;
+				mab_agent.save_agent_logs = 0;
+				mab_agent.print_agent_logs = 0;
 
 				mab_agent.selected_strategy = selected_strategy;
 
@@ -501,7 +470,7 @@ void Agent :: InitializeLearningAlgorithm() {
 			// ...
 
 			default:{
-				printf("ERROR: %d is not a correct learning mechanism\n", learning_mechanism);
+				logger.error("ERROR: %d is not a correct learning mechanism\n", learning_mechanism);
 				exit(EXIT_FAILURE);
 				break;
 			}
@@ -522,43 +491,40 @@ void Agent :: InitializeLearningAlgorithm() {
  */
 void Agent :: PrintAgentInfo(){
 
-	fprintf(stderr, "%s Agent %d info:\n", LOG_LVL3, agent_id);
-	fprintf(stderr, "%s wlan_code = %s\n", LOG_LVL4, wlan_code.c_str());
-	fprintf(stderr, "%s centralized_flag = %d\n", LOG_LVL4, centralized_flag);
-	fprintf(stderr, "%s time_between_requests = %f\n", LOG_LVL4, time_between_requests);
-	fprintf(stderr, "%s type_of_reward = %d\n", LOG_LVL4, type_of_reward);
-	fprintf(stderr, "%s initial_reward = %f\n", LOG_LVL4, initial_reward);
-	fprintf(stderr, "%s list_of_channels: ", LOG_LVL4);
+	logger.info( "%s Agent %d info:\n", LOG_LVL3, agent_id);
+	logger.info( "%s wlan_code = %s\n", LOG_LVL4, wlan_code.c_str());
+	logger.info( "%s centralized_flag = %d\n", LOG_LVL4, centralized_flag);
+	logger.info( "%s time_between_requests = %f\n", LOG_LVL4, time_between_requests);
+	logger.info( "%s type_of_reward = %d\n", LOG_LVL4, type_of_reward);
+	logger.info( "%s initial_reward = %f\n", LOG_LVL4, initial_reward);
+	logger.info( "%s list_of_channels: ", LOG_LVL4);
 	for (int i = 0; i < num_actions_channel; ++i) {
-		fprintf(stderr, "%d  ", list_of_channels[i]);
+		logger.info( "%d  ", list_of_channels[i]);
 	}
-	fprintf(stderr, "\n");
+	logger.info( "\n");
 
-	fprintf(stderr, "%s list_of_cca_values: ", LOG_LVL4);
+	logger.info( "%s list_of_cca_values: ", LOG_LVL4);
 	for (int i = 0; i < num_actions_cca; ++i) {
-		fprintf(stderr, "%f pW (%f dBm)  ", list_of_cca_values[i], ConvertPower(PW_TO_DBM, list_of_cca_values[i]));
+		logger.info( "%f pW (%f dBm)  ", list_of_cca_values[i], ConvertPower(PW_TO_DBM, list_of_cca_values[i]));
 	}
-	fprintf(stderr, "\n");
+	logger.info( "\n");
 
-	fprintf(stderr, "%s list_of_tx_power_values: ", LOG_LVL4);
+	logger.info( "%s list_of_tx_power_values: ", LOG_LVL4);
 	for (int i = 0; i < num_actions_tx_power; ++i) {
-		printf("%f pW (%f dBm)  ", list_of_tx_power_values[i], ConvertPower(PW_TO_DBM, list_of_tx_power_values[i]));
+		logger.info("%f pW (%f dBm)  ", list_of_tx_power_values[i], ConvertPower(PW_TO_DBM, list_of_tx_power_values[i]));
 	}
-	fprintf(stderr, "\n");
+	logger.info( "\n");
 
-    fprintf(stderr, "%s list_of_dcb_policy: ", LOG_LVL4);
+    logger.info( "%s list_of_dcb_policy: ", LOG_LVL4);
 	for (int i = 0; i < num_actions_dcb_policy; ++i) {
-		fprintf(stderr, "%d  ", list_of_dcb_policy[i]);
+		logger.info( "%d  ", list_of_dcb_policy[i]);
 	}
-	fprintf(stderr, "\n");
+	logger.info( "\n");
 
-	fprintf(stderr, "%s learning_mechanism: %d\n", LOG_LVL4, learning_mechanism);
-	fprintf(stderr, "%s selected_strategy: %d\n", LOG_LVL4, selected_strategy);
+	logger.info( "%s learning_mechanism: %d\n", LOG_LVL4, learning_mechanism);
+	logger.info( "%s selected_strategy: %d\n", LOG_LVL4, selected_strategy);
 
-	fprintf(stderr, "%s save_agent_logs: %d\n", LOG_LVL4, save_agent_logs);
-	fprintf(stderr, "%s print_agent_logs: %d\n", LOG_LVL4, print_agent_logs);
-
-	fprintf(stderr, "\n");
+	logger.info( "\n");
 
 }
 
@@ -567,15 +533,15 @@ void Agent :: PrintAgentInfo(){
  */
 void Agent :: WriteConfiguration(Configuration configuration_to_write) {
 
-	fprintf(agent_logger.file, "%.15f;A%d;%s;%s Configuration:\n", SimTime(), agent_id, LOG_C03, LOG_LVL2);
+	logger.debug( "%.15f;A%d;%s;%s Configuration:\n", SimTime(), agent_id, LOG_C03, LOG_LVL2);
 
-	fprintf(agent_logger.file, "%.15f;A%d;%s;%s selected_primary_channel = %d\n", SimTime(), agent_id, LOG_C03, LOG_LVL3,
+	logger.debug( "%.15f;A%d;%s;%s selected_primary_channel = %d\n", SimTime(), agent_id, LOG_C03, LOG_LVL3,
 			configuration_to_write.selected_primary_channel);
-	fprintf(agent_logger.file, "%.15f;A%d;%s;%s selected_cca = %f dBm\n", SimTime(), agent_id, LOG_C03, LOG_LVL3,
+	logger.debug( "%.15f;A%d;%s;%s selected_cca = %f dBm\n", SimTime(), agent_id, LOG_C03, LOG_LVL3,
 			ConvertPower(PW_TO_DBM,configuration_to_write.selected_cca));
-	fprintf(agent_logger.file, "%.15f;A%d;%s;%s selected_tx_power = %f dBm\n", SimTime(), agent_id, LOG_C03, LOG_LVL3,
+	logger.debug( "%.15f;A%d;%s;%s selected_tx_power = %f dBm\n", SimTime(), agent_id, LOG_C03, LOG_LVL3,
 			ConvertPower(PW_TO_DBM,configuration_to_write.selected_tx_power));
-	fprintf(agent_logger.file, "%.15f;A%d;%s;%s selected_dcb_policy = %d\n", SimTime(), agent_id, LOG_C03, LOG_LVL3,
+	logger.debug( "%.15f;A%d;%s;%s selected_dcb_policy = %d\n", SimTime(), agent_id, LOG_C03, LOG_LVL3,
 			configuration_to_write.selected_dcb_policy);
 
 }

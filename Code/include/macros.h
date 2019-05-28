@@ -63,10 +63,10 @@
 
 // Log hierarchy level to make output log file more readable
 #define LOG_LVL1	""
-#define LOG_LVL2	"  -"
-#define LOG_LVL3	"    ·"
-#define LOG_LVL4	"       +"
-#define LOG_LVL5	"          *"
+#define LOG_LVL2	""
+#define LOG_LVL3	""
+#define LOG_LVL4	""
+#define LOG_LVL5	""
 
 // Node states
 #define STATE_UNKNOWN	-1	// Unknown state (e.g. at the beginning of the simulation)

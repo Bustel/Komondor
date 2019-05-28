@@ -150,7 +150,8 @@ if __name__ == "__main__":
         combined_results = async_res.get()
         bar.finish()
         print('Simulations completed. Processing results.')
-        
+
+    
 
         mean_fairness = pool.map(mean_janes_fairness,combined_results)
         mean_min_flow_rates = pool.map(mean_min_flow_rate, combined_results)

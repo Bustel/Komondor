@@ -64,6 +64,7 @@
 LogicalNack GenerateLogicalNack(int packet_type, int packet_id, int node_id,
 		int node_id_a, int node_id_b, int loss_reason, double ber, double sinr){
 
+    //FIXME Stack allocation???
 	LogicalNack logical_nack;
 
 	logical_nack.packet_type = packet_type;
@@ -394,6 +395,8 @@ TxInfo GenerateTxInfo(int num_packets_aggregated, double data_duration,	double a
 		double rts_duration, double cts_duration, double current_tpc, int num_channels_tx,
 		double tx_gain,	int bits_ofdm_sym, double x, double y, double z) {
 
+
+    //FIXME Stack allocation??
 	TxInfo tx_info;
 	tx_info.SetSizeOfMCS(4);	// TODO: make size dynamic
 
@@ -403,6 +406,11 @@ TxInfo GenerateTxInfo(int num_packets_aggregated, double data_duration,	double a
 	tx_info.ack_duration = ack_duration;
 	tx_info.rts_duration = rts_duration;
 	tx_info.cts_duration = cts_duration;
+   
+    //FIXME Is that correct?
+    //What does this represent?
+    tx_info.preoccupancy_duration = 0.0;
+
 	tx_info.tx_power = ComputeTxPowerPerChannel(current_tpc, num_channels_tx);
 	tx_info.tx_gain = tx_gain;
 	tx_info.bits_ofdm_sym = bits_ofdm_sym;

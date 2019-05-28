@@ -18,31 +18,6 @@ struct Wlan
 	 */
 	void SetSizeOfSTAsArray(int num_stas);
 
-	/*
-	 * PrintStaIds(): prints the list of STAs IDs belonging to the WLAN
-	 */
-	void PrintStaIds();
-
-	/*
-	 * WriteStaIds(): writes STAs list of IDs in a given file
-	 * Input arguments:
-	 * - logger: logger containing the file to write on
-	 */
-	void WriteStaIds(Logger logger);
-
-	/*
-	 * PrintWlanInfo(): prints general WLAN info
-	 */
-	void PrintWlanInfo();
-
-	/*
-	 * WriteWlanInfo(): writes general WLAN info in a given file
-	 * Input arguments:
-	 * - logger: logger containing the file to write on
-	 * - header_string: header string
-	 */
-	void WriteWlanInfo(Logger logger, std::string header_str);
-
 };
 
 

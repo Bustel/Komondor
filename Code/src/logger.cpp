@@ -45,9 +45,68 @@
  *
  * - This file defines a LOGGER to generate logs
  */
-#include "logger.hpp"
+#include <logger.hpp>
 
-void Logger::SetVoidHeadString(){
-		sprintf(head_string, "%s", " ");
+#include <glib.h>
+#include <glib/gprintf.h>
+
+void Logger::init(int l, FILE* f, const char* p){
+	this->lvl = l;
+	this->file = (f != NULL) ? f : stderr;
+	this->prefix =  (p != NULL) ? g_strdup(p) : "";
 }
+
+void Logger::log(int l, const char* format_key, ...){
+    va_list args;
+    va_start(args, format_key);
+
+    this->v_log(l, format_key, args);
+}
+
+void Logger::v_log(int l, const char* format_key, va_list args){
+    if (this->lvl > l){
+        return;
+    } 
+
+    gchar* text = g_strdup_vprintf(format_key, args);	
+    gchar* expanded = g_strdup_printf("%s: %s",this->prefix, text);
+    g_fprintf(this->file, expanded);
+    
+    g_free(expanded);
+    g_free(text);
+
+}
+
+void Logger::debug(const char* format_key, ...){
+    va_list args;
+    va_start(args, format_key);
+    this->v_log(LOG_LVL_DEBUG, format_key, args);
+}
+
+
+void Logger::info(const char* format_key, ...){
+    va_list args;
+    va_start(args, format_key);
+    this->v_log(LOG_LVL_INFO, format_key, args);
+}
+
+void Logger::warn(const char* format_key, ...){
+    va_list args;
+    va_start(args, format_key);
+    this->v_log(LOG_LVL_WARN, format_key, args);
+}
+
+void Logger::error(const char* format_key, ...){
+    va_list args;
+    va_start(args, format_key);
+    this->v_log(LOG_LVL_ERROR, format_key, args);
+}
+
+
+
+
+
+
+
+
 
