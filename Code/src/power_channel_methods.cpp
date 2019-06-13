@@ -51,6 +51,8 @@
 #include <iostream>
 #include <cstdio>
 #include <cassert>
+#include <cstring>
+#include <cstdlib>
 
 #include <glib.h>
 
