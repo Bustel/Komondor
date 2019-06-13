@@ -81,7 +81,6 @@
 #include <glib/gprintf.h>
 
 int total_nodes_number;         // Total number of nodes
-char* tmp_nodes;
 
 /* Sequential simulation engine from where the system to be simulated is derived. */
 component Komondor : public CostSimEng {
@@ -108,7 +107,6 @@ component Komondor : public CostSimEng {
         void GenerateCentralController(const char *agents_filename);
 
         int GetNumOfLines(const char *nodes_filename);
-        int GetNumOfNodes(const char *nodes_filename, int node_type, std::string wlan_code);
 
         void PrintAllNodesInfo(int info_detail_level);
         void PrintAllWlansInfo();
@@ -170,10 +168,7 @@ component Komondor : public CostSimEng {
         int num_actions_tx_power;
         int num_actions_dcb_policy;
 
-        double *actions_cca;
-        double *actions_tx_power;
-
-        // Central controller info
+       // Central controller info
         CentralController[] central_controller;
 
     // Private items
@@ -650,12 +645,12 @@ void Komondor :: SetupEnvironmentByReadingInputFile(const char *system_filename)
     num_channels_komondor = val_int;
 
     key = "basic_channel_bandwidth";
-    val_int = g_key_file_get_integer(key_file, "System",key, &error);
+    gdouble val_d = g_key_file_get_double(key_file, "System",key, &error);
     if (error != NULL){
         printf("Unable to parse %s parameter in config file!\n", key);
         exit(-1);
     }
-    basic_channel_bandwidth = val_int;
+    basic_channel_bandwidth = val_d;
 
     key = "pdf_backoff";
     val_int = g_key_file_get_integer(key_file, "System",key, &error);
@@ -853,7 +848,7 @@ void Komondor :: GenerateAgents(const char *agents_filename) {
 
         } else{
 
-            char* tmp_agents = strdup(line_agents);
+            char* tmp_agents;
 
             // Find the length of the channel actions array
             tmp_agents = strdup(line_agents);
@@ -1318,14 +1313,14 @@ void Komondor :: ParseNodes(const char* nodes_filename){
         }
 
         key = "tx_antenna_gain";
-        gint tx_gain_db = g_key_file_get_integer(keyfile, g, key, &error);
+        gdouble tx_gain_db = g_key_file_get_double(keyfile, g, key, &error);
         if (error != NULL){
             logger.error("Error parsing key %s of node %s in configuration file!\n", key, g);
             exit(-1); 
         }
 
         key = "rx_antenna_gain";
-        gint rx_gain_db = g_key_file_get_integer(keyfile, g, key, &error);
+        gdouble rx_gain_db = g_key_file_get_double(keyfile, g, key, &error);
         if (error != NULL){
             logger.error("Error parsing key %s of node %s in configuration file!\n", key, g);
             exit(-1); 
@@ -1537,8 +1532,8 @@ void Komondor :: ParseNodes(const char* nodes_filename){
         node_container[i].capture_effect_model = capture_effect_model;
         node_container[i].simulation_code = simulation_code;
 
-        if (n->type = NODE_TYPE_AP){
-            node_container[i].logger.init(LOG_LVL_WARN, NULL, n->code);
+        if (n->type == NODE_TYPE_AP){
+            node_container[i].logger.init(LOG_LVL_INFO, NULL, n->code);
         } else {
             node_container[i].logger.init(LOG_LVL_WARN, NULL, n->code);
         }
@@ -1749,8 +1744,8 @@ int main(int argc, char *argv[]){
     }
 
 
-    int agents_enabled = 1 ? agents != NULL : 0;
- 
+    int agents_enabled = agents != NULL ? 1 : 0;
+
 
     total_nodes_number = 0;
 
@@ -1762,7 +1757,7 @@ int main(int argc, char *argv[]){
     test.Setup(sim_time, config[0], simulation_code, seed, agents_enabled, agents, stats);
 
     logger.info("------------------------------------------\n");
-    logger.info("%s SIMULATION '%s' STARTED\n", LOG_LVL1, simulation_code);
+    logger.debug("%s SIMULATION '%s' STARTED\n", LOG_LVL1, simulation_code);
 
     test.Run();
 

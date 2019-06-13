@@ -62,7 +62,6 @@
 
 #include <power_channel_methods.hpp>
 
-#define    LOGS(f,...)    if (f!=NULL){fprintf(f, ##__VA_ARGS__);}
 
 /***********************/
 /***********************/
@@ -294,7 +293,7 @@ double ComputePowerReceived(double distance, double tx_power, double tx_gain, do
 	  double h_STA (1.5);   // Height of the STA in m
 
 	  /*
-	  * TODO: calculate the proability for LOS and NLOS
+	  * TODO: calculate the probability for LOS and NLOS
 	  */
       bool isLOS = true;
 
@@ -396,7 +395,7 @@ double ComputePowerReceived(double distance, double tx_power, double tx_gain, do
 double ComputeTxPowerPerChannel(double current_tpc, int num_channels_tx){
 
 	double tx_power_per_channel (current_tpc);
-	int num_channels_tx_ix (log2(num_channels_tx));
+	int num_channels_tx_ix = int (log2(num_channels_tx));
 	for (int num_ch_ix = 0; num_ch_ix < num_channels_tx_ix; ++num_ch_ix){
 		// P_tx issue #113
 		tx_power_per_channel =  tx_power_per_channel/2;	// Half the power
@@ -634,7 +633,9 @@ void UpdateChannelsPower(double **channel_power, Notification notification,
 				break;
 			}
 
-			default:{}
+			default:{
+			    g_assert(false);
+			}
 		}
 
 	}
@@ -1096,123 +1097,4 @@ void UpdateTimestamptChannelFreeAgain(double *timestampt_channel_becomes_free, d
 	}
 }
 
-/**********************/
-/**********************/
-/* PRINTING FUNCTIONS */
-/**********************/
-/**********************/
 
-/*
- * PrintOrWriteChannelPower: prints (or writes) the channel_power array representing the power sensed by
- * the node in each subchannel.
- */
-void PrintOrWriteChannelPower(int write_or_print, int save_node_logs, Logger node_logger,
-	int print_node_logs, double **channel_power, int num_channels_komondor){
-
-	switch(write_or_print){
-		case PRINT_LOG:{
-			if(print_node_logs){
-				printf("channel_power [dBm]: ");
-				for(int c = 0; c < num_channels_komondor; ++c){
-					printf("%f  ", ConvertPower(PW_TO_DBM, (*channel_power)[c]));
-				}
-				printf("\n");
-			}
-			break;
-		}
-		case WRITE_LOG:{
-			for(int c = 0; c < num_channels_komondor; ++c){
-				if(save_node_logs) LOGS(node_logger.file, "%f  ", ConvertPower(PW_TO_DBM, (*channel_power)[c]));
-			}
-			if(save_node_logs)  LOGS(node_logger.file, "\n");
-			break;
-		}
-	}
-}
-
-/*
- * printOrWriteChannelsFree: prints (or writes) the channels_free array representing the channels that are free.
- */
-void PrintOrWriteChannelsFree(int write_or_print,
-		int save_node_logs, int print_node_logs, Logger node_logger,
-		int num_channels_komondor, int *channels_free){
-
-	switch(write_or_print){
-		case PRINT_LOG:{
-			if(print_node_logs){
-				printf("channels_free: ");
-				for(int c = 0; c < num_channels_komondor; ++c){
-					printf("%d  ", channels_free[c]);
-				}
-				printf("\n");
-			}
-			break;
-		}
-		case WRITE_LOG:{
-			for(int c = 0; c < num_channels_komondor; ++c){
-				 if(save_node_logs) LOGS(node_logger.file, "%d ", channels_free[c]);
-			}
-			if(save_node_logs)  LOGS(node_logger.file, "\n");
-			break;
-		}
-	}
-}
-
-/*
- * printOrWriteNodesTransmitting: prints (or writes) the array representing the transmitting nodes.
- */
-void PrintOrWriteNodesTransmitting(int write_or_print,
-		int save_node_logs, int print_node_logs, Logger node_logger, int total_nodes_number,
-		int *nodes_transmitting){
-
-	switch(write_or_print){
-		case PRINT_LOG:{
-			if(print_node_logs){
-				printf("Nodes transmitting: ");
-				for(int n = 0; n < total_nodes_number; ++n){
-					if(nodes_transmitting[n] == TRUE) printf("%d  ", nodes_transmitting[n]);
-				}
-				printf("\n");
-			}
-			break;
-		}
-		case WRITE_LOG:{
-			for(int n = 0; n < total_nodes_number; ++n){
-				 if(save_node_logs){
-					 if(nodes_transmitting[n])  LOGS(node_logger.file, "N%d ", n);
-				 }
-			}
-			if(save_node_logs)  LOGS(node_logger.file, "\n");
-			break;
-		}
-	}
-}
-
-
-/*
- * printOrWriteChannelForTx: prints (or writes) the channels_for_tx array representing the channels used for TX
- */
-void PrintOrWriteChannelForTx(int write_or_print,
-		int save_node_logs, int print_node_logs, Logger node_logger,
-		int num_channels_komondor, int *channels_for_tx){
-
-	switch(write_or_print){
-		case PRINT_LOG:{
-			if(print_node_logs){
-				printf("channels_for_tx: ");
-				for(int c = 0; c < num_channels_komondor; ++c){
-					printf("%d  ", channels_for_tx[c]);
-				}
-				printf("\n");
-			}
-			break;
-		}
-		case WRITE_LOG:{
-			for(int c = 0; c < num_channels_komondor; ++c){
-				 if(save_node_logs)  LOGS(node_logger.file, "%d  ", channels_for_tx[c]);
-			}
-			if(save_node_logs)  LOGS(node_logger.file, "\n");
-			break;
-		}
-	}
-}

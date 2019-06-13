@@ -47,6 +47,7 @@
  */
 
 #include <cmath>
+#include <cassert>
 #include "modulations.hpp"
 
 // THIS IS DEPRECATED
@@ -128,6 +129,9 @@ int getNumberSubcarriers(int num_channels){
 			num_subcarriers = 1960;
 			break;
 		}
+
+		default:
+			assert(false);
 
 	}
 

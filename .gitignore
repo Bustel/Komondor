@@ -31,6 +31,8 @@
 # Komondor
 *.cxx
 Code/build/*
+Code/cmake-build-debug
+Code/.idea/*
 Code/COST/compc++/lex.yy.cc
 *.txt~
 *.csv~

@@ -99,32 +99,5 @@ void UpdateTimestamptChannelFreeAgain(double *timestampt_channel_becomes_free, d
 /**********************/
 /**********************/
 
-/*
- * PrintOrWriteChannelPower: prints (or writes) the channel_power array representing the power sensed by
- * the node in each subchannel.
- */
-void PrintOrWriteChannelPower(int write_or_print, int save_node_logs, Logger node_logger,
-	int print_node_logs, double **channel_power, int num_channels_komondor);
 
-/*
- * printOrWriteChannelsFree: prints (or writes) the channels_free array representing the channels that are free.
- */
-void PrintOrWriteChannelsFree(int write_or_print,
-		int save_node_logs, int print_node_logs, Logger node_logger,
-		int num_channels_komondor, int *channels_free);
-
-/*
- * printOrWriteNodesTransmitting: prints (or writes) the array representing the transmitting nodes.
- */
-void PrintOrWriteNodesTransmitting(int write_or_print,
-		int save_node_logs, int print_node_logs, Logger node_logger, int total_nodes_number,
-		int *nodes_transmitting);
-
-
-/*
- * printOrWriteChannelForTx: prints (or writes) the channels_for_tx array representing the channels used for TX
- */
-void PrintOrWriteChannelForTx(int write_or_print,
-		int save_node_logs, int print_node_logs, Logger node_logger,
-		int num_channels_komondor, int *channels_for_tx);
 #endif 

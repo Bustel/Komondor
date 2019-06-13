@@ -1,7 +1,6 @@
 /*  -*- c-basic-offset:4; tab-width:4; indent-tabs-mode:t -*- */
 %x incl
 %option noyywrap
-
 %{
 
 #define YY_NO_UNPUT

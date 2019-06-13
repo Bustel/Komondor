@@ -93,6 +93,7 @@ double ComputeBackoff(int pdf_backoff, int cw, int backoff_type){
 
 		default:{
 			printf("Backoff model not found!\n");
+			g_assert(false);
 			break;
 		}
 	}
@@ -112,7 +113,7 @@ double ComputeRemainingBackoff(int backoff_type, double remaining_backoff){
 	switch(backoff_type){
 
 		case BACKOFF_SLOTTED: {
-			int closest_slot (round(remaining_backoff / SLOT_TIME));
+			int closest_slot = (int) (round(remaining_backoff / SLOT_TIME));
 //			printf("- closest_slot = %d\n", closest_slot);
 			if(fabs(remaining_backoff - closest_slot * SLOT_TIME) < MAX_DIFFERENCE_SAME_TIME){
 				updated_remaining_backoff = closest_slot * SLOT_TIME;
@@ -130,7 +131,6 @@ double ComputeRemainingBackoff(int backoff_type, double remaining_backoff){
 		default:{
 			printf("Backoff type not found!\n");
 			exit(EXIT_FAILURE);
-			break;
 		}
 
 	}
@@ -186,7 +186,7 @@ void HandleContentionWindow(int cw_adaptation, int increase_or_reset, int* cw_cu
 			case INCREASE_CW:{
 				if(*cw_stage_current < cw_stage_max){
 					*cw_stage_current = *cw_stage_current + 1;
-					*cw_current = cw_min * pow(2, *cw_stage_current);
+					*cw_current = (int) (cw_min * pow(2, *cw_stage_current));
 				}
 				break;
 			}

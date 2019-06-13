@@ -1,8 +1,7 @@
 cmake_minimum_required (VERSION 3.0)
 project(Komondor)
 set(CMAKE_BUILD_TYPE Debug)
-# set(CMAKE_CXX_FLAGS "-D_GLIBCXX_USE_CXX11_ABI=0")
-
+#set(CMAKE_CXX_FLAGS "-D_GLIBCXX_USE_CXX11_ABI=0")
 
 set(COST_PATH ${PROJECT_SOURCE_DIR}/COST/compc++)
 

@@ -70,7 +70,7 @@ void Logger::v_log(int l, const char* format_key, va_list args){
 
     gchar* text = g_strdup_vprintf(format_key, args);	
     gchar* expanded = g_strdup_printf("%s: %s",this->prefix, text);
-    g_fprintf(this->file, expanded);
+    g_fprintf(this->file,"%s", expanded);
     
     g_free(expanded);
     g_free(text);

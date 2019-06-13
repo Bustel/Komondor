@@ -210,7 +210,7 @@ double round_to_digits_float(float value, int digits)
     if (value == 0.0) // otherwise it will return 'nan' due to the log10() of zero
         return 0.0;
     // denominator
-    float factor (pow(10.0, digits));
+    float factor = float (pow(10.0, digits));
     float rounded_numerator (round(value * factor));
     float rounded_value (rounded_numerator / factor);
 //    printf("%.24f - %.24f - %.24f\n", value, rounded_numerator, rounded_value);
