@@ -48,4 +48,6 @@ target_include_directories(komondor_main PRIVATE ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(komondor_main PRIVATE ${GLIB_INCLUDE_DIRS})
 target_link_libraries(komondor_main ${GLIB_LIBRARIES})
 
+install (TARGETS komondor_main DESTINATION bin)
+
 
