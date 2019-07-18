@@ -225,7 +225,7 @@ double ComputePowerReceived(double distance, double tx_power, double tx_gain, do
 	  double LFS (32.4 + 20*log10(2.4*pow(10,3))+ 20*log10(distance/1000));
 	  int d_BP (10);    // Break-point distance (m)
 	  if (distance >= d_BP) {
-		loss = LFS + 35*log10(distance/d_BP) + 18.3*pow(n_floors,((n_floors+2)/(n_floors+1)) - 0.46) + L_iw*n_walls;
+		loss = LFS + 35*log10(distance/d_BP) + 18.3*pow(n_floors,((n_floors+2.0)/(n_floors+1.0)) - 0.46) + L_iw*n_walls;
 	  } else {
 		loss = LFS;
 	  }

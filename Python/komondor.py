@@ -2,10 +2,11 @@ import subprocess
 import sys
 import os
 
-'''
-    Wrapper for Komondor simulator
-'''
+
 class Komondor:
+    """
+    Wrapper for Komondor simulator
+    """
 
     def __init__(self, cfg_fname, res_fname, sim_time=100, debug=False):
         self.cfg_fname = cfg_fname
@@ -39,3 +40,12 @@ class Komondor:
             if self.debug:
                 print(stderr)
             pass
+
+
+class KomondorSimResult:
+
+    def __init__(self):
+        pass
+
+    def visualize(self):
+        pass

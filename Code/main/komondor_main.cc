@@ -525,6 +525,11 @@ void Komondor :: Stop(){
 
     if (stats_out != NULL){
         g_key_file_save_to_file(kf, stats_out , &error); 
+    } else {
+        gsize len;
+        gchar* kf_str = g_key_file_to_data(kf, &len, NULL);
+        fprintf(stdout,"%s", kf_str);
+        g_free(kf_str);
     }
     g_key_file_free(kf);
 
@@ -532,7 +537,6 @@ void Komondor :: Stop(){
         logger.warn("Error saving statistics: %s\n", error->message);
         //exit(1);
     }
-
     logger.info("%s SIMULATION '%s' FINISHED\n", LOG_LVL1, simulation_code.c_str());
 
 };

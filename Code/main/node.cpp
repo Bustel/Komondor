@@ -1376,7 +1376,7 @@ void Node :: InportSomeNodeStartTX(Notification &notification){
                                             time_to_trigger = SimTime() + MAX_DIFFERENCE_SAME_TIME;
                                             trigger_NAV_timeout.Set(fix_time_offset(time_to_trigger,13,12));
                                         } else {
-                                            fprintf(stderr, "ALARM! Should not happen in downlink traffic\n");
+                                            logger.error("ALARM! Should not happen in downlink traffic\n");
                                         }
                                     }
                                     if(nack_activated){

@@ -52,9 +52,13 @@
 #include <stddef.h>
 #include <iostream>
 #include <stdlib.h>
+#include <glib.h>
 
-#include "macros.h"
-#include "auxiliary_methods.hpp"
+#include <macros.h>
+#include <auxiliary_methods.hpp>
+#include <logger.hpp>
+
+
 
 // Agent component: "TypeII" represents components that are aware of the existence of the simulated time.
 component TrafficGenerator : public TypeII{
@@ -81,6 +85,7 @@ component TrafficGenerator : public TypeII{
 		// Burst traffic
 		double burst_rate;				// Average time between two packet generation bursts [bursts/s]
 		int num_bursts;					// Total number of bursts occurred in the simulation
+		Logger logger;
 
 	// Private items (just for node operation)
 	private:
@@ -112,9 +117,12 @@ void TrafficGenerator :: Setup(){
  * Start()
  */
 void TrafficGenerator :: Start(){
-
+    gchar* prefix = g_strdup_printf("TrafficGenerator (Node %d)", node_id);
+    logger.init(LOG_LVL_WARN,stderr, prefix);
+    g_free(prefix);
 	if (node_type == NODE_TYPE_AP) { // TODO: modify this condition in order to include "transmitters", not APs
 		InitializeTrafficGenerator();
+		logger.error("Initialized\n");
 	}
 
 };
@@ -146,7 +154,9 @@ void TrafficGenerator :: GenerateTraffic() {
 		// - Full buffer is still to be implemented.
 		// - To simulate it, just use Poisson traffic with large traffic loads.
 		case TRAFFIC_FULL_BUFFER:{
-			if(node_id == 0) printf("WARNING: FULL BUFFER NOT IMPLEMENTED! SIMULATE IT: just use Poisson traffic with large traffic loads\n");
+			if(node_id == 0){
+			  logger.warn("BUFFER NOT IMPLEMENTED! SIMULATE IT: just use Poisson traffic with large traffic loads\n");
+			}
 			// Change to Poisson with huge traffic load to simulate saturation
 			traffic_model = TRAFFIC_POISSON;
 			traffic_load = 1000;
@@ -184,15 +194,13 @@ void TrafficGenerator :: GenerateTraffic() {
 			// - Input: traffic load and average time between bursts
 			time_for_next_packet = Exponential(burst_rate/traffic_load);
 			time_to_trigger = SimTime() + time_for_next_packet;
-//			if(save_node_logs) fprintf(node_logger.file, "%.15f;N%d;S%d;%s;%s New generation burst will be triggered in %f ms\n",
-//				SimTime(), node_id, node_state, LOG_F00, LOG_LVL3,
-//				time_for_next_packet * 1000);
+
 			trigger_new_packet_generated.Set(fix_time_offset(time_to_trigger,13,12));
 			break;
 		}
 
 		default:{
-			printf("Wrong traffic model!\n");
+			logger.error("Unknown traffic model!\n");
 			exit(EXIT_FAILURE);
 			break;
 		}
@@ -200,7 +208,6 @@ void TrafficGenerator :: GenerateTraffic() {
 }
 
 void TrafficGenerator :: NewPacketGenerated(trigger_t &){
-//	printf("TG%d NewPacketGenerated!\n", node_id);
 	outportNewPacketGenerated();
 	GenerateTraffic();
 }
@@ -216,5 +223,6 @@ void TrafficGenerator :: InitializeTrafficGenerator() {
 	 */
 	burst_rate = 10;
 	num_bursts = 0;
+
 	GenerateTraffic();
 }
